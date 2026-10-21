@@ -1,5 +1,7 @@
 export const SITE_URL = 'https://chatgpt-slides-prompt-generator.overjoyed-week-dcb.workers.dev';
 export const BRAND_NAME = 'SlidePrompt.ai';
+export const GSC_VERIFICATION_CODE = 'wMz2VDeMwD8R6yiCgJIqFD_wM2wSzrSEauzvCtzKHyw';
+export const GSC_HTML_FILENAME = 'google8c6329c58e485687.html';
 export const RELEASE_DATE_NOTE = 'Updated for ChatGPT Slides (Released Oct 16, 2026) — Supports Canvas Collaboration, PowerPoint (.pptx), PDF & Google Slides Export';
 
 export const STYLE_PRESETS = [

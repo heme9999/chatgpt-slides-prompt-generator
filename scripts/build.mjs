@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 import {
   SITE_URL,
   BRAND_NAME,
+  GSC_VERIFICATION_CODE,
+  GSC_HTML_FILENAME,
   RELEASE_DATE_NOTE,
   STYLE_PRESETS,
   AUDIENCE_OPTIONS,
@@ -546,6 +548,10 @@ function renderDocument({
   <link rel="alternate" hreflang="x-default" href="${SITE_URL}/chatgpt-slides-prompt-generator" />`
     : '';
 
+  const gscMetaTag = GSC_VERIFICATION_CODE
+    ? `\n  <meta name="google-site-verification" content="${escapeHtml(GSC_VERIFICATION_CODE)}" />`
+    : '';
+
   return `<!DOCTYPE html>
 <html lang="${escapeHtml(lang)}">
 <head>
@@ -553,7 +559,7 @@ function renderDocument({
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${escapeHtml(metaTitle)}</title>
   <meta name="description" content="${escapeHtml(metaDesc)}" />
-  <link rel="canonical" href="${escapeHtml(fullCanonical)}" />${hreflangTags}
+  <link rel="canonical" href="${escapeHtml(fullCanonical)}" />${gscMetaTag}${hreflangTags}
 
   <!-- Open Graph / Social Preview -->
   <meta property="og:type" content="website" />
@@ -1140,6 +1146,21 @@ Sitemap: ${SITE_URL}/sitemap.xml
   Referrer-Policy: strict-origin-when-cross-origin
 `;
   fs.writeFileSync(path.join(DIST_DIR, '_headers'), cfHeaders, 'utf8');
+
+  // 10. Google Search Console HTML file verification (both account token files)
+  const gscHtmlFiles = [
+    GSC_HTML_FILENAME,
+    GSC_VERIFICATION_CODE ? `google${GSC_VERIFICATION_CODE}.html` : ''
+  ].filter((f) => f && f.startsWith('google'));
+
+  for (const rawFile of gscHtmlFiles) {
+    const cleanFile = rawFile.endsWith('.html') ? rawFile : `${rawFile}.html`;
+    fs.writeFileSync(
+      path.join(DIST_DIR, cleanFile),
+      `google-site-verification: ${cleanFile}`,
+      'utf8'
+    );
+  }
 
   console.log(`Built ${allUrls.length} static SEO pages into ${DIST_DIR}`);
 }
