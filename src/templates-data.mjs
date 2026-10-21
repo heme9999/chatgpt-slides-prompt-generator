@@ -1,4 +1,4 @@
-export const SITE_URL = 'https://chatgptslidesprompt.pages.dev';
+export const SITE_URL = 'https://chatgptslidesprompt.overjoyed-week-dcb.workers.dev';
 export const BRAND_NAME = 'SlidePrompt.ai';
 export const RELEASE_DATE_NOTE = 'Updated for ChatGPT Slides (Released Oct 16, 2026) — Supports Canvas Collaboration, PowerPoint (.pptx), PDF & Google Slides Export';
 
