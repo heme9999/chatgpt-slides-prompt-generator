@@ -9,14 +9,14 @@ export const UI_STRINGS = {
     navPitch: 'Pitch Deck',
     navSales: 'Sales Deck',
     navPowerpoint: 'Export to PPTX',
-    navTroubleshooting: 'Not Showing Fix',
+    navTroubleshooting: 'Troubleshooting Guide',
     savedLabel: 'Saved',
     // Hero Release Pill
     releasePill:
-      'Updated for ChatGPT Slides (Released Oct 16, 2026) — Supports Canvas Collaboration, PowerPoint (.pptx), PDF & Google Slides Export',
+      'Compatible with ChatGPT Slides — Space Canvas (Create > Slide) & Work Workflows, PowerPoint (.pptx), PDF & Google Slides Export',
     // Form UI
     formLegend: '1. Configure Your ChatGPT Slides Presentation',
-    noApiBadge: '100% Free · No API Key · Instant Copy',
+    noApiBadge: 'Free Prompt Builder · Client-Side Assembly · Instant Copy',
     topicLabel: 'Presentation Topic',
     topicRequired: 'Required',
     topicPlaceholder: 'e.g., Q4 Enterprise AI Workflow Automation Strategy & ROI...',
@@ -64,10 +64,10 @@ export const UI_STRINGS = {
     langLabel: 'Output Language',
     sourceLabel: 'Data Source Context',
     sourceLabels: {
-      chat: { label: 'Current Chat Context', desc: 'Synthesize directly from our conversation history' },
-      file: { label: 'Uploaded File / PDF / Doc', desc: 'Extract structure & metrics from attached files' },
-      outline: { label: 'Pasted Outline / Raw Notes', desc: 'Expand my bullet points into full slides' },
-      research: { label: 'Web Search / Deep Research', desc: 'Gather fresh benchmarks & verify citations' }
+      prompt_only: { label: 'Prompt Only (Topic & Requirements)', desc: 'Synthesize based strictly on configured parameters' },
+      file: { label: 'Attached File / PDF / Doc', desc: 'Instructs ChatGPT to extract metrics from files you attach in chat' },
+      outline: { label: 'Pasted Outline / Raw Notes', desc: 'Instructs ChatGPT to structure slides around notes you paste in chat' },
+      research: { label: 'Web Search / Deep Research', desc: 'Instructs ChatGPT to run web search for fresh benchmarks with citations' }
     },
     optionsLabel: 'Slide Requirements',
     optExec: 'Executive Summary Slide',
@@ -75,22 +75,51 @@ export const UI_STRINGS = {
     optCitations: 'Flag Claims for Verification',
     optNotes: 'Add Speaker Notes',
     outputTitle: '2. Ready-to-Copy ChatGPT Slides Prompt',
+    outputEditNotice:
+      'You can edit directly before copying or downloading. Modifying form controls or loading saved prompts will re-generate and overwrite this text. The storyboard outline reflects form parameters and does not synchronize with manual edits.',
     copyBtn: 'Copy Prompt',
     openBtn: 'Open ChatGPT ↗',
     switchStyleBtn: 'Switch Style',
     downloadBtn: 'Download .TXT',
     saveLocalBtn: 'Save Locally',
+    saveParamsNotice:
+      '💡 Saved items store configured form parameters and re-generate the outline upon loading; manual text edits are not preserved.',
+    promptLanguageNotice:
+      'Prompts use structured English directives to maximize ChatGPT instruction following, specifying your chosen language for all slide content.',
+    deliveryNotice:
+      '1. Click "Copy Prompt" → 2. Click "Open ChatGPT" → 3. In ChatGPT Work or Space (Create > Slide), paste your prompt.',
+    fallbackLinkPrefix: 'Direct link: ',
+    ariaWorkspace: 'ChatGPT Slides Prompt Generator Workspace',
+    ariaNav: 'Primary Navigation',
+    ariaLangSwitcher: 'Language Switcher',
+    ariaSavedDrawer: 'Saved Prompts Library',
+    ariaOutput: 'Generated ChatGPT Slides Prompt',
+    ariaCategoryFilter: 'Filter templates by category',
+    messages: {
+      topicUpdated: 'Prompt updated for your topic',
+      sampleLoaded: 'Loaded sample topic',
+      downloadDone: 'Downloaded prompt as .TXT',
+      styleSwitched: 'Switched style to: ',
+      savedSuccess: 'Saved configured parameters to browser library (re-generates from parameters upon loading)',
+      loadedSuccess: 'Loaded saved prompt into editor',
+      topicValidation: 'Please enter a presentation topic or pick a sample chip above.',
+      topicErrorTip: 'Tip: Enter a presentation topic (or click a sample chip) for a tailored prompt.',
+      copySuccessToast: '✓ Prompt copied to clipboard! Paste into ChatGPT.',
+      copyManualFallbackToast: 'Clipboard access was blocked. Please select and copy the prompt text manually below.',
+      legacySavedWarning: 'Legacy saved prompt: missing template metadata.',
+      usedByYou: 'Used {n}× by you'
+    },
     proTipLabel: 'Pro Tip:',
     defaultProTip:
-      'After clicking "Copy Prompt" or "Open ChatGPT", attach any source PDF/Excel file in ChatGPT so the new ChatGPT Slides canvas populates real numbers and speaker notes.',
+      'After clicking "Copy Prompt" and opening ChatGPT, attach any source PDF/Excel file in chat so ChatGPT Slides populates real numbers and speaker notes.',
     storyboardTitle: 'Live Slide-by-Slide Structure Preview',
     storyboardExportNote: 'Exports to .PPTX · PDF · Google Slides',
     // Saved Drawer
     drawerTitle: '🔖 Saved Prompts Library',
     drawerClose: 'Close ✕',
-    drawerHint: 'Drag right to dismiss · Stored locally in your browser.',
+    drawerHint: 'Drag right to dismiss · Stored strictly in your browser (localStorage); clear your browser data or delete items individually at any time.',
     drawerEmpty:
-      'No saved prompts yet. Click "Save Locally" on any generator to store your favorite prompt configurations right in your browser (no login required).',
+      'No saved prompts yet. Click "Save Locally" on any generator to store your favorite prompt configurations in your browser (no login required).',
     drawerLoad: 'Load into Editor',
     drawerDelete: 'Delete',
     // Below-Fold Directory
@@ -102,7 +131,7 @@ export const UI_STRINGS = {
     // Below-Fold SEO Sections
     howTitlePrefix: 'How to Use',
     howDesc:
-      'Generate a structured, collaborative presentation in ChatGPT Slides (launched October 16, 2026) and export to PowerPoint, PDF, or Google Slides in four steps:',
+      'Generate a structured, collaborative presentation for ChatGPT Slides and export to PowerPoint, PDF, or Google Slides in four steps:',
     howSteps: [
       {
         title: 'Enter Topic & Audience',
@@ -114,62 +143,62 @@ export const UI_STRINGS = {
       },
       {
         title: 'Enable Charts & Speaker Notes',
-        desc: 'Toggle automatic chart recommendations, speaker pacing scripts, and verification flags so ChatGPT marks any unverified claims with [VERIFY].'
+        desc: 'Toggle automatic chart recommendations, speaker pacing scripts, and verification flags so ChatGPT marks unverified claims with [VERIFY].'
       },
       {
         title: 'Copy to ChatGPT & Export',
-        desc: 'Click Copy Prompt or Open ChatGPT, refine slides in the collaborative canvas, and export directly to .pptx, PDF, or Google Slides.'
+        desc: 'Click Copy Prompt, open ChatGPT via the direct link, paste into Work chat or Space (Create > Slide), and export to .pptx, PDF, or Google Slides.'
       }
     ],
     featTitle: 'Key Features of Our ChatGPT Slides Prompt Builder',
     featDesc:
-      'Built specifically for OpenAI’s October 2026 ChatGPT Slides canvas workflow—combining zero-latency Apple-grade interaction with presentation consulting best practices.',
+      'Designed to help users craft precise presentation prompts for OpenAI’s ChatGPT Slides canvas workflow, adhering to presentation consulting best practices.',
     features: [
       {
         title: '🎯 One Clear Message Per Slide',
-        desc: 'Prevents ChatGPT from dumping walls of text onto slides. Enforces crisp action titles and scannable 3-bullet visual hierarchy.'
+        desc: 'Prevents ChatGPT from dumping walls of text onto slides. Enforces crisp action titles and scannable visual hierarchy.'
       },
       {
         title: '📊 Smart Chart & Diagram Prompts',
-        desc: 'Automatically instructs ChatGPT Slides to recommend waterfall bridges, 2x2 positioning matrices, TAM/SAM/SOM visuals, and cohort charts.'
+        desc: 'Instructs ChatGPT Slides to recommend appropriate visualizations like waterfall bridges, 2x2 matrices, and market share charts.'
       },
       {
         title: '🎙️ Presenter View Speaker Notes',
-        desc: 'Generates word-for-word spoken transitions, pacing cues, and objection-handling answers that carry over when exported to PowerPoint or Google Slides.'
+        desc: 'Generates spoken transitions, pacing cues, and objection-handling notes that carry over when exported to PowerPoint or Google Slides.'
       },
       {
         title: '🛡️ Hallucination & Citation Guardrails',
-        desc: 'Includes explicit verification rules requiring ChatGPT to flag uncertain statistics and cite uploaded PDFs or web research sources.'
+        desc: 'Requires ChatGPT to flag uncertain statistics with [VERIFY] and cite uploaded documents or web research sources.'
       },
       {
-        title: '🔒 100% Client-Side & Privacy Safe',
-        desc: 'Zero backend servers, zero OpenAI API keys required, and no sign-up walls. All prompt assembly and saved templates stay in your local browser.'
+        title: '🔒 Pure Client-Side Generation & Privacy Boundary',
+        desc: 'Prompt composition and local saved items run entirely inside your browser (stored in browser localStorage). We do not operate user databases or collect personal data. Prompts pasted into ChatGPT are processed by OpenAI subject to OpenAI’s privacy policies.'
       },
       {
         title: '📤 PowerPoint, PDF & Google Slides Ready',
         desc: 'Optimized for OpenAI’s native export pipeline (OpenAI Help Article 20001605).'
       }
     ],
-    compTitle: 'Why Structured Prompts Outperform Generic ChatGPT Slide Requests',
+    compTitle: 'Why Structured Prompts Outperform Generic Slide Requests',
     compDesc:
-      'Asking ChatGPT "Make me a 10-slide presentation about X" produces generic, repetitive bullet lists. Compare how our structured prompt architecture transforms output quality:',
+      'Asking ChatGPT "Make me a 10-slide presentation about X" produces generic bullet lists. Compare how structured prompt architecture improves output quality:',
     compHeaders: ['Dimension', 'Generic Prompt ("Make slides about X")', 'SlidePrompt.ai Structured Blueprint'],
     compRows: [
       ['Slide Headlines', 'Vague topic labels ("Market Overview", "Financials")', 'Insight-led action titles ("Enterprise Automation Cuts OpEx by 38% Within 60 Days")'],
-      ['Visual Density', 'Overcrowded 8-bullet paragraphs that overflow .pptx boxes', 'Strict "One clear message per slide" + 3 concise proof points'],
+      ['Visual Density', 'Overcrowded paragraphs that overflow .pptx boxes', 'Strict "One clear message per slide" + concise proof points'],
       ['Data & Charts', 'Plain text numbers buried in sentences', 'Explicit chart specs (Waterfall, 2x2 Matrix, Cohort Bar) with axis labels'],
-      ['Fact Accuracy', 'Blends confident hallucinations with real facts', 'Flags any claim requiring verification with [VERIFY] & source attribution'],
-      ['Export Readiness', 'Missing speaker notes; requires hours of manual reformatting', 'Complete Presenter View speaker notes ready for PowerPoint & Google Slides']
+      ['Fact Accuracy', 'Blends guesses with real facts without notice', 'Flags any claim requiring verification with [VERIFY] & source attribution'],
+      ['Export Readiness', 'Missing speaker notes; requires manual rewriting', 'Complete Presenter View speaker notes ready for PowerPoint & Google Slides']
     ],
     faqTitle: 'Frequently Asked Questions',
     // Footer
     footerDesc:
-      'Free client-side prompt engineering studio for OpenAI’s ChatGPT Slides (launched Oct 16, 2026). No API key, no sign-up, instant PowerPoint & Google Slides structure.',
+      'Free client-side prompt engineering studio for OpenAI’s ChatGPT Slides. Independent prompt generator tool; no login required.',
     footerCol1: 'Core Tools & Guides',
     footerCol2: 'Popular Business Prompts',
     footerCol3: 'Academic, Tech & Niche',
-    footerCopy: 'Independent prompt builder; not affiliated with OpenAI.',
-    footerRefLabel: 'Reference:'
+    footerCopy: 'Independent prompt builder; not affiliated with OpenAI. Presentation creation in ChatGPT Slides is available for eligible accounts with Space access (Pro, Business, Enterprise) subject to OpenAI rollout.',
+    footerRefLabel: 'Official Documentation:'
   },
 
   'zh-TW': {
@@ -181,14 +210,14 @@ export const UI_STRINGS = {
     navPitch: '募資簡報',
     navSales: '銷售簡報',
     navPowerpoint: '匯出 PPTX',
-    navTroubleshooting: '無法顯示修復',
+    navTroubleshooting: '疑難排解指南',
     savedLabel: '已儲存',
     // Hero Release Pill
     releasePill:
-      '已適配 ChatGPT Slides（2026 年 10 月 16 日推出）— 支援 Canvas 協作簡報、匯出 PowerPoint (.pptx)、PDF 與 Google 簡報',
+      '適用於 ChatGPT Slides — Space 畫布 (Create > Slide) 與 Work 協作流程，支援 PowerPoint (.pptx)、PDF 與 Google 簡報匯出',
     // Form UI
     formLegend: '1. 設定您的 ChatGPT Slides 簡報參數',
-    noApiBadge: '100% 免費 · 免 API Key · 即時生成',
+    noApiBadge: '免費提示詞工具 · 純前端運算 · 即時複製',
     topicLabel: '演示主題',
     topicRequired: '必填',
     topicPlaceholder: '例如：2026 Q4 企業 AI 自動化工作流導入策略與 ROI 效益評估...',
@@ -236,42 +265,71 @@ export const UI_STRINGS = {
     langLabel: '輸出語言',
     sourceLabel: '資料來源',
     sourceLabels: {
-      chat: { label: '當前對話上下文', desc: '直接根據 ChatGPT 對話紀錄提煉簡報重點' },
-      file: { label: '上傳文件 / PDF / 報表', desc: '從上傳的附件檔案提取數據與結構（不虛構數字）' },
-      outline: { label: '貼上大綱 / 原始筆記', desc: '將我的條列式草稿擴展為完整專業簡報' },
-      research: { label: '聯網搜尋 / Deep Research', desc: '檢索最新產業基準數據並附上引用來源' }
+      prompt_only: { label: '僅依提示詞（主題與要求）', desc: '完全根據上方設定的主題、受眾與結構要求生成簡報' },
+      file: { label: '附加檔案 / PDF / 報表', desc: '指示 ChatGPT 依據您在對話中上傳的檔案提煉數據（不臆測未提供數字）' },
+      outline: { label: '自訂大綱 / 原始筆記', desc: '指示 ChatGPT 根據您在對話中貼上的條列式筆記展開為完整簡報' },
+      research: { label: '聯網搜尋 / 深度檢索', desc: '指示 ChatGPT 透過聯網檢索最新產業數據並加註引用來源' }
     },
     optionsLabel: '進階簡報要求',
     optExec: '包含執行摘要頁',
     optCharts: '建議合適的圖表',
     optCitations: '標註需查核的數據與來源',
     optNotes: '加入演講者備註',
-    outputTitle: '2. 可直接複製到 ChatGPT Slides 的完整提示詞',
+    outputTitle: '2. 可直接複製到 ChatGPT 的完整提示詞',
+    outputEditNotice:
+      '可手動編輯後複製或下載；調整表單或載入收藏會重新生成並覆蓋文本。大綱預覽反映表單生成結果，不隨手動編輯同步。',
     copyBtn: '複製提示詞',
     openBtn: '打開 ChatGPT ↗',
     switchStyleBtn: '換一種風格',
     downloadBtn: '下載 .TXT',
     saveLocalBtn: '保存到本地',
+    saveParamsNotice:
+      '💡 收藏以保存表單參數為準，載入時依參數重新生成大綱，不保留手動編輯文本。',
+    promptLanguageNotice:
+      '為確保 ChatGPT 精確遵從指令，提示詞架構採用結構化英文指令，並明確指定以您選定的語言輸出所有簡報內文與講者備忘。',
+    deliveryNotice:
+      '1. 點擊「複製提示詞」 → 2. 點擊「打開 ChatGPT」 → 3. 在 ChatGPT 的 Work 對話或 Space（點擊 Create > Slide）貼上提示詞。',
+    fallbackLinkPrefix: '直接訪問連結：',
+    ariaWorkspace: 'ChatGPT Slides 簡報提示詞產生器工作區',
+    ariaNav: '主導航欄',
+    ariaLangSwitcher: '語言切換器',
+    ariaSavedDrawer: '已儲存的提示詞庫',
+    ariaOutput: '產生的 ChatGPT Slides 簡報提示詞',
+    ariaCategoryFilter: '依分類篩選簡報模板',
+    messages: {
+      topicUpdated: '已依據您的簡報主題更新提示詞',
+      sampleLoaded: '已載入範例主題',
+      downloadDone: '已下載 .TXT 提示詞檔案',
+      styleSwitched: '已切換簡報風格為：',
+      savedSuccess: '已將表單參數儲存至本地庫（載入時將依參數重新生成）',
+      loadedSuccess: '已將收藏提示詞載入編輯器',
+      topicValidation: '請輸入簡報主題或點選上方熱門範例。',
+      topicErrorTip: '提示：輸入主題或點選範例標籤以產生專屬提示詞。',
+      copySuccessToast: '✓ 提示詞已複製到剪貼簿！請前往 ChatGPT 貼上。',
+      copyManualFallbackToast: '剪貼簿存取受限，請直接手動選取並複製下方已醒目提示的提示詞文字。',
+      legacySavedWarning: '舊版收藏缺少模板資訊，無法跨模板載入。',
+      usedByYou: '您已使用 {n} 次'
+    },
     proTipLabel: '專家提示：',
     defaultProTip:
-      '點擊「複製提示詞」或「打開 ChatGPT」後，可在 ChatGPT 對話框一併上傳您的 PDF 或 Excel 檔案，讓 ChatGPT Slides 自動帶入真實數據與講者備忘稿。',
+      '點擊「複製提示詞」並打開 ChatGPT 後，可在對話框一併上傳 PDF 或 Excel 檔案，讓 ChatGPT Slides 自動帶入真實數據與講者備忘稿。',
     storyboardTitle: '即時簡報大綱結構預覽',
     storyboardExportNote: '支援匯出 .PPTX · PDF · Google 簡報',
     // Saved Drawer
     drawerTitle: '🔖 已儲存的提示詞庫',
     drawerClose: '關閉 ✕',
-    drawerHint: '向右滑動即可關閉 · 資料僅儲存在您的本地瀏覽器中。',
+    drawerHint: '向右滑動即可關閉 · 資料僅儲存於當前瀏覽器 (localStorage)，非帳號雲端同步；可隨時逐筆刪除或清除瀏覽紀錄。',
     drawerEmpty: '目前尚無儲存的提示詞。點擊產生器上的「保存到本地」即可將常用簡報配置收藏於瀏覽器（免登入）。',
     drawerLoad: '載入到編輯器',
     drawerDelete: '刪除',
     // Below-Fold Directory
     dirTitle: '47 個 ChatGPT Slides 專屬場景簡報提示詞模板',
-    dirDesc: '選擇符合您角色與場景的簡報藍圖。每個模板皆預載經過實戰驗證的分頁結構、圖表建議與講者備忘稿規則。',
+    dirDesc: '選擇符合您角色與場景的簡報藍圖。每個模板皆預載分頁結構、圖表建議與講者備忘稿規則。',
     dirBtn: '查看全部 47 個模板 →',
     blueprintSuffix: ' 頁簡報藍圖 →',
     // Below-Fold SEO Sections
     howTitlePrefix: '如何使用',
-    howDesc: '只需 4 個步驟，即可在 ChatGPT Slides（2026 年 10 月 16 日推出）生成結構化協作簡報，並一鍵匯出為 PowerPoint、PDF 或 Google 簡報：',
+    howDesc: '按照以下 4 個步驟，在 ChatGPT Slides 生成結構化簡報，並匯出為 PowerPoint、PDF 或 Google 簡報：',
     howSteps: [
       {
         title: '輸入簡報主題與目標受眾',
@@ -279,64 +337,64 @@ export const UI_STRINGS = {
       },
       {
         title: '選擇頁數與敘事風格',
-        desc: '拖動滑桿設定 5 至 20 頁簡報篇幅，並選擇麥肯錫結論先行、Apple 極簡發表會或數據分析等專業風格。'
+        desc: '拖動滑桿設定 5 至 20 頁簡報篇幅，並選擇麥肯錫結論先行、Apple 極簡發表會或數據分析等風格。'
       },
       {
         title: '勾選圖表建議與講者備註',
         desc: '開啟自動圖表配置建議、逐字口播講稿以及 [VERIFY] 事實查核標記，避免 AI 編造未經證實的數據。'
       },
       {
-        title: '一鍵複製至 ChatGPT 並匯出',
-        desc: '點擊「複製提示詞」或「打開 ChatGPT」，在協作畫布中微調後即可直接匯出 .pptx、PDF 或 Google 簡報。'
+        title: '複製至 ChatGPT 並匯出',
+        desc: '點擊「複製提示詞」，透過普通連結前往 ChatGPT，在 Work 對話或 Space (Create > Slide) 貼上提示詞，微調後匯出。'
       }
     ],
-    featTitle: 'ChatGPT Slides 簡報提示詞產生器核心優勢',
-    featDesc: '專為 OpenAI 2026 年 10 月推出的 ChatGPT Slides 畫布工作流打造，結合零延遲互動體驗與頂尖顧問簡報方法論。',
+    featTitle: 'ChatGPT Slides 簡報提示詞產生器核心特點',
+    featDesc: '專為 OpenAI 的 ChatGPT Slides 畫布工作流設計，協助使用者產出符合商務顧問規範的高品質指令。',
     features: [
       {
         title: '🎯 每頁聚焦單一核心結論',
-        desc: '防止 ChatGPT 把整段長文塞進投影片。強制採用「結論先行標題 (Action Title)」與最多 3 點精煉論據。'
+        desc: '防止 ChatGPT 生成冗長文字堆砌。引導使用結論先行標題與精煉論據。'
       },
       {
-        title: '📊 智慧圖表與視覺化配置建議',
-        desc: '自動指示 ChatGPT Slides 在數據頁推薦瀑布圖、2x2 競爭矩陣、TAM/SAM/SOM 市場規模圖與趨勢圖。'
+        title: '📊 圖表與視覺化配置建議',
+        desc: '指示 ChatGPT Slides 在數據頁推薦瀑布圖、2x2 競爭矩陣、市場規模圖與趨勢圖。'
       },
       {
-        title: '🎙️ 完整演講者備忘稿 (Speaker Notes)',
-        desc: '為每一頁生成自然流暢的口播講稿、轉場提示與問答應對重點，匯出至 PowerPoint 後可直接於演講者檢視使用。'
+        title: '🎙️ 演講者備忘稿 (Speaker Notes)',
+        desc: '為每一頁生成口播講稿與問答重點，匯出至 PowerPoint 後可直接於演講者檢視使用。'
       },
       {
-        title: '🛡️ 防幻覺與數據來源查核機制',
-        desc: '內建嚴格查核規則，要求 ChatGPT 將待確認的統計數據標記為 [VERIFY] 並註明文件或搜尋來源。'
+        title: '🛡️ 數據來源與查核標記',
+        desc: '提示詞包含查核要求，指示 ChatGPT 將待確認的統計數據標記為 [VERIFY] 並註明引用來源。'
       },
       {
-        title: '🔒 100% 純前端執行・隱私安全',
-        desc: '無需後端伺服器、免填 OpenAI API Key、免註冊帳號。所有提示詞組合與本地收藏皆保留在您的瀏覽器中。'
+        title: '🔒 純前端運算與清晰隱私邊界',
+        desc: '提示詞組裝與本地收藏完全在您的瀏覽器端運行（儲存於瀏覽器 localStorage，可隨時刪除）。本站不設會員資料庫亦不收集個人資訊。貼入 ChatGPT 後的內容依 OpenAI 隱私權政策與帳號設定處理。'
       },
       {
-        title: '📤 完美支援 PowerPoint、PDF 與 Google 簡報',
-        desc: '針對 OpenAI 官方簡報匯出管線深度優化（參考 OpenAI 官方說明文件 20001605）。'
+        title: '📤 支援 PowerPoint、PDF 與 Google 簡報匯出',
+        desc: '針對 OpenAI 官方簡報匯出格式最佳化（參考 OpenAI 官方說明文件 20001605）。'
       }
     ],
-    compTitle: '為什麼結構化提示詞遠勝於普通一句話指令？',
-    compDesc: '如果只對 ChatGPT 說「幫我做一份 10 頁關於 X 的簡報」，往往只會得到空洞重複的條列文字。對比結構化指令帶來的品質差異：',
+    compTitle: '為什麼結構化提示詞勝於隨意提問？',
+    compDesc: '如果只對 ChatGPT 輸入簡短要求，往往會得到籠統清單。對比結構化指令帶來的差異：',
     compHeaders: ['比較維度', '普通指令（「幫我做關於 X 的簡報」）', 'SlidePrompt.ai 結構化簡報指令'],
     compRows: [
       ['投影片標題', '模糊的主題標籤（「市場概況」、「財務分析」）', '結論先行觀點標題（「導入企業 AI 自動化可在 60 天內降低 38% 營運成本」）'],
-      ['版面文字密度', '每頁塞滿 8 條長句，匯出 .pptx 時嚴重跑版溢位', '嚴格執行「每頁一核心訊息」+ 3 點精煉佐證，版面清爽'],
-      ['數據與圖表', '將數字埋在長篇段落文字中，缺乏視覺層次', '明確指定圖表類型（瀑布圖、2x2 矩陣、長條圖）與座標軸標籤'],
-      ['事實準確度', '容易把 AI 幻覺編造的數據當成事實寫入簡報', '自動將需人工核實的數據標註 [VERIFY] 並提示引用來源'],
-      ['匯出可用性', '缺少講者備忘稿，下載後仍需花數小時手動重排', '自帶完整演講者口播稿，匯出 PowerPoint 與 Google 簡報即可直接上台']
+      ['版面文字密度', '文字長句過多，匯出時排版容易溢位', '嚴格執行「每頁一核心訊息」與條理佐證，結構清晰'],
+      ['數據與圖表', '將數字埋在長篇段落文字中', '明確指定圖表類型（瀑布圖、2x2 矩陣、長條圖）與座標軸說明'],
+      ['事實準確度', '可能混雜未經查證的估計數值', '要求將需人工核實的數據標註 [VERIFY] 並提示引用來源'],
+      ['匯出可用性', '缺少講者備忘稿，下載後需花時間重新整理', '包含演講者口播稿，匯出 PowerPoint 與 Google 簡報即可配合講稿使用']
     ],
     faqTitle: '常見問題解答 (FAQ)',
     // Footer
     footerDesc:
-      '專為 OpenAI ChatGPT Slides（2026 年 10 月 16 日推出）設計的免費前端提示詞工具。免 API Key、免註冊，一鍵生成可匯出 PowerPoint 與 Google 簡報的專業指令。',
+      '專為 OpenAI ChatGPT Slides 設計的免費前端提示詞工具。獨立工具，免登入，一鍵產生專業簡報架構指令。',
     footerCol1: '核心工具與指南',
     footerCol2: '熱門商務簡報模板',
     footerCol3: '學術、教育與垂直領域',
-    footerCopy: '獨立開發之提示詞產生工具，與 OpenAI 無隸屬關係。',
-    footerRefLabel: '官方指南參考：'
+    footerCopy: '獨立開發之提示詞產生工具，與 OpenAI 無隸屬關係。ChatGPT Slides 簡報功能目前向具備 Space 權限之 Pro、Business、Enterprise 方案帳號逐步開放。',
+    footerRefLabel: '官方文件參考：'
   },
 
   es: {
@@ -348,14 +406,14 @@ export const UI_STRINGS = {
     navPitch: 'Pitch Deck',
     navSales: 'Ventas',
     navPowerpoint: 'Exportar PPTX',
-    navTroubleshooting: 'Solución Error',
+    navTroubleshooting: 'Guía de Solución',
     savedLabel: 'Guardados',
     // Hero Release Pill
     releasePill:
-      'Actualizado para ChatGPT Slides (Lanzado el 16 oct 2026) — Compatible con Canvas Colaborativo y Exportación a PowerPoint (.pptx), PDF y Google Slides',
+      'Compatible con ChatGPT Slides — Lienzo Space (Create > Slide) y Flujos de Work, Exportación a PowerPoint (.pptx), PDF y Google Slides',
     // Form UI
     formLegend: '1. Configura tu Presentación de ChatGPT Slides',
-    noApiBadge: '100% Gratis · Sin API Key · Copia Instantánea',
+    noApiBadge: 'Herramienta Gratuita · Procesamiento Local · Copia Rápida',
     topicLabel: 'Tema de la Presentación',
     topicRequired: 'Obligatorio',
     topicPlaceholder: 'Ej. Estrategia de Automatización IA B2B para el Q4 y ROI...',
@@ -403,31 +461,60 @@ export const UI_STRINGS = {
     langLabel: 'Idioma de Salida',
     sourceLabel: 'Fuente de Datos',
     sourceLabels: {
-      chat: { label: 'Contexto del Chat Actual', desc: 'Sintetizar directamente desde nuestra conversación' },
-      file: { label: 'Archivo Subido / PDF / Doc', desc: 'Extraer métricas y tablas del documento adjunto' },
-      outline: { label: 'Esquema o Notas Pegadas', desc: 'Convertir mis puntos clave en diapositivas completas' },
-      research: { label: 'Búsqueda Web / Deep Research', desc: 'Buscar datos recientes y verificar fuentes' }
+      prompt_only: { label: 'Solo prompt (Tema y requisitos)', desc: 'Sintetizar estrictamente a partir de los parámetros configurados' },
+      file: { label: 'Archivo adjunto / PDF / Doc', desc: 'Indica a ChatGPT extraer datos de los archivos adjuntos en el chat' },
+      outline: { label: 'Esquema pegado / Notas', desc: 'Indica a ChatGPT estructurar diapositivas a partir de las notas pegadas' },
+      research: { label: 'Búsqueda web / Investigación', desc: 'Indica a ChatGPT buscar datos actuales y citar fuentes' }
     },
     optionsLabel: 'Requisitos de las Diapositivas',
     optExec: 'Diapositiva de Resumen Ejecutivo',
     optCharts: 'Sugerir Gráficos Adecuados',
     optCitations: 'Marcar Datos por Verificar ([VERIFY])',
     optNotes: 'Añadir Notas del Orador',
-    outputTitle: '2. Prompt Listo para Copiar en ChatGPT Slides',
+    outputTitle: '2. Prompt Listo para Copiar en ChatGPT',
+    outputEditNotice:
+      'Puede editar directamente antes de copiar o descargar. Al modificar controles o cargar guardados se regenerará y sobrescribirá el texto. El guión gráfico refleja los parámetros del formulario y no se sincroniza con ediciones manuales.',
     copyBtn: 'Copiar Prompt',
     openBtn: 'Abrir ChatGPT ↗',
     switchStyleBtn: 'Cambiar Estilo',
     downloadBtn: 'Descargar .TXT',
     saveLocalBtn: 'Guardar Localmente',
+    saveParamsNotice:
+      '💡 Los guardados almacenan los parámetros configurados y regeneran el esquema al cargarse; no se conservan ediciones manuales de texto.',
+    promptLanguageNotice:
+      'Las directivas del prompt están estructuradas en inglés para maximizar la precisión de ChatGPT, indicando el idioma seleccionado para el contenido.',
+    deliveryNotice:
+      '1. Haz clic en "Copiar Prompt" → 2. Haz clic en "Abrir ChatGPT" → 3. En Work o Space de ChatGPT (Create > Slide), pega el prompt.',
+    fallbackLinkPrefix: 'Enlace directo: ',
+    ariaWorkspace: 'Espacio de trabajo del generador de prompts para ChatGPT Slides',
+    ariaNav: 'Navegación principal',
+    ariaLangSwitcher: 'Selector de idioma',
+    ariaSavedDrawer: 'Biblioteca de prompts guardados',
+    ariaOutput: 'Prompt generado para ChatGPT Slides',
+    ariaCategoryFilter: 'Filtrar plantillas por categoría',
+    messages: {
+      topicUpdated: 'Prompt actualizado con tu tema',
+      sampleLoaded: 'Tema de ejemplo cargado en el editor',
+      downloadDone: 'Prompt descargado en formato .TXT',
+      styleSwitched: 'Estilo cambiado a: ',
+      savedSuccess: 'Parámetros guardados en la biblioteca (se regenerará a partir de parámetros al cargar)',
+      loadedSuccess: 'Prompt cargado en el editor',
+      topicValidation: 'Por favor ingresa un tema de presentación o selecciona un ejemplo.',
+      topicErrorTip: 'Consejo: Ingresa un tema (o haz clic en un ejemplo) para un prompt a medida.',
+      copySuccessToast: '✓ ¡Prompt copiado al portapapeles! Pégalo en ChatGPT.',
+      copyManualFallbackToast: 'Acceso al portapapeles bloqueado. Selecciona y copia manualmente el texto a continuación.',
+      legacySavedWarning: 'Prompt antiguo guardado: faltan metadatos de plantilla.',
+      usedByYou: 'Usado {n}× por ti'
+    },
     proTipLabel: 'Consejo Pro:',
     defaultProTip:
-      'Tras hacer clic en "Copiar Prompt" o "Abrir ChatGPT", adjunta tu archivo PDF o Excel en ChatGPT para que el lienzo de ChatGPT Slides utilice tus cifras reales.',
+      'Tras hacer clic en "Copiar Prompt" y abrir ChatGPT, adjunta tu archivo PDF o Excel en el chat para que ChatGPT Slides utilice cifras reales y notas.',
     storyboardTitle: 'Vista Previa de la Estructura de Diapositivas',
     storyboardExportNote: 'Exportable a .PPTX · PDF · Google Slides',
     // Saved Drawer
     drawerTitle: '🔖 Biblioteca de Prompts Guardados',
     drawerClose: 'Cerrar ✕',
-    drawerHint: 'Arrastra a la derecha para cerrar · Guardado localmente en tu navegador.',
+    drawerHint: 'Arrastra a la derecha para cerrar · Guardado únicamente en tu navegador (localStorage), no sincronizado en la nube; puedes eliminar elementos en cualquier momento.',
     drawerEmpty:
       'Aún no hay prompts guardados. Haz clic en "Guardar Localmente" para conservar tus configuraciones favoritas en el navegador (sin registro).',
     drawerLoad: 'Cargar en el Editor',
@@ -441,7 +528,7 @@ export const UI_STRINGS = {
     // Below-Fold SEO Sections
     howTitlePrefix: 'Cómo Usar',
     howDesc:
-      'Genera una presentación colaborativa en ChatGPT Slides (lanzado el 16 de octubre de 2026) y expórtala a PowerPoint, PDF o Google Slides en 4 pasos:',
+      'Genera una presentación para ChatGPT Slides y expórtala a PowerPoint, PDF o Google Slides en 4 pasos:',
     howSteps: [
       {
         title: 'Define Tema y Audiencia',
@@ -457,32 +544,32 @@ export const UI_STRINGS = {
       },
       {
         title: 'Copia en ChatGPT y Exporta',
-        desc: 'Haz clic en Copiar Prompt o Abrir ChatGPT, edita en el lienzo colaborativo y descarga en formato .pptx, PDF o Google Slides.'
+        desc: 'Haz clic en Copiar Prompt, abre ChatGPT mediante el enlace directo, pega en el chat de Work o en Space (Create > Slide) y descarga.'
       }
     ],
     featTitle: 'Características Clave de Nuestro Generador para ChatGPT Slides',
     featDesc:
-      'Diseñado específicamente para el flujo de trabajo de ChatGPT Slides de octubre de 2026 con respuesta instantánea y estructura ejecutiva.',
+      'Diseñado para crear prompts precisos adaptados al flujo de trabajo de ChatGPT Slides y a buenas prácticas de presentación ejecutiva.',
     features: [
       {
         title: '🎯 Un Mensaje Claro por Diapositiva',
-        desc: 'Evita diapositivas saturadas de texto. Impone titulares de acción claros y un máximo de 3 puntos clave por lámina.'
+        desc: 'Evita diapositivas saturadas de texto con titulares claros y puntos concisos.'
       },
       {
-        title: '📊 Recomendación Inteligente de Gráficos',
-        desc: 'Indica a ChatGPT Slides qué gráficos usar (puentes waterfall, matrices 2x2, TAM/SAM/SOM o barras comparativas).'
+        title: '📊 Recomendación de Gráficos',
+        desc: 'Indica a ChatGPT Slides qué gráficos sugerir (waterfall, matrices 2x2, gráficos de barras o comparativos).'
       },
       {
-        title: '🎙️ Notas del Orador para Vista de Presentador',
-        desc: 'Genera transiciones habladas y respuestas a objeciones que se conservan al exportar a PowerPoint y Google Slides.'
+        title: '🎙️ Notas del Orador para Presentación',
+        desc: 'Genera transiciones habladas y notas que se conservan al exportar a PowerPoint y Google Slides.'
       },
       {
-        title: '🛡️ Control de Alucinaciones y Citas',
-        desc: 'Exige marcar cualquier cifra dudosa con [VERIFY] y citar documentos adjuntos o fuentes verificables.'
+        title: '🛡️ Control de Afirmaciones y Citas',
+        desc: 'Pide marcar datos no verificados con [VERIFY] y citar documentos adjuntos o búsquedas realizadas.'
       },
       {
-        title: '🔒 100% en tu Navegador y Privado',
-        desc: 'Sin servidores externos, sin clave API de OpenAI y sin registro. Tus prompts se procesan y guardan localmente.'
+        title: '🔒 Generación en el Navegador y Límites de Privacidad',
+        desc: 'La composición de prompts y las plantillas guardadas se ejecutan íntegramente en tu navegador (almacenadas en localStorage local). No gestionamos bases de datos de usuarios ni recopilamos datos personales. Al pegar el prompt en ChatGPT, la información se procesa según las políticas de privacidad de OpenAI.'
       },
       {
         title: '📤 Listo para PowerPoint, PDF y Google Slides',
@@ -495,19 +582,19 @@ export const UI_STRINGS = {
     compHeaders: ['Dimensión', 'Prompt Genérico ("Haz diapositivas sobre X")', 'Estructura SlidePrompt.ai'],
     compRows: [
       ['Titulares', 'Etiquetas vagas ("Resumen de Mercado", "Finanzas")', 'Títulos con conclusión ("La Automatización IA Reduce Costos Operativos un 38% en 60 Días")'],
-      ['Densidad Visual', 'Párrafos largos que se desbordan al exportar a .pptx', 'Regla estricta de "Un mensaje por diapositiva" + 3 pruebas concisas'],
-      ['Datos y Gráficos', 'Cifras ocultas dentro de párrafos de texto', 'Especificación exacta de gráfico y ejes en cada diapositiva de datos'],
-      ['Precisión', 'Mezcla estimaciones inventadas con datos reales', 'Marca datos pendientes de confirmar con [VERIFY] y pide fuentes'],
-      ['Exportación', 'Sin notas del orador; requiere horas de edición manual', 'Notas del orador completas listas para PowerPoint y Google Slides']
+      ['Densidad Visual', 'Párrafos largos propensos a desbordarse al exportar', 'Regla de "Un mensaje por diapositiva" con puntos de apoyo concisos'],
+      ['Datos y Gráficos', 'Cifras dispersas en párrafos de texto', 'Especificación de gráfico y ejes en diapositivas con datos cuantitativos'],
+      ['Precisión', 'Mezcla estimaciones no señaladas con datos', 'Marca datos pendientes de confirmar con [VERIFY] y pide citar fuentes'],
+      ['Exportación', 'Sin notas del orador; requiere redacción manual', 'Notas del orador completas listas para PowerPoint y Google Slides']
     ],
     faqTitle: 'Preguntas Frecuentes (FAQ)',
     // Footer
     footerDesc:
-      'Generador gratuito de prompts para ChatGPT Slides de OpenAI (lanzado el 16 de octubre de 2026). Sin API key ni registro; listo para PowerPoint y Google Slides.',
+      'Generador gratuito de prompts para ChatGPT Slides de OpenAI. Herramienta independiente; sin registro obligatorio.',
     footerCol1: 'Herramientas y Guías',
     footerCol2: 'Prompts de Negocios',
     footerCol3: 'Educación, Ciencia y Nichos',
-    footerCopy: 'Herramienta independiente; no afiliada con OpenAI.',
+    footerCopy: 'Herramienta independiente; no afiliada con OpenAI. La creación de presentaciones en ChatGPT Slides está disponible para cuentas elegibles con acceso a Space (Pro, Business, Enterprise) de forma progresiva.',
     footerRefLabel: 'Referencia oficial:'
   },
 
@@ -520,14 +607,14 @@ export const UI_STRINGS = {
     navPitch: 'ピッチデック',
     navSales: '営業資料',
     navPowerpoint: 'PPTX出力ガイド',
-    navTroubleshooting: '表示不具合対策',
+    navTroubleshooting: 'トラブルシューティング',
     savedLabel: '保存済み',
     // Hero Release Pill
     releasePill:
-      'ChatGPT Slides（2026年10月16日公開）完全対応 — キャンバス共同編集・PowerPoint (.pptx) / PDF / Googleスライド出力に最適化',
+      'ChatGPT Slides 対応 — Space キャンバス (Create > Slide) および Work ワークフロー、PowerPoint (.pptx) / PDF / Googleスライド出力向けプロンプト作成',
     // Form UI
     formLegend: '1. プレゼンテーション条件を入力',
-    noApiBadge: '完全無料 · APIキー不要 · 登録不要',
+    noApiBadge: '無料プロンプトツール · ブラウザ内生成 · 即座にコピー',
     topicLabel: 'プレゼンのテーマ',
     topicRequired: '必須',
     topicPlaceholder: '例：2026年Q4 全社AI業務自動化推進戦略とROI試算...',
@@ -575,31 +662,60 @@ export const UI_STRINGS = {
     langLabel: '出力言語',
     sourceLabel: 'データソース・参照元',
     sourceLabels: {
-      chat: { label: '現在のチャット履歴', desc: '会話の文脈から要点を整理してスライド化' },
-      file: { label: 'アップロード資料 / PDF', desc: '添付ファイルの数値・表から正確に抽出' },
-      outline: { label: '貼り付けた構成案・メモ', desc: '箇条書きメモを完成されたスライドに展開' },
-      research: { label: 'Web検索 / Deep Research', desc: '最新市場データと出典を検索して引用' }
+      prompt_only: { label: 'プロンプトのみ（トピックと要件）', desc: '指定されたテーマ・対象読者・要件に基づいてスライドを構成' },
+      file: { label: '添付ファイル / PDF / 資料', desc: 'チャットに添付するファイルからデータや構成を抽出するよう指示' },
+      outline: { label: '貼り付けた構成案 / メモ', desc: 'チャットに貼り付ける箇条書きメモを完全なスライドに展開するよう指示' },
+      research: { label: 'ウェブ検索 / 調査', desc: '最新の市場データや裏付けを検索して引用元を明記するよう指示' }
     },
     optionsLabel: '追加オプション（図表・出典・ノート）',
     optExec: 'エグゼクティブサマリーを含める',
     optCharts: '適切なグラフ・図表を提案',
     optCitations: '要検証の数値に [VERIFY] と出典を明記',
     optNotes: 'スピーカーノート（発表原稿）を追加',
-    outputTitle: '2. 生成された ChatGPT Slides プロンプト',
+    outputTitle: '2. 生成された ChatGPT 向けプロンプト',
+    outputEditNotice:
+      'コピーまたはダウンロードする前に直接編集できます。フォーム設定の変更や保存項目の読み込みにより再生成され上書きされます。ストーリーボードは大綱設定を反映し、手動編集とは同期しません。',
     copyBtn: 'プロンプトをコピー',
     openBtn: 'ChatGPTを開く ↗',
     switchStyleBtn: 'スタイル切替',
     downloadBtn: 'TXT保存',
     saveLocalBtn: 'ブラウザに保存',
+    saveParamsNotice:
+      '💡 保存機能はフォーム設定パラメータを保持し、読み込み時に再生成します。手動編集テキストは保存されません。',
+    promptLanguageNotice:
+      'ChatGPTの指示遵守精度を最大化するためプロンプト構成は英語で記述され、スライド本文と発表者ノートは指定した言語で出力されます。',
+    deliveryNotice:
+      '1. 「プロンプトをコピー」をクリック → 2. 「ChatGPTを開く」をクリック → 3. ChatGPTのWorkまたはSpace（Create > Slide）に貼り付け。',
+    fallbackLinkPrefix: '直接リンク：',
+    ariaWorkspace: 'ChatGPT Slides プロンプト作成ワークスペース',
+    ariaNav: 'メインナビゲーション',
+    ariaLangSwitcher: '言語切替',
+    ariaSavedDrawer: '保存済みプロンプト一覧',
+    ariaOutput: '生成された ChatGPT Slides プロンプト',
+    ariaCategoryFilter: 'カテゴリーでテンプレートを絞り込む',
+    messages: {
+      topicUpdated: 'トピックに合わせてプロンプトを更新しました',
+      sampleLoaded: 'サンプルテーマを読み込みました',
+      downloadDone: 'プロンプトをTXTとして保存しました',
+      styleSwitched: 'スタイルを切り替えました: ',
+      savedSuccess: 'フォーム設定をブラウザに保存しました（読み込み時にパラメータから再生成されます）',
+      loadedSuccess: '保存したプロンプトを読み込みました',
+      topicValidation: 'プレゼンのテーマを入力するか、上のサンプルを選択してください。',
+      topicErrorTip: 'ヒント：テーマを入力（またはサンプルを選択）すると最適なプロンプトが作成されます。',
+      copySuccessToast: '✓ プロンプトをコピーしました！ChatGPTに貼り付けてください。',
+      copyManualFallbackToast: 'クリップボードへのアクセスが制限されました。下の選択されたテキストを手動でコピーしてください。',
+      legacySavedWarning: '旧バージョンの保存データです（テンプレート情報が不足しています）。',
+      usedByYou: '使用回数: {n}回'
+    },
     proTipLabel: '活用ヒント：',
     defaultProTip:
-      '「プロンプトをコピー」または「ChatGPTを開く」をクリックした後、ChatGPTにPDFやExcel資料を添付すると、実際の数値を反映したスライドと発表原稿が生成されます。',
+      '「プロンプトをコピー」してChatGPTを開いた後、チャットにPDFやExcel資料を添付すると、実際の数値を反映したスライドと発表原稿が生成されます。',
     storyboardTitle: 'スライド構成リアルタイムプレビュー',
     storyboardExportNote: '.PPTX · PDF · Googleスライド出力対応',
     // Saved Drawer
     drawerTitle: '🔖 保存済みプロンプト一覧',
     drawerClose: '閉じる ✕',
-    drawerHint: '右へドラッグして閉じる · お使いのブラウザ内にのみ保存されます。',
+    drawerHint: '右へドラッグして閉じる · ブラウザ内 (localStorage) にのみ保存されアカウント同期ではありません。いつでも個別に削除できます。',
     drawerEmpty:
       '保存されたプロンプトはまだありません。「ブラウザに保存」をクリックすると、ログイン不要でお気に入りの設定を保存できます。',
     drawerLoad: 'エディタに読み込む',
@@ -613,7 +729,7 @@ export const UI_STRINGS = {
     // Below-Fold SEO Sections
     howTitlePrefix: '使い方ガイド：',
     howDesc:
-      '2026年10月16日に公開されたChatGPT Slidesで、PowerPoint・PDF・Googleスライドに出力できる高品質なプレゼンを4ステップで作成します：',
+      'ChatGPT SlidesでPowerPoint・PDF・Googleスライドに出力できるプレゼンプロンプトを4ステップで作成します：',
     howSteps: [
       {
         title: 'テーマと対象読者を入力',
@@ -628,59 +744,59 @@ export const UI_STRINGS = {
         desc: 'グラフの自動提案、スピーカーノート、未確認データへの [VERIFY] ラベル付与をオンにします。'
       },
       {
-        title: 'ChatGPTに貼り付けてPPTX出力',
-        desc: '「プロンプトをコピー」または「ChatGPTを開く」を押し、キャンバス上で調整して .pptx・PDF・Googleスライドへ出力します。'
+        title: 'ChatGPTに貼り付けて出力',
+        desc: '「プロンプトをコピー」を押し、直接リンクからChatGPTを開いてWorkチャットまたはSpace（Create > Slide）に貼り付けます。'
       }
     ],
     featTitle: 'ChatGPT Slides プロンプト作成ツールの特徴',
     featDesc:
-      '2026年10月リリースのChatGPT Slidesキャンバス機能に特化。コンサル品質のスライド構成ルールをワンクリックで注入します。',
+      'ChatGPT Slidesキャンバス機能に最適化された構成ルールに基づき、プレゼン資料作成の指示文を整理します。',
     features: [
       {
         title: '🎯 1スライド・1メッセージの原則',
-        desc: '文字だらけのスライドを防止。結論を言い切るアクションタイトルと3つの根拠ポイントに整理します。'
+        desc: '文字だらけのスライドを防止。結論を言い切るアクションタイトルと要点に整理します。'
       },
       {
         title: '📊 最適なグラフ・図解の自動指定',
-        desc: 'ウォーターフォール図、2x2マトリクス、市場規模（TAM/SAM/SOM）など、データに合った図表を指示します。'
+        desc: 'ウォーターフォール図、2x2マトリクス、市場規模など、データに合った図表を指示します。'
       },
       {
         title: '🎙️ 発表者ビュー対応スピーカーノート',
-        desc: 'PowerPointやGoogleスライドに書き出した際もそのまま使える、自然なトークスクリプトと想定問答を生成します。'
+        desc: 'PowerPointやGoogleスライドに書き出した際もそのまま使える、トークスクリプトと想定問答を生成します。'
       },
       {
-        title: '🛡️ ハルシネーション防止と出典明記',
-        desc: '不確実な統計数値には [VERIFY] タグを付けさせ、添付PDFやWeb検索の根拠を明示させます。'
+        title: '🛡️ 出典明記と検証フラグ',
+        desc: '不確実な数値には [VERIFY] タグを付けさせ、添付資料やWeb検索の根拠明記を義務付けます。'
       },
       {
-        title: '🔒 100%ブラウザ完結・プライバシー保護',
-        desc: '外部サーバー送信なし、OpenAI APIキー不要、会員登録不要。すべての処理はお使いのブラウザ内で完結します。'
+        title: '🔒 ブラウザ内処理とプライバシーの明確化',
+        desc: 'プロンプトの組み立てや保存機能はお使いのブラウザ内（localStorage）で完結します。当サイトはユーザー登録や個人情報の収集を行いません。ChatGPTにプロンプトを貼り付けた後は、OpenAIの利用規約およびプライバシーポリシーに基づいて処理されます。'
       },
       {
         title: '📤 PowerPoint・PDF・Googleスライド対応',
-        desc: 'OpenAI公式のスライド書き出し仕様（ヘルプ記事 20001605）に最適化されています。'
+        desc: 'OpenAI公式のスライド書き出し仕様（ヘルプ記事 20001605）を前提に設計されています。'
       }
     ],
-    compTitle: 'なぜ「構造化プロンプト」でスライドの質が劇的に変わるのか？',
+    compTitle: 'なぜ「構造化プロンプト」でスライドの質が変わるのか？',
     compDesc:
       '単に「〇〇について10枚のスライドを作って」と頼むのと、構造化プロンプトを使う場合の違いを比較してください：',
     compHeaders: ['比較項目', '通常の指示（「〇〇のスライドを作って」）', 'SlidePrompt.ai 構造化プロンプト'],
     compRows: [
       ['スライド見出し', '抽象的なラベル（「市場概要」「財務計画」など）', '結論ファーストの見出し（「AI自動化により60日以内に運用コストを38%削減」）'],
-      ['文字量とレイアウト', '長文の箇条書きが並び、PPTX書き出し時に枠から溢れる', '「1スライド1メッセージ」＋3つの簡潔な根拠でレイアウト崩れを防止'],
-      ['データと図表', '数値が文章の中に埋もれて視覚的に伝わらない', 'グラフ種類（滝グラフ・2x2マトリクス等）と軸ラベルを明確に指示'],
-      ['ファクトチェック', 'AIが作った架空の数値と事実が混在する', '要確認データに [VERIFY] を付与し、参照元の明記を義務付け'],
-      ['発表準備の手間', 'ノートが空欄で、ダウンロード後に数時間の手直しが必要', 'そのまま読めるスピーカーノート付きで即座にプレゼン可能']
+      ['文字量とレイアウト', '長文の箇条書きが並び、PPTX書き出し時に枠から溢れやすい', '「1スライド1メッセージ」＋簡潔な根拠で視覚的バランスを保持'],
+      ['データと図表', '数値が文章の中に埋もれて伝わりにくい', 'グラフ種類（滝グラフ・2x2マトリクス等）と軸ラベルを明示'],
+      ['ファクトチェック', '架空の数値と事実の区別がつかない場合がある', '要確認データに [VERIFY] を付与し、参照元の明記を指示'],
+      ['発表準備の手間', 'ノートが空欄で手直しが必要', 'そのまま読めるスピーカーノート付きでプレゼン準備時間を短縮']
     ],
     faqTitle: 'よくある質問 (FAQ)',
     // Footer
     footerDesc:
-      'OpenAIのChatGPT Slides（2026年10月16日公開）向け無料プロンプト作成ツール。APIキー不要・登録不要でPowerPointやGoogleスライド用構成を即座に生成。',
+      'OpenAIのChatGPT Slides向けプロンプト作成ツール。ログイン不要でPowerPointやGoogleスライド用構成プロンプトを作成。',
     footerCol1: '主要ツール＆ガイド',
     footerCol2: 'ビジネス定番プロンプト',
     footerCol3: '研究・教育・専門分野',
-    footerCopy: '当サイトは独立したプロンプト作成ツールであり、OpenAIとは提携していません。',
-    footerRefLabel: '公式リファレンス：'
+    footerCopy: '当サイトは独立したプロンプト作成ツールであり、OpenAIとは提携していません。ChatGPT Slidesのプレゼン作成機能はSpaceアクセス権を持つ対象プラン（Pro、Business、Enterprise）に順次展開されています。',
+    footerRefLabel: '公式ドキュメント：'
   }
 };
 
@@ -690,10 +806,10 @@ export const LOCALIZED_HUB_PAGES = {
     generator: {
       metaTitle: 'ChatGPT Slides 提示詞產生器 - 免費簡報指令模板工具 (支援 PPTX)',
       metaDesc:
-        '專為 2026 年 10 月推出的 ChatGPT Slides 打造的免費簡報提示詞產生器。一鍵設定簡報主題、受眾、頁數、圖表建議與講者備忘稿，輕鬆匯出 PowerPoint 與 Google 簡報！',
+        '專為 ChatGPT Slides 打造的免費簡報提示詞產生器。自訂簡報主題、受眾、頁數、圖表建議與講者備忘稿，支援匯出 PowerPoint、PDF 與 Google 簡報！',
       h1: 'ChatGPT Slides 簡報提示詞產生器',
       subtitle:
-        '專為 OpenAI 最新發布的 ChatGPT Slides 協作簡報功能設計。無需 API Key、免註冊，輸入主題與受眾即可生成結構化簡報指令，完美匯出 PowerPoint (.pptx)、PDF 與 Google Slides。'
+        '專為 OpenAI 的 ChatGPT Slides 協作簡報功能設計。無需 API Key、免註冊，輸入主題與受眾即可生成結構化簡報指令，適配 PowerPoint (.pptx)、PDF 與 Google Slides 匯出。'
     },
     templates: {
       metaTitle: '47+ ChatGPT Slides 簡報提示詞模板庫（銷售、募資、研究報告）',
@@ -701,7 +817,7 @@ export const LOCALIZED_HUB_PAGES = {
         '免費瀏覽 47+ 個 ChatGPT Slides 簡報提示詞模板，涵蓋商業銷售、新創 Pitch Deck、季度檢討 QBR、學術研究與教學課件，一鍵複製即可生成 PPTX！',
       h1: 'ChatGPT Slides 簡報提示詞模板庫（47+ 專業場景藍圖）',
       subtitle:
-        '精選 47 個經過實戰驗證的 ChatGPT Slides 簡報結構藍圖。點擊任一模板即可自訂頁數、風格、圖表建議與演講者備忘稿。'
+        '精選 47 個實用的 ChatGPT Slides 簡報結構藍圖。點擊任一模板即可自訂頁數、風格、圖表建議與演講者備忘稿。'
     },
     pitchDeck: {
       metaTitle: 'ChatGPT Slides 募資簡報 (Pitch Deck) 提示詞產生器 | 免費模板',
@@ -709,7 +825,7 @@ export const LOCALIZED_HUB_PAGES = {
         '專為新創種子輪與 A 輪打造的 ChatGPT Slides 募資簡報提示詞產生器。內建痛點分析、TAM/SAM/SOM 市場規模、商業模式與財務預測 10 頁結構！',
       h1: 'ChatGPT Slides 新創募資簡報 (Pitch Deck) 提示詞產生器',
       subtitle:
-        '遵循紅杉資本 (Sequoia) 與 Y Combinator 投資人偏好的 10 頁募資簡報架構，一鍵生成包含市場規模圖表與講者備忘稿的 ChatGPT Slides 指令。',
+        '遵循紅杉資本與 Y Combinator 偏好的 10 頁募資簡報架構，一鍵生成包含市場規模圖表與講者備忘稿的 ChatGPT Slides 指令。',
       defaultTopic: 'AI 原生企業自動化 SaaS 平台 — A 輪募資簡報 (Series A Pitch Deck)'
     },
     salesDeck: {
@@ -724,20 +840,20 @@ export const LOCALIZED_HUB_PAGES = {
     powerpoint: {
       metaTitle: 'ChatGPT Slides 匯出 PowerPoint (.PPTX)、PDF 與 Google 簡報教學',
       metaDesc:
-        '解決 ChatGPT Slides 匯出 PowerPoint 文字溢位與排版混亂問題！使用專屬防跑版簡報提示詞產生器，保留完整標題層級與演講者備忘稿。',
+        '解決 ChatGPT Slides 匯出 PowerPoint 文字溢位與排版問題！使用防跑版簡報提示詞產生器，保留完整標題層級與演講者備忘稿。',
       h1: 'ChatGPT Slides 匯出 PowerPoint (.PPTX) 提示詞產生器與防跑版指南',
       subtitle:
-        '消除從 ChatGPT Slides 匯出至 Microsoft PowerPoint、PDF 或 Google 簡報時的文字超框與格式錯亂，自動將長篇解說移入演講者檢視備忘稿。',
-      defaultTopic: '針對 PowerPoint (.pptx) 完美排版優化的年度企業策略簡報'
+        '減少從 ChatGPT Slides 匯出至 Microsoft PowerPoint、PDF 或 Google 簡報時的文字超框現象，自動將長篇解說移入演講者檢視備忘稿。',
+      defaultTopic: '針對 PowerPoint (.pptx) 排版優化的年度企業策略簡報'
     },
     troubleshooting: {
-      metaTitle: 'ChatGPT Slides 無法顯示或找不到？5 個即時修復方法與觸發指令',
+      metaTitle: 'ChatGPT Slides 無法顯示？排查步驟與標準提示詞',
       metaDesc:
-        '為什麼 ChatGPT 裡沒有出現 Slides 簡報畫布？檢查這 5 項帳號與模型設定，並複製能強制喚醒 ChatGPT Slides 協作畫布的標準觸發指令！',
-      h1: 'ChatGPT Slides 無法顯示？5 步故障排除指南與畫布喚醒提示詞',
+        '了解 ChatGPT Slides 找不到或未出現的原因。核對帳號方案（Pro、Business、Enterprise Space 權限）、桌面瀏覽器環境與官方 Work/Space 入口。',
+      h1: 'ChatGPT Slides 無法顯示？排查說明與標準提示詞',
       subtitle:
-        '看不到 2026 年 10 月新推出的 ChatGPT Slides 簡報畫布或 PPTX 下載按鈕？按照以下 60 秒檢測清單排查，並使用下方標準指令直接喚醒簡報模式。',
-      defaultTopic: '季度高管業務檢討報告（強制喚醒 ChatGPT Slides 畫布模式專用指令）'
+        '如果帳號中尚未看見 Slides 畫布功能或匯出選項，請先確認您的方案是否具備 Space 權限（Pro、Business、Enterprise），並在桌面端瀏覽器測試。',
+      defaultTopic: '季度高管業務檢討報告（ChatGPT Slides 標準提示詞）'
     }
   },
 
@@ -748,7 +864,7 @@ export const LOCALIZED_HUB_PAGES = {
         'Crea prompts profesionales para ChatGPT Slides gratis. Define tema, audiencia, número de diapositivas, gráficos y notas del orador para PowerPoint.',
       h1: 'Generador de Prompts para ChatGPT Slides',
       subtitle:
-        'Genera presentaciones colaborativas en ChatGPT Slides (lanzado el 16 de octubre de 2026) listas para exportar a PowerPoint (.pptx), PDF y Google Slides sin API ni registro.'
+        'Genera presentaciones colaborativas en ChatGPT Slides listas para exportar a PowerPoint (.pptx), PDF y Google Slides sin API ni registro obligatorio.'
     },
     templates: {
       metaTitle: '47+ Plantillas de Prompts para ChatGPT Slides (Ventas, Pitch, Educación)',
@@ -761,10 +877,10 @@ export const LOCALIZED_HUB_PAGES = {
     pitchDeck: {
       metaTitle: 'Prompt de Pitch Deck para ChatGPT Slides (Plantilla para Startups)',
       metaDesc:
-        'Genera un Pitch Deck ganador en ChatGPT Slides. Incluye problema, solución, mercado TAM/SAM/SOM, tracción, modelo de negocio y exportación a PowerPoint.',
+        'Genera un Pitch Deck para ChatGPT Slides. Incluye problema, solución, mercado TAM/SAM/SOM, tracción, modelo de negocio y exportación a PowerPoint.',
       h1: 'Generador de Prompts de Pitch Deck para ChatGPT Slides',
       subtitle:
-        'Estructura tu presentación para inversores (Semilla / Serie A) con narrativa estilo Sequoia, gráficos de mercado TAM/SAM/SOM y notas para preguntas de VCs.',
+        'Estructura tu presentación para inversores con narrativa clara, gráficos de mercado TAM/SAM/SOM y notas para preguntas de VCs.',
       defaultTopic: 'Plataforma SaaS de Automatización con IA B2B — Pitch Deck Serie A'
     },
     salesDeck: {
@@ -786,13 +902,13 @@ export const LOCALIZED_HUB_PAGES = {
       defaultTopic: 'Presentación de Estrategia Ejecutiva Optimizada para Exportación Limpia a PowerPoint (.pptx)'
     },
     troubleshooting: {
-      metaTitle: '¿ChatGPT Slides No Aparece? 5 Soluciones y Prompt Activador',
+      metaTitle: '¿ChatGPT Slides No Aparece? Pasos de Verificación y Prompt Estándar',
       metaDesc:
-        'Soluciona por qué ChatGPT Slides no aparece en tu cuenta. Revisa permisos de Canvas, caché y copia el comando exacto que abre el lienzo de diapositivas.',
-      h1: '¿ChatGPT Slides No Aparece? Guía de Solución y Prompt Activador del Lienzo',
+        'Comprueba por qué ChatGPT Slides puede no estar visible. Revisa planes con acceso Space (Pro, Business, Enterprise), navegador web de escritorio y Work/Space.',
+      h1: '¿ChatGPT Slides No Aparece? Pasos de Verificación y Prompt Estándar',
       subtitle:
-        '¿No ves el nuevo lienzo de ChatGPT Slides de octubre de 2026 ni el botón de exportar a PowerPoint? Sigue estos 5 pasos y usa el prompt activador.',
-      defaultTopic: 'Revisión Ejecutiva de Negocio (Prompt Activador del Lienzo ChatGPT Slides)'
+        'Si no ves el lienzo de Slides o el botón de exportación, comprueba si tu cuenta tiene acceso Space (Pro, Business, Enterprise) en navegador de escritorio.',
+      defaultTopic: 'Revisión Ejecutiva de Negocio (Prompt Estándar para ChatGPT Slides)'
     }
   },
 
@@ -800,10 +916,10 @@ export const LOCALIZED_HUB_PAGES = {
     generator: {
       metaTitle: 'ChatGPT Slides プロンプト作成ツール（無料・登録不要・PPTX対応）',
       metaDesc:
-        '2026年10月公開のChatGPT Slides専用プロンプト生成ツール。テーマ・対象読者・スライド枚数・図表・スピーカーノートを指定してPowerPointやGoogleスライドへ出力！',
+        'ChatGPT Slides専用プロンプト生成ツール。テーマ・対象読者・スライド枚数・図表・スピーカーノートを指定してPowerPointやGoogleスライドへ出力！',
       h1: 'ChatGPT Slides 専用プロンプト生成ツール（無料）',
       subtitle:
-        'OpenAIのChatGPT Slides（2026年10月16日リリース）向けに最適化されたプレゼン構成プロンプトをワンクリック生成。PowerPoint (.pptx)・PDF・Googleスライド出力に完全対応。'
+        'OpenAIのChatGPT Slides向けに最適化されたプレゼン構成プロンプトをワンクリック生成。PowerPoint (.pptx)・PDF・Googleスライド出力に対応。'
     },
     templates: {
       metaTitle: '47+ ChatGPT Slides プロンプトテンプレート集（営業・ピッチ・研究）',
@@ -837,17 +953,17 @@ export const LOCALIZED_HUB_PAGES = {
         'ChatGPT SlidesからPowerPoint (.pptx) へ書き出す際の文字溢れ・レイアウト崩れを防止！スピーカーノート付きの最適化プロンプトを生成します。',
       h1: 'ChatGPT Slides PowerPoint (.PPTX) 出力最適化プロンプト＆書き出しガイド',
       subtitle:
-        'PowerPointやGoogleスライドへエクスポートした際の文字はみ出しを防ぎ、1スライド1メッセージの美しいレイアウトと発表原稿を出力します。',
+        'PowerPointやGoogleスライドへエクスポートした際の文字はみ出しを防ぎ、1スライド1メッセージのレイアウトと発表原稿を出力します。',
       defaultTopic: 'PowerPoint (.pptx) 書き出しに最適化した全社DX推進戦略プレゼンテーション'
     },
     troubleshooting: {
-      metaTitle: 'ChatGPT Slidesが表示されない・使えない時の5つの対処法と起動プロンプト',
+      metaTitle: 'ChatGPT Slidesが表示されない場合の確認ポイントと標準プロンプト',
       metaDesc:
-        'ChatGPT Slidesのキャンバス画面が出ない原因と解決策を解説。モデル選択や管理設定の確認手順と、確実にスライド画面を起動する専用プロンプト！',
-      h1: 'ChatGPT Slidesが表示されない？5つの解決策＆キャンバス起動プロンプト',
+        'ChatGPT Slidesが表示されない要因と確認手順を解説。Space権限を持つ対象プラン（Pro、Business、Enterprise）の段階的提供状況やデスクトップブラウザ環境を確認してください。',
+      h1: 'ChatGPT Slidesが表示されない場合の確認手順と標準プロンプト',
       subtitle:
-        '2026年10月公開のChatGPT Slides画面やPPTX出力ボタンが表示されない場合のチェックリストと、スライドモードを確実に呼び出す指示文です。',
-      defaultTopic: '四半期経営レビュー報告（ChatGPT Slidesキャンバス起動用プロンプト）'
+        'Slidesキャンバスや書き出しメニューが表示されない場合は、Space機能対応プラン（Pro、Business、Enterprise）とデスクトップ環境を確認してください。',
+      defaultTopic: '四半期経営レビュー報告（ChatGPT Slides用標準プロンプト）'
     }
   }
 };

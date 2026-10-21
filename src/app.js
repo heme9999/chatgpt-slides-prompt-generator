@@ -1,3 +1,11 @@
+// Shared deterministic slide structure engine (ES module import)
+import {
+  selectSlideBlueprint,
+  renderSlideOutline,
+  getCategoryKey,
+  resolveCanonicalPath
+} from '/slide-structure-data.js';
+
 // Apple WWDC Fluid Spring Physics Engine & Pure Client-Side Prompt Composer
 (function () {
   'use strict';
@@ -96,7 +104,7 @@
 
     toastTimer = setTimeout(() => {
       toast.style.transform = 'translate3d(-50%, 120px, 0)';
-    }, 2400);
+    }, 2800);
   }
 
   // LocalStorage Telemetry & Saved Prompts
@@ -142,11 +150,12 @@
   function renderUsageBadges() {
     try {
       const counts = JSON.parse(localStorage.getItem(USAGE_KEY) || '{}');
+      const badgeFormat = window.__APP_PAGE_CONFIG?.messages?.usedByYou || 'Used {n}× by you';
       document.querySelectorAll('[data-template-usage-slug]').forEach((el) => {
         const slug = el.getAttribute('data-template-usage-slug');
         const c = counts[slug] || 0;
         if (c > 0) {
-          el.textContent = `Used ${c}× by you`;
+          el.textContent = badgeFormat.replace('{n}', c);
           el.hidden = false;
         }
       });
@@ -162,70 +171,8 @@
     badge.textContent = String(count);
   }
 
-  // Dynamic Slide Structure Builder for Any Slide Count (5 to 20)
-  function buildSlideOutline(baseSlides, targetCount, topic) {
-    const cleanBase = Array.isArray(baseSlides) && baseSlides.length > 0
-      ? baseSlides.map((s) => s.replace(/^Slide\s+\d+:\s*/i, ''))
-      : [
-          'Title & Executive Hook',
-          'Executive Summary — Core Takeaway in 60 Seconds',
-          'Current Context & Problem Statement',
-          'Key Data Insights & Market Evidence',
-          'Proposed Strategy / Solution Architecture',
-          'Deep Dive Pillar 1 — Core Execution',
-          'Deep Dive Pillar 2 — Quantified Impact & Charts',
-          'Risk Mitigation & Governance Trade-offs',
-          'Implementation Roadmap & Milestones',
-          'Summary Recommendations & Next Steps'
-        ];
-
-    const extraPool = [
-      `Benchmark Comparison & Industry Context for ${topic || 'Topic'}`,
-      'Detailed Methodology & Data Lineage Verification',
-      'Customer / Stakeholder Impact Matrix by Segment',
-      'Sensitivity Analysis: Base, Upside & Downside Scenarios',
-      'Resource Allocation, Budget & Tooling Requirements',
-      'Change Management & Cross-Functional Dependencies',
-      'Common Objections & Executive FAQ Preparation',
-      '90-Day Action Plan & Immediate Week-1 Owners',
-      'Appendix: Supporting Metrics & Reference Citations',
-      'Appendix: Deep-Dive Architecture & Technical Specs'
-    ];
-
-    const selected = [];
-    if (targetCount <= cleanBase.length) {
-      if (targetCount <= 2) {
-        for (let i = 0; i < targetCount; i++) selected.push(cleanBase[i]);
-      } else {
-        // Keep first 2 (Title + Exec Summary) and last 1 (Next Steps), sample middle evenly
-        selected.push(cleanBase[0]);
-        selected.push(cleanBase[1]);
-        const middleCount = targetCount - 3;
-        const sourceMiddle = cleanBase.slice(2, cleanBase.length - 1);
-        for (let i = 0; i < middleCount; i++) {
-          const idx = Math.min(
-            sourceMiddle.length - 1,
-            Math.floor((i * sourceMiddle.length) / Math.max(1, middleCount))
-          );
-          selected.push(sourceMiddle[idx]);
-        }
-        selected.push(cleanBase[cleanBase.length - 1]);
-      }
-    } else {
-      // Include all base slides except the final closing slide, insert from extraPool, then add closing slide
-      const closing = cleanBase[cleanBase.length - 1];
-      const body = cleanBase.slice(0, cleanBase.length - 1);
-      selected.push(...body);
-      let extraIdx = 0;
-      while (selected.length < targetCount - 1) {
-        selected.push(extraPool[extraIdx % extraPool.length]);
-        extraIdx++;
-      }
-      selected.push(closing);
-    }
-
-    return selected.map((title, i) => `Slide ${i + 1}: ${title}`);
-  }
+  // Slide structure blueprint selection and localized rendering are imported
+  // from the shared /slide-structure-data.js module.
 
   // Main Prompt Generator Initialization
   function initPromptGenerator() {
@@ -236,11 +183,15 @@
     let pageConfig = {
       slug: 'chatgpt-slides-prompt-generator',
       styles: [],
-      slideStructure: []
+      slideStructure: [],
+      localizedSlideStructure: [],
+      categoryKey: 'general',
+      messages: {}
     };
     if (configEl) {
       try {
         pageConfig = JSON.parse(configEl.textContent);
+        window.__APP_PAGE_CONFIG = pageConfig;
       } catch {
         // fallback
       }
@@ -264,7 +215,7 @@
 
     function getSelectedSource() {
       const checked = form.querySelector('input[name="source"]:checked');
-      return checked ? checked.value : 'chat';
+      return checked ? checked.value : 'prompt_only';
     }
 
     function getSourceInstruction(sourceId) {
@@ -272,12 +223,12 @@
         case 'file':
           return 'Extract key facts, tables, and metrics directly from the attached/uploaded document(s). Do not invent figures not supported by the file.';
         case 'outline':
-          return 'Expand the raw outline/notes I provide below into complete, polished slides while preserving every factual point.';
+          return 'Expand the raw outline/notes I provide in this chat into complete, polished slides while preserving every factual point.';
         case 'research':
-          return 'Use ChatGPT web search / deep research to ground claims in recent, verifiable 2025–2026 industry benchmarks and cite primary sources.';
-        case 'chat':
+          return 'Use web search to ground claims in recent, verifiable industry benchmarks and cite primary sources.';
+        case 'prompt_only':
         default:
-          return 'Synthesize the key insights and decisions from our current conversation context into a cohesive narrative.';
+          return 'Synthesize the presentation strictly from the topic and requirements specified in this prompt without assuming prior chat context.';
       }
     }
 
@@ -299,6 +250,7 @@
       const styleId = styleSelect?.value || 'executive';
       const language = languageSelect?.value || 'English';
       const sourceId = getSelectedSource();
+      const hasExec = !!chkExecSummary?.checked;
 
       const styleObj =
         (pageConfig.styles || []).find((s) => s.id === styleId) || {
@@ -319,14 +271,45 @@
       }
       updateRangeProgressFallback();
 
-      const outline = buildSlideOutline(pageConfig.slideStructure, slideCount, rawTopic);
+      // Deterministic slide blueprint selection: selected ONCE based on stable IDs and roles
+      // 100% language-independent: guarantees prompt directives & UI preview have identical IDs, order, and roles
+      const baseSlides = (Array.isArray(pageConfig.slides) && pageConfig.slides.length > 0)
+        ? pageConfig.slides
+        : (pageConfig.slideStructure || []);
+
+      const catKey = pageConfig.categoryKey || (typeof getCategoryKey === 'function' ? getCategoryKey(pageConfig.category) : 'general');
+
+      const blueprint = selectSlideBlueprint(
+        baseSlides,
+        slideCount,
+        hasExec,
+        catKey
+      );
+
+      // 1. English outline for generated prompt text instructions
+      const promptOutline = renderSlideOutline(
+        blueprint,
+        pageConfig.slides,
+        null,
+        catKey,
+        'en'
+      );
+
+      // 2. UI-localized outline for live storyboard strip preview
+      const displayOutline = renderSlideOutline(
+        blueprint,
+        pageConfig.slides,
+        pageConfig.localizedSlides,
+        catKey,
+        pageConfig.uiLang || 'en'
+      );
 
       const requirements = [
         '- One clear message per slide (avoid cluttered text walls; keep slide canvas scannable)',
         `- ${styleObj.bulletRule}`
       ];
 
-      if (chkExecSummary?.checked) {
+      if (hasExec) {
         requirements.push('- Include an executive summary slide right after the title slide with the top 3 takeaways');
       }
       if (chkCharts?.checked) {
@@ -342,7 +325,7 @@
       requirements.push(
         '- Format cleanly in ChatGPT Slides canvas so it exports seamlessly to PowerPoint (.pptx), PDF, and Google Slides'
       );
-      requirements.push(`- Follow this ${slideCount}-slide structure:\n  ${outline.join('\n  ')}`);
+      requirements.push(`- Follow this ${slideCount}-slide structure:\n  ${promptOutline.join('\n  ')}`);
 
       const promptText = `Create a ${slideCount}-slide presentation about ${topic}.
 
@@ -360,9 +343,9 @@ ${requirements.join('\n')}`;
       }
 
       if (storyboardContainer) {
-        storyboardContainer.innerHTML = outline
+        storyboardContainer.innerHTML = displayOutline
           .map((line) => {
-            const parts = line.split(':');
+            const parts = line.split(/[:：]/);
             const num = parts[0] || 'Slide';
             const rest = parts.slice(1).join(':').trim();
             return `<div class="mini-slide-card"><span class="mini-slide-num">${escapeHtml(num)}</span><span>${escapeHtml(rest)}</span></div>`;
@@ -381,14 +364,16 @@ ${requirements.join('\n')}`;
         .replace(/"/g, '&quot;');
     }
 
-    // Validation Timing Matrix (modern-web-guidance: forms):
-    // Validate on blur, clear existing errors on input
+    // Validation Timing: Validate on blur, clear on input
     if (topicInput) {
       topicInput.addEventListener('blur', () => {
         if (!topicInput.value.trim()) {
-          topicInput.setCustomValidity('Please enter a presentation topic or pick a sample chip above.');
+          topicInput.setCustomValidity(
+            pageConfig.messages?.topicValidation || 'Please enter a presentation topic or pick a sample chip above.'
+          );
           if (topicError) {
-            topicError.textContent = 'Tip: Enter a presentation topic (or click a sample chip) for a tailored prompt.';
+            topicError.textContent =
+              pageConfig.messages?.topicErrorTip || 'Tip: Enter a presentation topic (or click a sample chip) for a tailored prompt.';
           }
         } else {
           topicInput.setCustomValidity('');
@@ -402,17 +387,16 @@ ${requirements.join('\n')}`;
         composePrompt();
       });
 
-      // IME-safe Enter key check
       topicInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.isComposing) {
           e.preventDefault();
           composePrompt();
-          showToast('Prompt updated for your topic');
+          showToast(pageConfig.messages?.topicUpdated || 'Prompt updated for your topic');
         }
       });
     }
 
-    // Attach instant 1:1 listeners to all form controls
+    // Attach listeners to all form controls
     form.querySelectorAll('select, input[type="range"], input[type="checkbox"], input[type="radio"]').forEach((ctrl) => {
       ctrl.addEventListener('input', composePrompt);
       ctrl.addEventListener('change', composePrompt);
@@ -427,7 +411,7 @@ ${requirements.join('\n')}`;
           topicInput.setCustomValidity('');
           if (topicError) topicError.textContent = '';
           composePrompt();
-          showToast('Loaded sample topic');
+          showToast(pageConfig.messages?.sampleLoaded || 'Loaded sample topic');
         }
       });
     });
@@ -443,27 +427,51 @@ ${requirements.join('\n')}`;
       });
     });
 
-    // Prevent default form navigation and copy prompt on submit
+    // Action 1: Copy Prompt (with real verification & fallback)
+    async function handleCopyPrompt() {
+      const text = outputArea ? outputArea.value : composePrompt();
+      let copied = false;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(text);
+          copied = true;
+        } catch {
+          copied = false;
+        }
+      }
+
+      if (!copied && outputArea) {
+        try {
+          outputArea.focus();
+          outputArea.select();
+          copied = document.execCommand('copy');
+        } catch {
+          copied = false;
+        }
+      }
+
+      if (copied) {
+        showToast(pageConfig.messages?.copySuccessToast || '✓ Prompt copied to clipboard! Paste into ChatGPT.');
+      } else {
+        if (outputArea) {
+          outputArea.focus();
+          outputArea.select();
+        }
+        showToast(
+          pageConfig.messages?.copyManualFallbackToast ||
+            'Clipboard access blocked. Please copy the selected text below manually.'
+        );
+      }
+
+      trackTemplateUsage(pageConfig.slug, 'copy');
+      return copied;
+    }
+
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       handleCopyPrompt();
     });
-
-    // Action 1: Copy Prompt
-    async function handleCopyPrompt() {
-      const text = outputArea ? outputArea.value : composePrompt();
-      try {
-        await navigator.clipboard.writeText(text);
-        showToast('✓ Copied prompt to clipboard! Paste into ChatGPT Slides.');
-      } catch {
-        if (outputArea) {
-          outputArea.select();
-          document.execCommand('copy');
-          showToast('✓ Copied prompt to clipboard!');
-        }
-      }
-      trackTemplateUsage(pageConfig.slug, 'copy');
-    }
 
     const btnCopy = document.getElementById('btn-copy-prompt');
     if (btnCopy) {
@@ -485,28 +493,19 @@ ${requirements.join('\n')}`;
         a.remove();
         URL.revokeObjectURL(url);
         trackTemplateUsage(pageConfig.slug, 'download');
-        showToast('Downloaded prompt as .TXT');
+        showToast(pageConfig.messages?.downloadDone || 'Downloaded prompt as .TXT');
       });
     }
 
-    // Action 3: Open ChatGPT
+    // Action 3: Open ChatGPT (Standard native link with tracking, no async popup blocker issues)
     const btnOpenChatGPT = document.getElementById('btn-open-chatgpt');
     if (btnOpenChatGPT) {
-      btnOpenChatGPT.addEventListener('click', async () => {
-        const text = outputArea ? outputArea.value : composePrompt();
-        try {
-          await navigator.clipboard.writeText(text);
-        } catch {
-          // ignore clipboard permission fallback
-        }
+      btnOpenChatGPT.addEventListener('click', () => {
         trackTemplateUsage(pageConfig.slug, 'open_chatgpt');
-        showToast('Prompt copied! Opening ChatGPT...');
-        const encoded = encodeURIComponent(text);
-        window.open(`https://chatgpt.com/?q=${encoded}`, '_blank', 'noopener,noreferrer');
       });
     }
 
-    // Action 4: Switch Style (换一种风格)
+    // Action 4: Switch Style
     const btnSwitchStyle = document.getElementById('btn-switch-style');
     if (btnSwitchStyle && styleSelect) {
       btnSwitchStyle.addEventListener('click', () => {
@@ -522,27 +521,37 @@ ${requirements.join('\n')}`;
             card.style.transform = 'scale(1)';
           }, 20);
         }
-        showToast(`Switched style to: ${opts[nextIdx].text}`);
+        showToast((pageConfig.messages?.styleSwitched || 'Switched style to: ') + opts[nextIdx].text);
       });
     }
 
-    // Action 5: Save Locally (保存到本地)
+    // Action 5: Save Locally
     const btnSaveLocal = document.getElementById('btn-save-local');
     if (btnSaveLocal) {
       btnSaveLocal.addEventListener('click', () => {
         const text = outputArea ? outputArea.value : composePrompt();
         const item = {
           id: 'sp_' + Date.now(),
-          slug: pageConfig.slug,
+          templateId: pageConfig.slug || 'chatgpt-slides-prompt-generator',
+          slug: pageConfig.slug || 'chatgpt-slides-prompt-generator',
+          categoryKey: pageConfig.categoryKey || 'general',
           topic: (topicInput?.value || 'Untitled Presentation').trim(),
           slides: Number(slidesRange?.value || 10),
           style: styleSelect?.value || 'executive',
+          language: languageSelect?.value || 'English',
+          audience: audienceSelect?.value || '',
+          goal: goalSelect?.value || '',
+          source: getSelectedSource(),
+          hasExec: chkExecSummary ? chkExecSummary.checked : true,
+          hasCharts: chkCharts ? chkCharts.checked : true,
+          hasCitations: chkCitations ? chkCitations.checked : true,
+          hasNotes: chkNotes ? chkNotes.checked : true,
           prompt: text,
           createdAt: new Date().toLocaleString()
         };
         savePromptItem(item);
         trackTemplateUsage(pageConfig.slug, 'save');
-        showToast('Saved prompt to your browser library');
+        showToast(pageConfig.messages?.savedSuccess || 'Saved prompt to your browser library');
         openSavedDrawer();
       });
     }
@@ -550,19 +559,53 @@ ${requirements.join('\n')}`;
     // Expose loader for saved prompts
     window.__loadSavedPromptIntoForm = function (item) {
       if (!item) return;
-      if (topicInput && item.topic) topicInput.value = item.topic;
-      if (slidesRange && item.slides) slidesRange.value = String(item.slides);
-      if (styleSelect && item.style) styleSelect.value = item.style;
+      if (topicInput && item.topic !== undefined) topicInput.value = item.topic;
+      if (slidesRange && item.slides !== undefined) {
+        slidesRange.value = String(item.slides);
+        updateRangeProgressFallback();
+      }
+      if (styleSelect && item.style !== undefined) styleSelect.value = item.style;
+      if (languageSelect && item.language !== undefined) languageSelect.value = item.language;
+      if (audienceSelect && item.audience !== undefined) audienceSelect.value = item.audience;
+      if (goalSelect && item.goal !== undefined) goalSelect.value = item.goal;
+      if (item.source) {
+        const radio = form.querySelector(`input[name="source"][value="${item.source}"]`);
+        if (radio) {
+          radio.checked = true;
+          radio.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
+      if (chkExecSummary && typeof item.hasExec === 'boolean') chkExecSummary.checked = item.hasExec;
+      if (chkCharts && typeof item.hasCharts === 'boolean') chkCharts.checked = item.hasCharts;
+      if (chkCitations && typeof item.hasCitations === 'boolean') chkCitations.checked = item.hasCitations;
+      if (chkNotes && typeof item.hasNotes === 'boolean') chkNotes.checked = item.hasNotes;
+
+      // Single source of truth: re-compose prompt output and storyboard cards from restored state
       composePrompt();
-      if (outputArea && item.prompt) outputArea.value = item.prompt;
       closeSavedDrawer();
-      showToast('Loaded saved prompt into editor');
+      showToast(pageConfig.messages?.loadedSuccess || 'Loaded saved prompt into editor');
     };
 
     composePrompt();
+
+    // Check if URL has ?loadSavedId=...
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const loadId = urlParams.get('loadSavedId');
+      if (loadId) {
+        const found = getSavedPrompts().find((x) => x.id === loadId);
+        if (found && window.__loadSavedPromptIntoForm) {
+          window.__loadSavedPromptIntoForm(found);
+          const cleanUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, cleanUrl);
+        }
+      }
+    } catch {
+      // ignore
+    }
   }
 
-  // Saved Prompts Drawer with 1:1 Pointer Tracking, Velocity Handoff & Momentum Projection
+  // Saved Prompts Drawer
   let drawerOpen = false;
   function getDrawerWidth() {
     const drawer = document.getElementById('saved-prompts-drawer');
@@ -600,53 +643,81 @@ ${requirements.join('\n')}`;
   }
 
   function renderSavedDrawerList() {
-    const container = document.getElementById('saved-prompts-list');
+    const listContainer = document.getElementById('saved-prompts-list');
     const drawer = document.getElementById('saved-prompts-drawer');
-    if (!container) return;
-    const emptyMsg =
-      drawer?.getAttribute('data-empty-msg') ||
-      'No saved prompts yet. Click "Save Locally" on any generator to store your favorite prompt configurations right in your browser (no login required).';
-    const loadLabel = drawer?.getAttribute('data-load-label') || 'Load into Editor';
-    const deleteLabel = drawer?.getAttribute('data-delete-label') || 'Delete';
+    if (!listContainer || !drawer) return;
 
-    const list = getSavedPrompts();
-    if (list.length === 0) {
-      container.innerHTML = `<p class="caption-text" style="padding: 1rem 0;">${emptyMsg}</p>`;
+    const items = getSavedPrompts();
+    const emptyMsg = drawer.getAttribute('data-empty-msg') || 'No saved prompts yet.';
+    const loadLabel = drawer.getAttribute('data-load-label') || 'Load into Editor';
+    const deleteLabel = drawer.getAttribute('data-delete-label') || 'Delete';
+
+    if (items.length === 0) {
+      listContainer.innerHTML = `<div style="padding:1.5rem 0.5rem; color:var(--text-secondary); text-align:center; font-size:0.9rem;">${emptyMsg}</div>`;
       return;
     }
 
-    container.innerHTML = list
+    listContainer.innerHTML = items
       .map(
         (item) => `
-      <div class="info-card" style="margin-block-end: 0.75rem; padding: 0.9rem;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
-          <strong style="font-size:0.88rem;">${item.topic.replace(/</g, '&lt;')}</strong>
-          <span class="badge-tag">${item.slides} slides</span>
-        </div>
-        <div class="caption-text" style="margin-block: 0.25rem 0.6rem;">${item.createdAt} · ${item.style}</div>
-        <div style="display:flex; gap:0.4rem;">
-          <button type="button" class="chip" data-load-id="${item.id}">${loadLabel}</button>
-          <button type="button" class="chip" data-delete-id="${item.id}">${deleteLabel}</button>
-        </div>
-      </div>
-    `
+        <div class="saved-item-card" data-saved-id="${item.id}" style="padding:0.75rem; border:1px solid var(--border-hairline); border-radius:12px; margin-block-end:0.6rem; background:var(--surface-color);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:0.35rem;">
+            <strong style="font-size:0.92rem; color:var(--text-primary);">${item.topic || 'Untitled'}</strong>
+            <span class="badge-tag">${item.slides || 10} Slides</span>
+          </div>
+          <div class="caption-text" style="margin-block-end:0.5rem; font-size:0.75rem;">${item.createdAt || ''}</div>
+          <div style="display:flex; gap:0.5rem;">
+            <button type="button" class="btn btn-secondary btn-load-saved" data-saved-id="${item.id}" style="padding:0.3rem 0.65rem; font-size:0.78rem; min-height:30px;">${loadLabel}</button>
+            <button type="button" class="btn btn-secondary btn-del-saved" data-saved-id="${item.id}" style="padding:0.3rem 0.65rem; font-size:0.78rem; min-height:30px; color:var(--text-secondary);">${deleteLabel}</button>
+          </div>
+        </div>`
       )
       .join('');
 
-    container.querySelectorAll('[data-load-id]').forEach((btn) => {
+    listContainer.querySelectorAll('.btn-load-saved').forEach((btn) => {
       btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-load-id');
-        const found = getSavedPrompts().find((x) => x.id === id);
-        if (found && window.__loadSavedPromptIntoForm) {
-          window.__loadSavedPromptIntoForm(found);
+        const id = btn.getAttribute('data-saved-id');
+        const item = getSavedPrompts().find((x) => x.id === id);
+        if (!item) return;
+
+        const activeConfig = window.__APP_PAGE_CONFIG || {};
+        const templateId = item.templateId || item.slug;
+        if (!templateId) {
+          showToast(activeConfig.messages?.legacySavedWarning || 'Legacy saved prompt: missing template metadata.');
+          return;
+        }
+
+        const targetPath = resolveCanonicalPath(templateId, activeConfig.uiLang || 'en');
+        if (!targetPath) {
+          showToast(activeConfig.messages?.legacySavedWarning || 'Legacy saved prompt: missing template metadata.');
+          return;
+        }
+
+        const currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+        const normTarget = targetPath.replace(/\/$/, '') || '/';
+
+        const isSameGenerator = (p1, p2) => {
+          if (p1 === p2) return true;
+          const isMainGen = (p) => p === '' || p === '/' || p.endsWith('/chatgpt-slides-prompt-generator');
+          return isMainGen(p1) && isMainGen(p2);
+        };
+
+        if (!isSameGenerator(currentPath, normTarget)) {
+          // Cross-template / cross-page navigation: route to target canonical URL and restore state
+          window.location.href = `${normTarget}?loadSavedId=${encodeURIComponent(item.id)}`;
+          return;
+        }
+
+        if (window.__loadSavedPromptIntoForm) {
+          window.__loadSavedPromptIntoForm(item);
         }
       });
     });
 
-    container.querySelectorAll('[data-delete-id]').forEach((btn) => {
+    listContainer.querySelectorAll('.btn-del-saved').forEach((btn) => {
       btn.addEventListener('click', () => {
-        const id = btn.getAttribute('data-delete-id');
-        if (id) deleteSavedPrompt(id);
+        const id = btn.getAttribute('data-saved-id');
+        deleteSavedPrompt(id);
       });
     });
   }
@@ -666,7 +737,7 @@ ${requirements.join('\n')}`;
     if (btnClose) btnClose.addEventListener('click', () => closeSavedDrawer(0));
     if (scrim) scrim.addEventListener('click', () => closeSavedDrawer(0));
 
-    // 1:1 Pointer Drag with grab offset, velocity history, and Apple momentum projection
+    // 1:1 Pointer Drag with velocity history and momentum projection
     let dragging = false;
     let startPointerX = 0;
     let startDrawerX = 0;
@@ -691,7 +762,6 @@ ${requirements.join('\n')}`;
       const dx = e.clientX - startPointerX;
       const rawX = startDrawerX + dx;
       const width = getDrawerWidth();
-      // Rubber-band if pulled left past 0
       const nextX = rawX < 0 ? -rubberband(Math.abs(rawX), width, 0.55) : rawX;
       drawer.style.transform = `translate3d(${nextX.toFixed(2)}px, 0, 0)`;
       activeSprings.set(drawer, { currentX: nextX, velocity: 0, rafId: null });
@@ -710,7 +780,7 @@ ${requirements.join('\n')}`;
         // ignore
       }
 
-      let velocity = 0; // px/s
+      let velocity = 0;
       if (history.length >= 2) {
         const first = history[0];
         const last = history[history.length - 1];
@@ -735,7 +805,6 @@ ${requirements.join('\n')}`;
     drawer.addEventListener('pointercancel', endDrag);
   }
 
-  // Category Filter on /chatgpt-slides-templates and Hub sections
   function initCategoryFilter() {
     const filterBtns = document.querySelectorAll('[data-category-filter]');
     const cards = document.querySelectorAll('[data-template-category]');

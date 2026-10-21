@@ -6,10 +6,12 @@
   "description": "Free ChatGPT Slides Prompt Generator & 36+ Presentation Prompt Templates (Oct 2026 Release)",
   "scripts": {
     "build": "node scripts/build.mjs",
+    "test": "node scripts/test-all.mjs",
     "preview": "wrangler dev",
     "deploy": "wrangler deploy"
   },
   "devDependencies": {
+    "puppeteer-core": "^25.15.0",
     "wrangler": "^4.151.3"
   }
 }

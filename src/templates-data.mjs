@@ -2,7 +2,7 @@ export const SITE_URL = 'https://chatgpt-slides-prompt-generator.overjoyed-week-
 export const BRAND_NAME = 'SlidePrompt.ai';
 export const GSC_VERIFICATION_CODE = 'wMz2VDeMwD8R6yiCgJIqFD_wM2wSzrSEauzvCtzKHyw';
 export const GSC_HTML_FILENAME = 'google8c6329c58e485687.html';
-export const RELEASE_DATE_NOTE = 'Updated for ChatGPT Slides (Released Oct 16, 2026) — Supports Canvas Collaboration, PowerPoint (.pptx), PDF & Google Slides Export';
+export const RELEASE_DATE_NOTE = 'Designed for ChatGPT Slides (OpenAI October 2026 feature) — Blueprint generator for PowerPoint (.pptx), PDF & Google Slides workflows';
 
 export const STYLE_PRESETS = [
   {
@@ -71,10 +71,10 @@ export const GOAL_OPTIONS = [
 ];
 
 export const SOURCE_OPTIONS = [
-  { id: 'chat', label: 'Current Chat Context', desc: 'Synthesize directly from our conversation history' },
-  { id: 'file', label: 'Uploaded File / PDF / Doc', desc: 'Extract structure & metrics from attached files' },
-  { id: 'outline', label: 'Pasted Outline / Raw Notes', desc: 'Expand my bullet points into full slides' },
-  { id: 'research', label: 'Web Search / Deep Research', desc: 'Gather fresh benchmarks & verify citations' }
+  { id: 'prompt_only', label: 'Prompt Only (Topic & Requirements)', desc: 'Generate directly from the topic, audience, and constraints in this prompt' },
+  { id: 'file', label: 'Uploaded File / Document', desc: 'Instruct ChatGPT to extract data from attachments (PDF, XLSX, DOCX)' },
+  { id: 'outline', label: 'Pasted Outline / Notes', desc: 'Expand your bullet points or raw notes into complete slide sections' },
+  { id: 'research', label: 'Web Search / Verification', desc: 'Direct ChatGPT to verify facts and gather current industry benchmarks' }
 ];
 
 export const LANGUAGE_OPTIONS = [
@@ -105,7 +105,7 @@ export const PROMPT_TEMPLATES = [
     defaultGoal: 'Persuade & Win Approval / Close Deal',
     defaultSlides: 10,
     defaultStyle: 'persuasive',
-    defaultSource: 'chat',
+    defaultSource: 'prompt_only',
     defaultCharts: true,
     defaultCitations: true,
     defaultNotes: true,
@@ -577,7 +577,7 @@ export const PROMPT_TEMPLATES = [
     defaultGoal: 'Persuade & Win Approval / Close Deal',
     defaultSlides: 10,
     defaultStyle: 'persuasive',
-    defaultSource: 'chat',
+    defaultSource: 'prompt_only',
     defaultCharts: true,
     defaultCitations: true,
     defaultNotes: true,
@@ -1402,7 +1402,7 @@ export const PROMPT_TEMPLATES = [
     defaultGoal: 'Persuade & Win Approval / Close Deal',
     defaultSlides: 9,
     defaultStyle: 'persuasive',
-    defaultSource: 'chat',
+    defaultSource: 'prompt_only',
     defaultCharts: true,
     defaultCitations: false,
     defaultNotes: true,
@@ -1938,6 +1938,33 @@ export const PROMPT_TEMPLATES = [
   }
 ];
 
+export const TEMPLATES_WITHOUT_EXEC_SUMMARY = new Set([
+  'lesson-plan',
+  'lesson-deck',
+  'webinar-slides',
+  'investor-update',
+  'training-workshop',
+  'medical-case-presentation',
+  'post-mortem',
+  'keynote-speech'
+]);
+
+export function buildTemplateSlides(slug, slideStructure) {
+  const hasExec = !TEMPLATES_WITHOUT_EXEC_SUMMARY.has(slug);
+  return slideStructure.map((s, idx) => {
+    const clean = s.replace(/^(Slide|投影片|Diapositiva|スライド)\s+\d+[:：]\s*/i, '').trim();
+    if (idx === 0) return { id: 'slide-1', role: 'title', title: clean };
+    if (idx === slideStructure.length - 1) return { id: 'slide-closing', role: 'closing', title: clean };
+    if (idx === 1 && hasExec) return { id: 'slide-exec-summary', role: 'executive-summary', title: clean };
+    return { id: `slide-${idx + 1}`, role: 'content', title: clean };
+  });
+}
+
+// Attach explicit structural slide definitions to all 47 templates
+PROMPT_TEMPLATES.forEach((t) => {
+  t.slides = buildTemplateSlides(t.slug, t.slideStructure);
+});
+
 export const CATEGORIES = [
   'All',
   'Sales & Revenue',
@@ -1956,27 +1983,27 @@ export const CATEGORIES = [
 
 export const CORE_FAQS = [
   {
-    q: 'What is ChatGPT Slides and when did OpenAI release it?',
-    a: 'ChatGPT Slides is OpenAI’s collaborative presentation feature released on October 16, 2026. It allows users to generate, edit, and collaborate on structured slide decks directly inside ChatGPT from a conversation, uploaded file (PDF, DOCX, XLSX), or text outline, and export the final deck to PowerPoint (.pptx), PDF, or Google Slides.'
+    q: 'What is ChatGPT Slides and how does it work?',
+    a: 'ChatGPT Slides is OpenAI’s presentation creation and collaboration capability introduced in October 2026 (OpenAI Help Article 20001605). It allows eligible users to create structured presentations directly inside ChatGPT—either conversationally in Work or through the dedicated "Create > Slide" workflow in a collaborative Space. Slides can be edited directly on canvas, co-authored with team members, and exported to Microsoft PowerPoint (.pptx), PDF, or Google Slides.'
   },
   {
-    q: 'How do I write the best prompt for ChatGPT Slides?',
-    a: 'The highest-performing ChatGPT Slides prompts specify 6 elements: (1) Exact slide count and presentation topic, (2) Target audience and decision level, (3) Primary goal and tone (e.g., McKinsey action titles vs. minimalist keynote), (4) Source material instructions, (5) Explicit formatting constraints ("One clear message per slide", "Suggest appropriate charts", "Add speaker notes", "Identify claims requiring verification"), and (6) A slide-by-slide structural outline.'
+    q: 'Which OpenAI accounts have access to ChatGPT Slides?',
+    a: 'According to OpenAI official documentation (Help Article 20001605), presentation creation is supported for accounts with Space access—currently listed for Pro, Business, and Enterprise plans, subject to OpenAI’s progressive rollout. SlidePrompt.ai is an independent free prompt builder; access to the native ChatGPT Slides feature itself depends entirely on OpenAI account plan eligibility and rollout status.'
   },
   {
-    q: 'Does this ChatGPT Slides Prompt Generator require an OpenAI API key or login?',
-    a: 'No. SlidePrompt.ai runs 100% locally in your browser using pure client-side JavaScript template composition. You do not need an OpenAI API key, account registration, or paid subscription. Simply configure your presentation parameters, copy the generated prompt, and paste it directly into ChatGPT.'
+    q: 'Does SlidePrompt.ai require an OpenAI API key, login, or payment?',
+    a: 'No. SlidePrompt.ai is an independent, 100% free prompt structuring utility that operates entirely in your web browser. You do not need to register an account, pay any subscription, or provide an OpenAI API key on this website. You simply configure your prompt blueprint, copy it to your clipboard, and paste it into your own ChatGPT session.'
   },
   {
-    q: 'Can ChatGPT Slides export directly to PowerPoint (.pptx) and Google Slides?',
-    a: 'Yes. According to OpenAI’s official documentation (article 20001605), once ChatGPT generates your presentation in the Slides canvas, you can click the Export menu in the top-right corner of the slide viewer to download a native PowerPoint (.pptx) file, export a print-ready PDF, or send the deck to Google Slides while preserving slide layouts and speaker notes.'
+    q: 'How do I export slides from ChatGPT to PowerPoint (.pptx) or Google Slides?',
+    a: 'After ChatGPT generates your deck in the slide viewer, open the Export menu in the upper-right corner of the slide interface and select "Download as PowerPoint (.pptx)" or choose PDF / Google Slides. SlidePrompt.ai formats prompts to encourage clean layouts and Presenter View speaker notes, but the actual file rendering and export are performed by OpenAI inside ChatGPT.'
   },
   {
-    q: 'Why is ChatGPT Slides not showing up in my account?',
-    a: 'If ChatGPT Slides is not appearing, verify that (1) you are using the latest GPT-5 / GPT-4o model selector with Canvas/Tools enabled rather than a legacy model, (2) your Workspace or Enterprise admin has enabled Collaborative Canvas & Slides creation in Admin Settings, (3) your browser cache is refreshed, and (4) your prompt explicitly asks to "Create a [N]-slide presentation in ChatGPT Slides canvas". See our dedicated /chatgpt-slides-not-showing troubleshooting guide for step-by-step fixes.'
+    q: 'Why do I not see ChatGPT Slides in my ChatGPT interface?',
+    a: 'If you do not see the Slides feature: (1) Verify whether your OpenAI subscription includes Space access (currently listed for Pro, Business, and Enterprise plans with gradual rollout), (2) Ensure you are accessing chatgpt.com via a desktop web browser (Chrome, Safari, Edge, Firefox), (3) Look for the "Create > Slide" option in Space or request slides in Work, and (4) Consult official guidance in OpenAI Help Article 20001605. SlidePrompt.ai cannot activate features in OpenAI accounts.'
   },
   {
-    q: 'How can I make ChatGPT Slides include charts and speaker notes automatically?',
-    a: 'Keep the "Suggest appropriate charts" and "Add speaker notes" checkboxes enabled in our generator. This injects explicit structural directives into your prompt instructing ChatGPT Slides to pair quantitative claims with specific chart types (waterfall, 2x2 matrix, cohort bar chart) and populate Presenter View speaker notes for every slide.'
+    q: 'How does SlidePrompt.ai handle my privacy and data?',
+    a: 'SlidePrompt.ai performs all prompt assembly client-side using JavaScript in your browser. No presentation topics, outlines, or form entries are transmitted to our servers. Any saved blueprints are stored strictly in your browser’s local storage (localStorage) and can be removed at any time by clicking "Delete" in the Saved Prompts drawer. Your prompt is only submitted to OpenAI when you choose to paste and run it inside ChatGPT.'
   }
 ];
