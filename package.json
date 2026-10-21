@@ -1,0 +1,11 @@
+{
+  "name": "chatgpt-slides-prompt-generator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Free ChatGPT Slides Prompt Generator & 36+ Presentation Prompt Templates (Oct 2026 Release)",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "preview": "npx wrangler pages dev dist"
+  }
+}
