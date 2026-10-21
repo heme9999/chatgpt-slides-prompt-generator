@@ -17,7 +17,7 @@ export const UI_STRINGS = {
     // Form UI
     formLegend: '1. Configure Your ChatGPT Slides Presentation',
     noApiBadge: '100% Free · No API Key · Instant Copy',
-    topicLabel: 'Presentation Topic (演示主题)',
+    topicLabel: 'Presentation Topic',
     topicRequired: 'Required',
     topicPlaceholder: 'e.g., Q4 Enterprise AI Workflow Automation Strategy & ROI...',
     defaultTopic: 'Q4 Enterprise AI Workflow Automation Strategy & Quantified ROI',
@@ -28,7 +28,7 @@ export const UI_STRINGS = {
       'Quarterly Business Review (QBR) & KPI Deck',
       'Clinical Research Methodology & Findings'
     ],
-    audienceLabel: 'Target Audience (目标受众)',
+    audienceLabel: 'Target Audience',
     audienceOptions: [
       { value: 'C-Suite & Executive Board (CEO, CFO, VP)', label: 'C-Suite & Executive Board (CEO, CFO, VP)' },
       { value: 'Enterprise Buyers & Decision Makers', label: 'Enterprise Buyers & Decision Makers' },
@@ -39,7 +39,7 @@ export const UI_STRINGS = {
       { value: 'Clients & Agency Stakeholders', label: 'Clients & Agency Stakeholders' },
       { value: 'General Conference Audience', label: 'General Conference Audience' }
     ],
-    goalLabel: 'Presentation Goal (演示目的)',
+    goalLabel: 'Presentation Goal',
     goalOptions: [
       { value: 'Persuade & Win Approval / Close Deal', label: 'Persuade & Win Approval / Close Deal' },
       { value: 'Secure Seed / Series A / Grant Funding', label: 'Secure Seed / Series A / Grant Funding' },
@@ -49,9 +49,9 @@ export const UI_STRINGS = {
       { value: 'Deliver Quarterly Financial & KPI Review', label: 'Deliver Quarterly Financial & KPI Review' },
       { value: 'Launch New Product & Go-To-Market Plan', label: 'Launch New Product & Go-To-Market Plan' }
     ],
-    slidesLabel: 'Slide Count (页数)',
+    slidesLabel: 'Slide Count',
     slidesSuffix: 'Slides',
-    styleLabel: 'Presentation Style & Tone (风格)',
+    styleLabel: 'Presentation Style & Tone',
     stylePrefix: 'Style',
     styleLabels: {
       executive: { label: 'Executive & McKinsey-Style (Action Titles)', shortLabel: 'Executive' },
@@ -61,25 +61,25 @@ export const UI_STRINGS = {
       educational: { label: 'Pedagogical & Structured (Teaching / Workshop)', shortLabel: 'Educational' },
       storytelling: { label: 'Narrative Arc & Visionary (Keynote / Launch)', shortLabel: 'Storytelling' }
     },
-    langLabel: 'Output Language (语言)',
-    sourceLabel: 'Data Source Context (数据来源)',
+    langLabel: 'Output Language',
+    sourceLabel: 'Data Source Context',
     sourceLabels: {
       chat: { label: 'Current Chat Context', desc: 'Synthesize directly from our conversation history' },
       file: { label: 'Uploaded File / PDF / Doc', desc: 'Extract structure & metrics from attached files' },
       outline: { label: 'Pasted Outline / Raw Notes', desc: 'Expand my bullet points into full slides' },
       research: { label: 'Web Search / Deep Research', desc: 'Gather fresh benchmarks & verify citations' }
     },
-    optionsLabel: 'Slide Requirements (图表 / 引用 / 演讲者备注)',
+    optionsLabel: 'Slide Requirements',
     optExec: 'Executive Summary Slide',
-    optCharts: 'Suggest Appropriate Charts (需要图表)',
-    optCitations: 'Flag Claims for Verification (引用来源)',
-    optNotes: 'Add Speaker Notes (演讲者备注)',
+    optCharts: 'Suggest Appropriate Charts',
+    optCitations: 'Flag Claims for Verification',
+    optNotes: 'Add Speaker Notes',
     outputTitle: '2. Ready-to-Copy ChatGPT Slides Prompt',
     copyBtn: 'Copy Prompt',
     openBtn: 'Open ChatGPT ↗',
-    switchStyleBtn: 'Switch Style (换一种风格)',
+    switchStyleBtn: 'Switch Style',
     downloadBtn: 'Download .TXT',
-    saveLocalBtn: 'Save Locally (保存到本地)',
+    saveLocalBtn: 'Save Locally',
     proTipLabel: 'Pro Tip:',
     defaultProTip:
       'After clicking "Copy Prompt" or "Open ChatGPT", attach any source PDF/Excel file in ChatGPT so the new ChatGPT Slides canvas populates real numbers and speaker notes.',
@@ -189,7 +189,7 @@ export const UI_STRINGS = {
     // Form UI
     formLegend: '1. 設定您的 ChatGPT Slides 簡報參數',
     noApiBadge: '100% 免費 · 免 API Key · 即時生成',
-    topicLabel: '演示主題 (Presentation Topic)',
+    topicLabel: '演示主題',
     topicRequired: '必填',
     topicPlaceholder: '例如：2026 Q4 企業 AI 自動化工作流導入策略與 ROI 效益評估...',
     defaultTopic: '2026 Q4 企業 AI 自動化工作流轉型策略與投資回報率 (ROI) 分析',
@@ -200,18 +200,18 @@ export const UI_STRINGS = {
       '季度業務檢討 (QBR) 與核心 KPI 達成報告',
       '臨床醫學研究方法與實驗數據成果發表'
     ],
-    audienceLabel: '目標受眾 (Target Audience)',
+    audienceLabel: '目標受眾',
     audienceOptions: [
       { value: 'C-Suite & Executive Board (CEO, CFO, VP)', label: '高管與董事會決策層 (CEO, CFO, VP)' },
-      { value: 'Enterprise Buyers & Decision Makers', label: '企業採購與業務決策者 (Enterprise Buyers)' },
+      { value: 'Enterprise Buyers & Decision Makers', label: '企業採購與業務決策者' },
       { value: 'Venture Capitalists & Angel Investors', label: '創投機構與天使投資人 (VC / Angels)' },
-      { value: 'Cross-Functional Product & Engineering Team', label: '跨部門產品與工程研發團隊 (Product & Eng)' },
-      { value: 'Academic Peers & Research Committee', label: '學術同儕與研究評審委員會 (Academic)' },
-      { value: 'Students & Workshop Participants', label: '學生與工作坊學員 (Students & Trainees)' },
-      { value: 'Clients & Agency Stakeholders', label: '外部客戶與專案利害關係人 (Clients)' },
-      { value: 'General Conference Audience', label: '大型研討會與公開演講聽眾 (Conference)' }
+      { value: 'Cross-Functional Product & Engineering Team', label: '跨部門產品與工程研發團隊' },
+      { value: 'Academic Peers & Research Committee', label: '學術同儕與研究評審委員會' },
+      { value: 'Students & Workshop Participants', label: '學生與工作坊學員' },
+      { value: 'Clients & Agency Stakeholders', label: '外部客戶與專案利害關係人' },
+      { value: 'General Conference Audience', label: '大型研討會與公開演講聽眾' }
     ],
-    goalLabel: '演示目的 (Goal)',
+    goalLabel: '演示目的',
     goalOptions: [
       { value: 'Persuade & Win Approval / Close Deal', label: '說服決策並贏得批准 / 促成成交' },
       { value: 'Secure Seed / Series A / Grant Funding', label: '爭取種子輪 / A 輪融資或計畫補助' },
@@ -221,33 +221,33 @@ export const UI_STRINGS = {
       { value: 'Deliver Quarterly Financial & KPI Review', label: '匯報季度財務表現與核心 KPI 達成率' },
       { value: 'Launch New Product & Go-To-Market Plan', label: '發布新產品與市場進入策略 (GTM)' }
     ],
-    slidesLabel: '簡報頁數 (Slide Count)',
+    slidesLabel: '簡報頁數',
     slidesSuffix: '頁簡報',
-    styleLabel: '簡報風格 (Tone & Style)',
+    styleLabel: '簡報風格與語氣',
     stylePrefix: '風格',
     styleLabels: {
-      executive: { label: '高管決策與麥肯錫顧問風 (結論先行標題)', shortLabel: '高管決策風' },
-      keynote: { label: 'Apple 發表會極簡高視覺衝擊風 (Keynote)', shortLabel: 'Apple 極簡' },
-      persuasive: { label: '高轉化商業說服與 ROI 導向 (銷售/募資)', shortLabel: '商業說服風' },
-      analytical: { label: '數據驅動與嚴謹實證分析風 (研究/財報)', shortLabel: '數據分析風' },
-      educational: { label: '循序漸進教學與互動引導風 (課程/培訓)', shortLabel: '教學培訓風' },
-      storytelling: { label: '故事敘事與願景感召風 (主題演講/發布會)', shortLabel: '故事敘事風' }
+      executive: { label: '高管決策與麥肯錫顧問風（結論先行標題）', shortLabel: '高管決策風' },
+      keynote: { label: 'Apple 發表會極簡高視覺衝擊風', shortLabel: 'Apple 極簡' },
+      persuasive: { label: '高轉化商業說服與 ROI 導向（銷售/募資）', shortLabel: '商業說服風' },
+      analytical: { label: '數據驅動與嚴謹實證分析風（研究/財報）', shortLabel: '數據分析風' },
+      educational: { label: '循序漸進教學與互動引導風（課程/培訓）', shortLabel: '教學培訓風' },
+      storytelling: { label: '故事敘事與願景感召風（主題演講/發布會）', shortLabel: '故事敘事風' }
     },
-    langLabel: '輸出語言 (Language)',
-    sourceLabel: '資料來源 (Data Source)',
+    langLabel: '輸出語言',
+    sourceLabel: '資料來源',
     sourceLabels: {
       chat: { label: '當前對話上下文', desc: '直接根據 ChatGPT 對話紀錄提煉簡報重點' },
       file: { label: '上傳文件 / PDF / 報表', desc: '從上傳的附件檔案提取數據與結構（不虛構數字）' },
       outline: { label: '貼上大綱 / 原始筆記', desc: '將我的條列式草稿擴展為完整專業簡報' },
       research: { label: '聯網搜尋 / Deep Research', desc: '檢索最新產業基準數據並附上引用來源' }
     },
-    optionsLabel: '進階要求（圖表 / 引用來源 / 演講者備註）',
-    optExec: '包含執行摘要頁 (Executive Summary)',
-    optCharts: '建議合適的圖表 (Suggest Charts)',
-    optCitations: '標註需查核的數據與來源 (Citations)',
-    optNotes: '加入演講者備註 (Speaker Notes)',
+    optionsLabel: '進階簡報要求',
+    optExec: '包含執行摘要頁',
+    optCharts: '建議合適的圖表',
+    optCitations: '標註需查核的數據與來源',
+    optNotes: '加入演講者備註',
     outputTitle: '2. 可直接複製到 ChatGPT Slides 的完整提示詞',
-    copyBtn: '複製提示詞 (Copy)',
+    copyBtn: '複製提示詞',
     openBtn: '打開 ChatGPT ↗',
     switchStyleBtn: '換一種風格',
     downloadBtn: '下載 .TXT',
@@ -528,7 +528,7 @@ export const UI_STRINGS = {
     // Form UI
     formLegend: '1. プレゼンテーション条件を入力',
     noApiBadge: '完全無料 · APIキー不要 · 登録不要',
-    topicLabel: 'プレゼンのテーマ (Topic)',
+    topicLabel: 'プレゼンのテーマ',
     topicRequired: '必須',
     topicPlaceholder: '例：2026年Q4 全社AI業務自動化推進戦略とROI試算...',
     defaultTopic: '2026年Q4 法人向けAI業務自動化ワークフロー導入戦略と投資対効果 (ROI) 試算',
@@ -539,7 +539,7 @@ export const UI_STRINGS = {
       '四半期ビジネスレビュー (QBR) ＆ KPI達成報告',
       '臨床研究の方法論と統計解析データの学会発表'
     ],
-    audienceLabel: '対象オーディエンス (対象読者)',
+    audienceLabel: '対象オーディエンス',
     audienceOptions: [
       { value: 'C-Suite & Executive Board (CEO, CFO, VP)', label: '経営陣・取締役会 (CEO, CFO, VP)' },
       { value: 'Enterprise Buyers & Decision Makers', label: '法人導入決裁者・購買責任者' },
