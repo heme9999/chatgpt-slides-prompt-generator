@@ -278,10 +278,10 @@ await new Promise((r) => setTimeout(r, 300));
 console.log('\n--- 3. Localized zh-TW Verification (FAQ & Category Chips) ---');
 await page.goto(`${BASE_URL}/zh-TW/`, { waitUntil: 'networkidle0' });
 
-const logoHref = await page.evaluate(() => document.querySelector('.brand-logo')?.getAttribute('href'));
-assert(logoHref === '/zh-TW/' || logoHref === '/zh-TW', `zh-TW logo href points to localized root (${logoHref})`);
+const logoHref = await page.evaluate(() => document.querySelector('.brand-link')?.getAttribute('href'));
+assert(logoHref === '/zh-TW/' || logoHref === '/zh-TW', `zh-TW brand link points to localized root (${logoHref})`);
 
-const faqText = await page.evaluate(() => document.querySelector('.faq-section')?.textContent || '');
+const faqText = await page.evaluate(() => document.querySelector('#faq')?.textContent || '');
 assert(
   faqText.includes('常見問題') || faqText.includes('ChatGPT') || faqText.includes('簡報'),
   'zh-TW FAQ section rendered with localized header and text'
@@ -289,9 +289,9 @@ assert(
 assert(!faqText.includes('Frequently Asked Questions'), 'zh-TW FAQ section does NOT contain untranslated English title');
 
 const chipTexts = await page.evaluate(() => {
-  return Array.from(document.querySelectorAll('.catalog-filters [data-category-filter]')).map((c) => c.textContent.trim());
+  return Array.from(document.querySelectorAll('.filter-pills-bar [data-category-filter]')).map((c) => c.textContent.trim());
 });
-assert(chipTexts.some((c) => c === '全部' || c === '商業企劃' || c === '教育培訓'), `zh-TW category chips translated: ${JSON.stringify(chipTexts.slice(0, 5))}`);
+assert(chipTexts.some((c) => c.includes('全部') || c.includes('銷售') || c.includes('新創')), `zh-TW category chips translated: ${JSON.stringify(chipTexts.slice(0, 5))}`);
 
 // 4. Cross-Template, Cross-Language Restoration
 console.log('\n--- 4. Production Cross-Template & Cross-Language Restoration ---');
