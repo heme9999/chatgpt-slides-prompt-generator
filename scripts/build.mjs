@@ -16,6 +16,7 @@ import {
   CATEGORIES,
   CORE_FAQS
 } from '../src/templates-data.mjs';
+import { UI_STRINGS, LOCALIZED_HUB_PAGES } from '../src/i18n-data.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '..');
@@ -45,52 +46,47 @@ function writeRouteHtml(routePath, htmlContent) {
   fs.writeFileSync(path.join(outDir, 'index.html'), htmlContent, 'utf8');
 }
 
-// Render the Core Interactive Tool Section (Always Above the Fold!)
-function renderCoreToolWidget(config, i18n = null) {
-  const t = i18n || {
-    formLegend: '1. Configure Your ChatGPT Slides Presentation',
-    noApiBadge: '100% Free · No API Key · Instant Copy',
-    topicLabel: 'Presentation Topic (演示主题)',
-    topicRequired: 'Required',
-    topicPlaceholder: 'e.g., Q4 Enterprise AI Workflow Automation Strategy & ROI...',
-    trySample: 'Try a sample:',
-    audienceLabel: 'Target Audience (目标受众)',
-    goalLabel: 'Presentation Goal (演示目的)',
-    slidesLabel: 'Slide Count (页数)',
-    styleLabel: 'Presentation Style & Tone (风格)',
-    langLabel: 'Output Language (语言)',
-    sourceLabel: 'Data Source Context (数据来源)',
-    optionsLabel: 'Slide Requirements (图表 / 引用 / 演讲者备注)',
-    optExec: 'Executive Summary Slide',
-    optCharts: 'Suggest Appropriate Charts (需要图表)',
-    optCitations: 'Flag Claims for Verification (引用来源)',
-    optNotes: 'Add Speaker Notes (演讲者备注)',
-    outputTitle: '2. Ready-to-Copy ChatGPT Slides Prompt',
-    copyBtn: 'Copy Prompt',
-    openBtn: 'Open ChatGPT ↗',
-    switchStyleBtn: 'Switch Style (换一种风格)',
-    downloadBtn: 'Download .TXT',
-    saveLocalBtn: 'Save Locally (保存到本地)',
-    storyboardTitle: 'Live Slide-by-Slide Structure Preview'
-  };
+// Helper to normalize base route and build localized route paths
+function getBaseRoute(routePath) {
+  if (!routePath || routePath === '/') return '/chatgpt-slides-prompt-generator';
+  const stripped = routePath.replace(/^\/(es|ja|zh-TW)(?=\/|$)/, '');
+  return stripped || '/chatgpt-slides-prompt-generator';
+}
 
-  const defaultTopic = config.defaultTopic || 'Enterprise AI Adoption Roadmap & Productivity ROI';
+function getLocalizedRoute(routePath, targetLang = 'en') {
+  const base = getBaseRoute(routePath);
+  if (!targetLang || targetLang === 'en') return base;
+  return `/${targetLang}${base}`;
+}
+
+// Render the Core Interactive Tool Section (Always Above the Fold!)
+function renderCoreToolWidget(config, lang = 'en') {
+  const t = UI_STRINGS[lang] || UI_STRINGS.en;
+
+  const defaultTopic = config.defaultTopic || t.defaultTopic;
   const defaultAudience = config.defaultAudience || AUDIENCE_OPTIONS[0];
   const defaultGoal = config.defaultGoal || GOAL_OPTIONS[0];
   const defaultSlides = config.defaultSlides || 10;
   const defaultStyle = config.defaultStyle || 'executive';
   const defaultSource = config.defaultSource || 'chat';
-  const defaultLang = config.defaultLang || 'English';
-  const sampleTopics = config.sampleTopics || [
-    'Series A Startup Pitch Deck for AI SaaS',
-    'Q4 Enterprise Sales Executive Proposal',
-    'Quarterly Business Review (QBR) & KPI Deck',
-    'Clinical Research Methodology & Findings'
-  ];
+  const defaultLang = config.defaultLang || t.defaultOutputLang || 'English';
+  const sampleTopics = config.sampleTopics || t.sampleTopics;
+  const proTipText = config.proTip || t.defaultProTip;
+
+  const localizedStyles = STYLE_PRESETS.map((s) => ({
+    ...s,
+    label: t.styleLabels?.[s.id]?.label || s.label,
+    shortLabel: t.styleLabels?.[s.id]?.shortLabel || s.shortLabel
+  }));
+
+  const activeStyleObj = localizedStyles.find((s) => s.id === defaultStyle) || localizedStyles[0];
 
   const clientConfigJson = JSON.stringify({
     slug: config.slug || 'chatgpt-slides-prompt-generator',
-    styles: STYLE_PRESETS,
+    uiLang: lang,
+    slidesSuffix: t.slidesSuffix || 'Slides',
+    stylePrefix: t.stylePrefix || 'Style',
+    styles: localizedStyles,
     slideStructure: config.slideStructure || PROMPT_TEMPLATES[0].slideStructure
   });
 
@@ -142,18 +138,18 @@ function renderCoreToolWidget(config, i18n = null) {
             <div>
               <label for="select-audience" class="field-label">${escapeHtml(t.audienceLabel)}</label>
               <select id="select-audience" name="audience" class="form-select">
-                ${AUDIENCE_OPTIONS.map(
+                ${(t.audienceOptions || AUDIENCE_OPTIONS.map((a) => ({ value: a, label: a }))).map(
                   (aud) =>
-                    `<option value="${escapeHtml(aud)}"${aud === defaultAudience ? ' selected' : ''}>${escapeHtml(aud)}</option>`
+                    `<option value="${escapeHtml(aud.value)}"${aud.value === defaultAudience ? ' selected' : ''}>${escapeHtml(aud.label)}</option>`
                 ).join('')}
               </select>
             </div>
             <div>
               <label for="select-goal" class="field-label">${escapeHtml(t.goalLabel)}</label>
               <select id="select-goal" name="goal" class="form-select">
-                ${GOAL_OPTIONS.map(
+                ${(t.goalOptions || GOAL_OPTIONS.map((g) => ({ value: g, label: g }))).map(
                   (goal) =>
-                    `<option value="${escapeHtml(goal)}"${goal === defaultGoal ? ' selected' : ''}>${escapeHtml(goal)}</option>`
+                    `<option value="${escapeHtml(goal.value)}"${goal.value === defaultGoal ? ' selected' : ''}>${escapeHtml(goal.label)}</option>`
                 ).join('')}
               </select>
             </div>
@@ -163,7 +159,7 @@ function renderCoreToolWidget(config, i18n = null) {
           <div class="form-group">
             <div class="slider-header">
               <label for="range-slides" class="field-label" style="margin:0;">${escapeHtml(t.slidesLabel)}</label>
-              <span id="slides-count-display" class="slide-count-badge">${defaultSlides} Slides</span>
+              <span id="slides-count-display" class="slide-count-badge">${defaultSlides} ${escapeHtml(t.slidesSuffix || 'Slides')}</span>
             </div>
             <input
               type="range"
@@ -179,7 +175,7 @@ function renderCoreToolWidget(config, i18n = null) {
               ${[5, 8, 10, 12, 15, 20]
                 .map(
                   (n) =>
-                    `<button type="button" class="chip" data-quick-slides="${n}">${n} Slides</button>`
+                    `<button type="button" class="chip" data-quick-slides="${n}">${n} ${escapeHtml(t.slidesSuffix || 'Slides')}</button>`
                 )
                 .join('')}
             </div>
@@ -190,18 +186,20 @@ function renderCoreToolWidget(config, i18n = null) {
             <div>
               <label for="select-style" class="field-label">${escapeHtml(t.styleLabel)}</label>
               <select id="select-style" name="style" class="form-select">
-                ${STYLE_PRESETS.map(
-                  (s) =>
-                    `<option value="${escapeHtml(s.id)}"${s.id === defaultStyle ? ' selected' : ''}>${escapeHtml(s.label)}</option>`
-                ).join('')}
+                ${localizedStyles
+                  .map(
+                    (s) =>
+                      `<option value="${escapeHtml(s.id)}"${s.id === defaultStyle ? ' selected' : ''}>${escapeHtml(s.label)}</option>`
+                  )
+                  .join('')}
               </select>
             </div>
             <div>
               <label for="select-language" class="field-label">${escapeHtml(t.langLabel)}</label>
               <select id="select-language" name="language" class="form-select">
                 ${LANGUAGE_OPTIONS.map(
-                  (lang) =>
-                    `<option value="${escapeHtml(lang.code)}"${lang.code === defaultLang ? ' selected' : ''}>${escapeHtml(lang.label)}</option>`
+                  (l) =>
+                    `<option value="${escapeHtml(l.code)}"${l.code === defaultLang ? ' selected' : ''}>${escapeHtml(l.label)}</option>`
                 ).join('')}
               </select>
             </div>
@@ -211,8 +209,9 @@ function renderCoreToolWidget(config, i18n = null) {
           <div class="form-group">
             <span class="field-label">${escapeHtml(t.sourceLabel)}</span>
             <div class="radio-pills-grid" role="radiogroup" aria-label="${escapeHtml(t.sourceLabel)}">
-              ${SOURCE_OPTIONS.map(
-                (src) => `
+              ${SOURCE_OPTIONS.map((src) => {
+                const locSrc = t.sourceLabels?.[src.id] || src;
+                return `
                 <label class="radio-pill-label" for="src-${escapeHtml(src.id)}">
                   <input
                     type="radio"
@@ -222,11 +221,11 @@ function renderCoreToolWidget(config, i18n = null) {
                     ${src.id === defaultSource ? 'checked' : ''}
                   />
                   <span class="radio-pill-text">
-                    <strong>${escapeHtml(src.label)}</strong>
-                    <span>${escapeHtml(src.desc)}</span>
+                    <strong>${escapeHtml(locSrc.label)}</strong>
+                    <span>${escapeHtml(locSrc.desc)}</span>
                   </span>
-                </label>`
-              ).join('')}
+                </label>`;
+              }).join('')}
             </div>
           </div>
 
@@ -260,7 +259,7 @@ function renderCoreToolWidget(config, i18n = null) {
     <div id="output-surface-card" class="surface-card output-panel">
       <div class="output-header">
         <label for="prompt-output" style="font-weight:700; font-size:0.95rem;">${escapeHtml(t.outputTitle)}</label>
-        <span id="active-style-pill" class="style-pill-indicator">Style: Executive</span>
+        <span id="active-style-pill" class="style-pill-indicator">${escapeHtml(t.stylePrefix || 'Style')}: ${escapeHtml(activeStyleObj.shortLabel)}</span>
       </div>
 
       <textarea
@@ -294,8 +293,8 @@ function renderCoreToolWidget(config, i18n = null) {
       </div>
 
       ${
-        config.proTip
-          ? `<p class="caption-text" style="margin-block: 0.75rem 0; padding: 0.6rem 0.75rem; background: var(--bg-subtle); border-radius: 8px;">💡 <strong>Pro Tip:</strong> ${escapeHtml(config.proTip)}</p>`
+        proTipText
+          ? `<p class="caption-text" style="margin-block: 0.75rem 0; padding: 0.6rem 0.75rem; background: var(--bg-subtle); border-radius: 8px;">💡 <strong>${escapeHtml(t.proTipLabel || 'Pro Tip:')}</strong> ${escapeHtml(proTipText)}</p>`
           : ''
       }
 
@@ -303,7 +302,7 @@ function renderCoreToolWidget(config, i18n = null) {
       <div class="storyboard-strip">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <span class="caption-text" style="font-weight:600; color:var(--text-primary);">${escapeHtml(t.storyboardTitle)}</span>
-          <span class="caption-text">Exports to .PPTX · PDF · Google Slides</span>
+          <span class="caption-text">${escapeHtml(t.storyboardExportNote || 'Exports to .PPTX · PDF · Google Slides')}</span>
         </div>
         <div id="storyboard-cards" class="storyboard-cards"></div>
       </div>
@@ -313,16 +312,19 @@ function renderCoreToolWidget(config, i18n = null) {
   </section>`;
 }
 
-// Render Internal Links Matrix (36 Prompt Templates + Hub Pages)
-function renderInternalLinksSection(activeSlug = '', includeCategoryFilter = false) {
+// Render Internal Links Matrix (47 Prompt Templates + Hub Pages)
+function renderInternalLinksSection(activeSlug = '', includeCategoryFilter = false, lang = 'en') {
+  const t = UI_STRINGS[lang] || UI_STRINGS.en;
+  const templatesHref = getLocalizedRoute('/chatgpt-slides-templates', lang);
+
   return `
   <section class="below-fold-section" id="templates-directory">
     <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1rem; margin-block-end:1rem;">
       <div>
-        <h2>47 Specialized ChatGPT Slides Prompt Templates</h2>
-        <p style="margin:0;">Choose a role-specific presentation blueprint below. Every template pre-loads proven slide structures, chart suggestions, and speaker note rules.</p>
+        <h2>${escapeHtml(t.dirTitle)}</h2>
+        <p style="margin:0;">${escapeHtml(t.dirDesc)}</p>
       </div>
-      <a href="/chatgpt-slides-templates" class="btn btn-secondary" style="min-height:40px; padding:0.45rem 0.9rem; font-size:0.85rem;">View All 47 Templates →</a>
+      <a href="${escapeHtml(templatesHref)}" class="btn btn-secondary" style="min-height:40px; padding:0.45rem 0.9rem; font-size:0.85rem;">${escapeHtml(t.dirBtn)}</a>
     </div>
 
     ${
@@ -340,7 +342,7 @@ function renderInternalLinksSection(activeSlug = '', includeCategoryFilter = fal
       ${PROMPT_TEMPLATES.map(
         (tpl) => `
         <a
-          href="/prompts/${escapeHtml(tpl.slug)}"
+          href="${escapeHtml(getLocalizedRoute(`/prompts/${tpl.slug}`, lang))}"
           class="template-card-link"
           data-template-category="${escapeHtml(tpl.category)}"
           ${tpl.slug === activeSlug ? 'aria-current="page" style="border-color:var(--brand-color);"' : ''}
@@ -354,7 +356,7 @@ function renderInternalLinksSection(activeSlug = '', includeCategoryFilter = fal
             <p class="caption-text" style="margin-block-end:0.75rem;">${escapeHtml(tpl.subtitle)}</p>
           </div>
           <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.78rem; font-weight:600; color:var(--brand-color);">
-            <span>${tpl.defaultSlides}-Slide Blueprint →</span>
+            <span>${tpl.defaultSlides}${escapeHtml(t.blueprintSuffix || '-Slide Blueprint →')}</span>
             <span class="badge-tag" data-template-usage-slug="${escapeHtml(tpl.slug)}" hidden></span>
           </div>
         </a>`
@@ -364,108 +366,70 @@ function renderInternalLinksSection(activeSlug = '', includeCategoryFilter = fal
 }
 
 // Render Standard GeFei SEO Content Sections (How It Works, Features, Use Cases, Comparison Table, FAQ)
-function renderStandardSeoSections(keywordLabel = 'ChatGPT Slides Prompt Generator', customFaqs = null) {
+function renderStandardSeoSections(keywordLabel = 'ChatGPT Slides Prompt Generator', customFaqs = null, lang = 'en') {
+  const t = UI_STRINGS[lang] || UI_STRINGS.en;
   const faqs = customFaqs || CORE_FAQS;
+  const howHeading =
+    lang === 'ja' ? `${t.howTitlePrefix}${keywordLabel}` : `${t.howTitlePrefix} ${keywordLabel}`;
+
   return `
   <!-- 4. How It Works / Step-by-Step Guide -->
   <section class="below-fold-section" id="how-to-use">
-    <h2>How to Use ${escapeHtml(keywordLabel)}</h2>
-    <p>Generate a structured, collaborative presentation in ChatGPT Slides (launched October 16, 2026) and export to PowerPoint, PDF, or Google Slides in four steps:</p>
+    <h2>${escapeHtml(howHeading)}</h2>
+    <p>${escapeHtml(t.howDesc)}</p>
     <div class="grid-4">
+      ${t.howSteps
+        .map(
+          (step, idx) => `
       <article class="info-card">
-        <span class="step-badge">1</span>
-        <h3>Enter Topic & Audience</h3>
-        <p class="caption-text">Specify your presentation subject, target decision-makers (C-Suite, VCs, Clients, or Students), and primary persuasion or educational goal.</p>
-      </article>
-      <article class="info-card">
-        <span class="step-badge">2</span>
-        <h3>Select Slide Count & Style</h3>
-        <p class="caption-text">Slide the counter between 5 and 20 slides and pick a narrative tone—such as McKinsey Action Titles, Apple Keynote Minimalist, or Data-Driven Analytical.</p>
-      </article>
-      <article class="info-card">
-        <span class="step-badge">3</span>
-        <h3>Enable Charts & Speaker Notes</h3>
-        <p class="caption-text">Toggle automatic chart recommendations, speaker pacing scripts, and verification flags so ChatGPT marks any unverified claims with <code>[VERIFY]</code>.</p>
-      </article>
-      <article class="info-card">
-        <span class="step-badge">4</span>
-        <h3>Copy to ChatGPT & Export</h3>
-        <p class="caption-text">Click <strong>Copy Prompt</strong> or <strong>Open ChatGPT</strong>, refine slides in the collaborative canvas, and export directly to <code>.pptx</code>, PDF, or Google Slides.</p>
-      </article>
+        <span class="step-badge">${idx + 1}</span>
+        <h3>${escapeHtml(step.title)}</h3>
+        <p class="caption-text">${escapeHtml(step.desc)}</p>
+      </article>`
+        )
+        .join('')}
     </div>
   </section>
 
   <!-- 5. Key Features / Why Choose Our Tool -->
   <section class="below-fold-section" id="features">
-    <h2>Key Features of Our ChatGPT Slides Prompt Builder</h2>
-    <p>Built specifically for OpenAI’s October 2026 ChatGPT Slides canvas workflow—combining zero-latency Apple-grade interaction with presentation consulting best practices.</p>
+    <h2>${escapeHtml(t.featTitle)}</h2>
+    <p>${escapeHtml(t.featDesc)}</p>
     <div class="grid-3">
+      ${t.features
+        .map(
+          (feat) => `
       <article class="info-card">
-        <h3>🎯 One Clear Message Per Slide</h3>
-        <p class="caption-text">Prevents ChatGPT from dumping walls of text onto slides. Enforces crisp action titles and scannable 3-bullet visual hierarchy.</p>
-      </article>
-      <article class="info-card">
-        <h3>📊 Smart Chart & Diagram Prompts</h3>
-        <p class="caption-text">Automatically instructs ChatGPT Slides to recommend waterfall bridges, 2x2 positioning matrices, TAM/SAM/SOM visuals, and cohort charts.</p>
-      </article>
-      <article class="info-card">
-        <h3>🎙️ Presenter View Speaker Notes</h3>
-        <p class="caption-text">Generates word-for-word spoken transitions, pacing cues, and objection-handling answers that carry over when exported to PowerPoint or Google Slides.</p>
-      </article>
-      <article class="info-card">
-        <h3>🛡️ Hallucination & Citation Guardrails</h3>
-        <p class="caption-text">Includes explicit verification rules requiring ChatGPT to flag uncertain statistics and cite uploaded PDFs or web research sources.</p>
-      </article>
-      <article class="info-card">
-        <h3>🔒 100% Client-Side & Privacy Safe</h3>
-        <p class="caption-text">Zero backend servers, zero OpenAI API keys required, and no sign-up walls. All prompt assembly and saved templates stay in your local browser.</p>
-      </article>
-      <article class="info-card">
-        <h3>📤 PowerPoint, PDF & Google Slides Ready</h3>
-        <p class="caption-text">Optimized for OpenAI’s native export pipeline (<a href="https://help.openai.com/en/articles/20001605-creating-and-collaborating-on-slides-in-chatgpt" rel="nofollow noopener noreferrer" target="_blank">OpenAI Help Article 20001605</a>).</p>
-      </article>
+        <h3>${escapeHtml(feat.title)}</h3>
+        <p class="caption-text">${escapeHtml(feat.desc)}</p>
+      </article>`
+        )
+        .join('')}
     </div>
   </section>
 
   <!-- 6. Information Gain Comparison Table & Use Cases -->
   <section class="below-fold-section" id="comparison">
-    <h2>Why Structured Prompts Outperform Generic ChatGPT Slide Requests</h2>
-    <p>Asking ChatGPT <em>"Make me a 10-slide presentation about X"</em> produces generic, repetitive bullet lists. Compare how our structured prompt architecture transforms output quality:</p>
+    <h2>${escapeHtml(t.compTitle)}</h2>
+    <p>${escapeHtml(t.compDesc)}</p>
     <div class="table-scroll">
       <table class="seo-table">
         <thead>
           <tr>
-            <th>Dimension</th>
-            <th>Generic Prompt ("Make slides about X")</th>
-            <th>SlidePrompt.ai Structured Blueprint</th>
+            ${t.compHeaders.map((h) => `<th>${escapeHtml(h)}</th>`).join('')}
           </tr>
         </thead>
         <tbody>
+          ${t.compRows
+            .map(
+              (row) => `
           <tr>
-            <td><strong>Slide Headlines</strong></td>
-            <td>Vague topic labels ("Market Overview", "Financials")</td>
-            <td>Insight-led action titles ("Enterprise Automation Cuts OpEx by 38% Within 60 Days")</td>
-          </tr>
-          <tr>
-            <td><strong>Visual Density</strong></td>
-            <td>Overcrowded 8-bullet paragraphs that overflow <code>.pptx</code> boxes</td>
-            <td>Strict "One clear message per slide" + 3 concise proof points</td>
-          </tr>
-          <tr>
-            <td><strong>Data & Charts</strong></td>
-            <td>Plain text numbers buried in sentences</td>
-            <td>Explicit chart specs (Waterfall, 2x2 Matrix, Cohort Bar) with axis labels</td>
-          </tr>
-          <tr>
-            <td><strong>Fact Accuracy</strong></td>
-            <td>Blends confident hallucinations with real facts</td>
-            <td>Flags any claim requiring verification with <code>[VERIFY]</code> & source attribution</td>
-          </tr>
-          <tr>
-            <td><strong>Export Readiness</strong></td>
-            <td>Missing speaker notes; requires hours of manual reformatting</td>
-            <td>Complete Presenter View speaker notes ready for PowerPoint & Google Slides</td>
-          </tr>
+            <td><strong>${escapeHtml(row[0])}</strong></td>
+            <td>${escapeHtml(row[1])}</td>
+            <td>${escapeHtml(row[2])}</td>
+          </tr>`
+            )
+            .join('')}
         </tbody>
       </table>
     </div>
@@ -473,7 +437,7 @@ function renderStandardSeoSections(keywordLabel = 'ChatGPT Slides Prompt Generat
 
   <!-- 7. Frequently Asked Questions (Aligned with PAA & GEO AI Overview) -->
   <section class="below-fold-section" id="faq">
-    <h2>Frequently Asked Questions</h2>
+    <h2>${escapeHtml(t.faqTitle)}</h2>
     <div class="faq-list">
       ${faqs
         .map(
@@ -499,9 +463,11 @@ function renderDocument({
   activeNav = 'generator',
   bodyHtml,
   faqs = CORE_FAQS,
-  includeHreflang = false
+  includeHreflang = true
 }) {
+  const t = UI_STRINGS[lang] || UI_STRINGS.en;
   const fullCanonical = `${SITE_URL}${canonicalPath === '/' ? '' : canonicalPath}`;
+  const baseRoute = getBaseRoute(canonicalPath);
 
   const schemaGraph = [
     {
@@ -520,7 +486,7 @@ function renderDocument({
       },
       featureList: [
         'Instant ChatGPT Slides prompt generation',
-        '36+ specialized presentation slide structures',
+        '47+ specialized presentation slide structures',
         'One-click Copy, TXT Download, and Open in ChatGPT',
         'PowerPoint (.pptx), PDF, and Google Slides export optimization'
       ]
@@ -541,16 +507,18 @@ function renderDocument({
 
   const hreflangTags = includeHreflang
     ? `
-  <link rel="alternate" hreflang="en" href="${SITE_URL}/chatgpt-slides-prompt-generator" />
-  <link rel="alternate" hreflang="es" href="${SITE_URL}/es/chatgpt-slides-prompt-generator" />
-  <link rel="alternate" hreflang="ja" href="${SITE_URL}/ja/chatgpt-slides-prompt-generator" />
-  <link rel="alternate" hreflang="zh-TW" href="${SITE_URL}/zh-TW/chatgpt-slides-prompt-generator" />
-  <link rel="alternate" hreflang="x-default" href="${SITE_URL}/chatgpt-slides-prompt-generator" />`
+  <link rel="alternate" hreflang="en" href="${SITE_URL}${escapeHtml(getLocalizedRoute(baseRoute, 'en'))}" />
+  <link rel="alternate" hreflang="es" href="${SITE_URL}${escapeHtml(getLocalizedRoute(baseRoute, 'es'))}" />
+  <link rel="alternate" hreflang="ja" href="${SITE_URL}${escapeHtml(getLocalizedRoute(baseRoute, 'ja'))}" />
+  <link rel="alternate" hreflang="zh-TW" href="${SITE_URL}${escapeHtml(getLocalizedRoute(baseRoute, 'zh-TW'))}" />
+  <link rel="alternate" hreflang="x-default" href="${SITE_URL}${escapeHtml(getLocalizedRoute(baseRoute, 'en'))}" />`
     : '';
 
   const gscMetaTag = GSC_VERIFICATION_CODE
     ? `\n  <meta name="google-site-verification" content="${escapeHtml(GSC_VERIFICATION_CODE)}" />`
     : '';
+
+  const homeHref = lang === 'en' ? '/' : getLocalizedRoute('/chatgpt-slides-prompt-generator', lang);
 
   return `<!DOCTYPE html>
 <html lang="${escapeHtml(lang)}">
@@ -578,29 +546,29 @@ function renderDocument({
   <!-- Sticky Translucent Apple-Style Header -->
   <header class="site-header">
     <div class="header-inner">
-      <a href="/" class="brand-link" aria-label="${escapeHtml(BRAND_NAME)} Home">
+      <a href="${escapeHtml(homeHref)}" class="brand-link" aria-label="${escapeHtml(BRAND_NAME)} Home">
         <span class="brand-mark">S</span>
         <span>${escapeHtml(BRAND_NAME)}</span>
       </a>
 
       <nav class="nav-links" aria-label="Primary Navigation">
-        <a href="/chatgpt-slides-prompt-generator" class="nav-link ${activeNav === 'generator' ? 'is-active' : ''}">Prompt Generator</a>
-        <a href="/chatgpt-slides-templates" class="nav-link ${activeNav === 'templates' ? 'is-active' : ''}">36+ Templates</a>
-        <a href="/prompts/pitch-deck" class="nav-link ${activeNav === 'pitch-deck' ? 'is-active' : ''}">Pitch Deck</a>
-        <a href="/prompts/sales-presentation" class="nav-link ${activeNav === 'sales-presentation' ? 'is-active' : ''}">Sales Deck</a>
-        <a href="/chatgpt-slides-to-powerpoint" class="nav-link ${activeNav === 'powerpoint' ? 'is-active' : ''}">Export to PPTX</a>
-        <a href="/chatgpt-slides-not-showing" class="nav-link ${activeNav === 'troubleshooting' ? 'is-active' : ''}">Not Showing Fix</a>
+        <a href="${escapeHtml(getLocalizedRoute('/chatgpt-slides-prompt-generator', lang))}" class="nav-link ${activeNav === 'generator' ? 'is-active' : ''}">${escapeHtml(t.navGenerator)}</a>
+        <a href="${escapeHtml(getLocalizedRoute('/chatgpt-slides-templates', lang))}" class="nav-link ${activeNav === 'templates' ? 'is-active' : ''}">${escapeHtml(t.navTemplates)}</a>
+        <a href="${escapeHtml(getLocalizedRoute('/prompts/pitch-deck', lang))}" class="nav-link ${activeNav === 'pitch-deck' ? 'is-active' : ''}">${escapeHtml(t.navPitch)}</a>
+        <a href="${escapeHtml(getLocalizedRoute('/prompts/sales-presentation', lang))}" class="nav-link ${activeNav === 'sales-presentation' ? 'is-active' : ''}">${escapeHtml(t.navSales)}</a>
+        <a href="${escapeHtml(getLocalizedRoute('/chatgpt-slides-to-powerpoint', lang))}" class="nav-link ${activeNav === 'powerpoint' ? 'is-active' : ''}">${escapeHtml(t.navPowerpoint)}</a>
+        <a href="${escapeHtml(getLocalizedRoute('/chatgpt-slides-not-showing', lang))}" class="nav-link ${activeNav === 'troubleshooting' ? 'is-active' : ''}">${escapeHtml(t.navTroubleshooting)}</a>
       </nav>
 
       <div class="header-actions">
         <button type="button" id="btn-open-saved-drawer" class="chip" style="font-weight:600;">
-          🔖 Saved (<span id="saved-count-badge">0</span>)
+          🔖 ${escapeHtml(t.savedLabel)} (<span id="saved-count-badge">0</span>)
         </button>
         <div class="lang-switcher" aria-label="Language Switcher">
-          <a href="/chatgpt-slides-prompt-generator" class="lang-link ${lang === 'en' ? 'is-current' : ''}">EN</a>
-          <a href="/es/chatgpt-slides-prompt-generator" class="lang-link ${lang === 'es' ? 'is-current' : ''}">ES</a>
-          <a href="/ja/chatgpt-slides-prompt-generator" class="lang-link ${lang === 'ja' ? 'is-current' : ''}">JA</a>
-          <a href="/zh-TW/chatgpt-slides-prompt-generator" class="lang-link ${lang === 'zh-TW' ? 'is-current' : ''}">繁中</a>
+          <a href="${escapeHtml(getLocalizedRoute(baseRoute, 'en'))}" class="lang-link ${lang === 'en' ? 'is-current' : ''}">EN</a>
+          <a href="${escapeHtml(getLocalizedRoute(baseRoute, 'es'))}" class="lang-link ${lang === 'es' ? 'is-current' : ''}">ES</a>
+          <a href="${escapeHtml(getLocalizedRoute(baseRoute, 'ja'))}" class="lang-link ${lang === 'ja' ? 'is-current' : ''}">JA</a>
+          <a href="${escapeHtml(getLocalizedRoute(baseRoute, 'zh-TW'))}" class="lang-link ${lang === 'zh-TW' ? 'is-current' : ''}">繁中</a>
         </div>
       </div>
     </div>
@@ -611,7 +579,7 @@ function renderDocument({
     <section class="hero-compact">
       <div class="release-pill">
         <span class="release-dot"></span>
-        <span>${escapeHtml(RELEASE_DATE_NOTE)}</span>
+        <span>${escapeHtml(t.releasePill || RELEASE_DATE_NOTE)}</span>
       </div>
       <h1>${escapeHtml(h1)}</h1>
       <p class="hero-subtitle">${escapeHtml(subtitle)}</p>
@@ -622,12 +590,12 @@ function renderDocument({
 
   <!-- Saved Prompts Drawer (Interruptible Spring Physics + 1:1 Pointer Drag) -->
   <div id="saved-drawer-scrim" class="drawer-scrim" aria-hidden="true"></div>
-  <aside id="saved-prompts-drawer" class="saved-drawer" aria-label="Saved Prompts Library" aria-hidden="true">
+  <aside id="saved-prompts-drawer" class="saved-drawer" aria-label="Saved Prompts Library" aria-hidden="true" data-empty-msg="${escapeHtml(t.drawerEmpty)}" data-load-label="${escapeHtml(t.drawerLoad)}" data-delete-label="${escapeHtml(t.drawerDelete)}">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-block-end:0.75rem;">
-      <strong style="font-size:1.05rem;">🔖 Saved Prompts Library</strong>
-      <button type="button" id="btn-close-saved-drawer" class="chip">Close ✕</button>
+      <strong style="font-size:1.05rem;">${escapeHtml(t.drawerTitle)}</strong>
+      <button type="button" id="btn-close-saved-drawer" class="chip">${escapeHtml(t.drawerClose)}</button>
     </div>
-    <p class="caption-text" style="margin-block-end:0.75rem;">Drag right to dismiss · Stored locally in your browser.</p>
+    <p class="caption-text" style="margin-block-end:0.75rem;">${escapeHtml(t.drawerHint)}</p>
     <div id="saved-prompts-list" style="overflow-y:auto; flex:1;"></div>
   </aside>
 
@@ -640,41 +608,41 @@ function renderDocument({
       <div class="grid-4" style="margin-block-end:1.5rem;">
         <div>
           <strong style="color:var(--text-primary); display:block; margin-block-end:0.5rem;">${escapeHtml(BRAND_NAME)}</strong>
-          <p class="caption-text">Free client-side prompt engineering studio for OpenAI’s ChatGPT Slides (launched Oct 16, 2026). No API key, no sign-up, instant PowerPoint & Google Slides structure.</p>
+          <p class="caption-text">${escapeHtml(t.footerDesc)}</p>
         </div>
         <div>
-          <strong style="color:var(--text-primary); display:block; margin-block-end:0.5rem;">Core Tools & Guides</strong>
+          <strong style="color:var(--text-primary); display:block; margin-block-end:0.5rem;">${escapeHtml(t.footerCol1)}</strong>
           <ul style="list-style:none; padding:0; margin:0; display:grid; gap:0.35rem;">
-            <li><a href="/chatgpt-slides-prompt-generator" style="color:var(--text-secondary); text-decoration:none;">ChatGPT Slides Prompt Generator</a></li>
-            <li><a href="/chatgpt-slides-templates" style="color:var(--text-secondary); text-decoration:none;">All 36+ Slide Prompt Templates</a></li>
-            <li><a href="/chatgpt-slides-to-powerpoint" style="color:var(--text-secondary); text-decoration:none;">Export ChatGPT Slides to PowerPoint</a></li>
-            <li><a href="/chatgpt-slides-not-showing" style="color:var(--text-secondary); text-decoration:none;">ChatGPT Slides Not Showing Fix</a></li>
+            <li><a href="${escapeHtml(getLocalizedRoute('/chatgpt-slides-prompt-generator', lang))}" style="color:var(--text-secondary); text-decoration:none;">${escapeHtml(t.navGenerator)}</a></li>
+            <li><a href="${escapeHtml(getLocalizedRoute('/chatgpt-slides-templates', lang))}" style="color:var(--text-secondary); text-decoration:none;">${escapeHtml(t.navTemplates)}</a></li>
+            <li><a href="${escapeHtml(getLocalizedRoute('/chatgpt-slides-to-powerpoint', lang))}" style="color:var(--text-secondary); text-decoration:none;">${escapeHtml(t.navPowerpoint)}</a></li>
+            <li><a href="${escapeHtml(getLocalizedRoute('/chatgpt-slides-not-showing', lang))}" style="color:var(--text-secondary); text-decoration:none;">${escapeHtml(t.navTroubleshooting)}</a></li>
           </ul>
         </div>
         <div>
-          <strong style="color:var(--text-primary); display:block; margin-block-end:0.5rem;">Popular Business Prompts</strong>
+          <strong style="color:var(--text-primary); display:block; margin-block-end:0.5rem;">${escapeHtml(t.footerCol2)}</strong>
           <ul style="list-style:none; padding:0; margin:0; display:grid; gap:0.35rem;">
-            <li><a href="/prompts/sales-presentation" style="color:var(--text-secondary); text-decoration:none;">Sales Presentation Prompt</a></li>
-            <li><a href="/prompts/pitch-deck" style="color:var(--text-secondary); text-decoration:none;">Startup Pitch Deck Prompt</a></li>
-            <li><a href="/prompts/project-update" style="color:var(--text-secondary); text-decoration:none;">Project Update Status Prompt</a></li>
-            <li><a href="/prompts/business-proposal" style="color:var(--text-secondary); text-decoration:none;">Business Proposal Prompt</a></li>
-            <li><a href="/prompts/financial-report" style="color:var(--text-secondary); text-decoration:none;">CFO Financial Report Prompt</a></li>
+            <li><a href="${escapeHtml(getLocalizedRoute('/prompts/sales-presentation', lang))}" style="color:var(--text-secondary); text-decoration:none;">Sales Presentation Prompt</a></li>
+            <li><a href="${escapeHtml(getLocalizedRoute('/prompts/pitch-deck', lang))}" style="color:var(--text-secondary); text-decoration:none;">Startup Pitch Deck Prompt</a></li>
+            <li><a href="${escapeHtml(getLocalizedRoute('/prompts/project-update', lang))}" style="color:var(--text-secondary); text-decoration:none;">Project Update Status Prompt</a></li>
+            <li><a href="${escapeHtml(getLocalizedRoute('/prompts/business-proposal', lang))}" style="color:var(--text-secondary); text-decoration:none;">Business Proposal Prompt</a></li>
+            <li><a href="${escapeHtml(getLocalizedRoute('/prompts/financial-report', lang))}" style="color:var(--text-secondary); text-decoration:none;">CFO Financial Report Prompt</a></li>
           </ul>
         </div>
         <div>
-          <strong style="color:var(--text-primary); display:block; margin-block-end:0.5rem;">Academic, Tech & Niche</strong>
+          <strong style="color:var(--text-primary); display:block; margin-block-end:0.5rem;">${escapeHtml(t.footerCol3)}</strong>
           <ul style="list-style:none; padding:0; margin:0; display:grid; gap:0.35rem;">
-            <li><a href="/prompts/research-presentation" style="color:var(--text-secondary); text-decoration:none;">Research Presentation Prompt</a></li>
-            <li><a href="/prompts/lesson-plan" style="color:var(--text-secondary); text-decoration:none;">Classroom Lesson Plan Prompt</a></li>
-            <li><a href="/prompts/lesson-deck" style="color:var(--text-secondary); text-decoration:none;">Course Lesson Deck Prompt</a></li>
-            <li><a href="/prompts/conference-presentation" style="color:var(--text-secondary); text-decoration:none;">Conference Keynote Prompt</a></li>
-            <li><a href="/prompts/real-estate-presentation" style="color:var(--text-secondary); text-decoration:none;">Real Estate Pitch Prompt</a></li>
+            <li><a href="${escapeHtml(getLocalizedRoute('/prompts/research-presentation', lang))}" style="color:var(--text-secondary); text-decoration:none;">Research Presentation Prompt</a></li>
+            <li><a href="${escapeHtml(getLocalizedRoute('/prompts/lesson-plan', lang))}" style="color:var(--text-secondary); text-decoration:none;">Classroom Lesson Plan Prompt</a></li>
+            <li><a href="${escapeHtml(getLocalizedRoute('/prompts/lesson-deck', lang))}" style="color:var(--text-secondary); text-decoration:none;">Course Lesson Deck Prompt</a></li>
+            <li><a href="${escapeHtml(getLocalizedRoute('/prompts/conference-presentation', lang))}" style="color:var(--text-secondary); text-decoration:none;">Conference Keynote Prompt</a></li>
+            <li><a href="${escapeHtml(getLocalizedRoute('/prompts/real-estate-presentation', lang))}" style="color:var(--text-secondary); text-decoration:none;">Real Estate Pitch Prompt</a></li>
           </ul>
         </div>
       </div>
       <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; padding-block-start:1rem; border-top:1px solid var(--border-hairline);">
-        <span>© 2026 ${escapeHtml(BRAND_NAME)}. Independent prompt builder; not affiliated with OpenAI.</span>
-        <span>Reference: <a href="https://help.openai.com/en/articles/20001605-creating-and-collaborating-on-slides-in-chatgpt" rel="nofollow noopener noreferrer" target="_blank" style="color:var(--brand-color);">Creating and Collaborating on Slides in ChatGPT (OpenAI Help)</a></span>
+        <span>© 2026 ${escapeHtml(BRAND_NAME)}. ${escapeHtml(t.footerCopy)}</span>
+        <span>${escapeHtml(t.footerRefLabel)} <a href="https://help.openai.com/en/articles/20001605-creating-and-collaborating-on-slides-in-chatgpt" rel="nofollow noopener noreferrer" target="_blank" style="color:var(--brand-color);">Creating and Collaborating on Slides in ChatGPT (OpenAI Help)</a></span>
       </div>
     </div>
   </footer>
@@ -970,148 +938,192 @@ function buildSite() {
   }
 
   // 6. Subdirectory i18n Pages (/es/, /ja/, /zh-TW/) per GeFei Workflow 6
-  const i18nPages = [
-    {
-      lang: 'es',
-      route: '/es/chatgpt-slides-prompt-generator',
-      metaTitle: 'Generador de Prompts para ChatGPT Slides (Gratis y Online)',
-      metaDesc:
-        'Crea prompts profesionales para ChatGPT Slides gratis. Define tema, audiencia, número de diapositivas, gráficos y notas del orador para PowerPoint.',
-      h1: 'Generador de Prompts para ChatGPT Slides',
-      subtitle:
-        'Genera presentaciones colaborativas en ChatGPT Slides (lanzado el 16 de octubre de 2026) listas para exportar a PowerPoint (.pptx), PDF y Google Slides sin API ni registro.',
-      defaultLang: 'Español',
-      ui: {
-        formLegend: '1. Configura tu Presentación de ChatGPT Slides',
-        noApiBadge: '100% Gratis · Sin API Key · Copia Instantánea',
-        topicLabel: 'Tema de la Presentación',
-        topicRequired: 'Obligatorio',
-        topicPlaceholder: 'Ej. Estrategia de Automatización IA B2B para el Q4...',
-        trySample: 'Ejemplos rápidos:',
-        audienceLabel: 'Audiencia Objetivo',
-        goalLabel: 'Objetivo de la Presentación',
-        slidesLabel: 'Número de Diapositivas',
-        styleLabel: 'Estilo y Tono',
-        langLabel: 'Idioma de Salida',
-        sourceLabel: 'Fuente de Datos',
-        optionsLabel: 'Requisitos de las Diapositivas',
-        optExec: 'Resumen Ejecutivo',
-        optCharts: 'Sugerir Gráficos Adecuados',
-        optCitations: 'Identificar Datos por Verificar',
-        optNotes: 'Añadir Notas del Orador',
-        outputTitle: '2. Prompt Listo para Copiar en ChatGPT Slides',
-        copyBtn: 'Copiar Prompt',
-        openBtn: 'Abrir ChatGPT ↗',
-        switchStyleBtn: 'Cambiar Estilo',
-        downloadBtn: 'Descargar .TXT',
-        saveLocalBtn: 'Guardar Localmente',
-        storyboardTitle: 'Vista Previa de la Estructura de Diapositivas'
-      }
-    },
-    {
-      lang: 'ja',
-      route: '/ja/chatgpt-slides-prompt-generator',
-      metaTitle: 'ChatGPT Slides プロンプト作成ツール（無料・登録不要・PPTX対応）',
-      metaDesc:
-        '2026年10月公開のChatGPT Slides専用プロンプト生成ツール。テーマ・対象読者・スライド枚数・図表・スピーカーノートを指定してPowerPointやGoogleスライドへ出力！',
-      h1: 'ChatGPT Slides 専用プロンプト生成ツール（無料）',
-      subtitle:
-        'OpenAIのChatGPT Slides（2026年10月16日リリース）向けに最適化されたプレゼン構成プロンプトをワンクリック生成。PowerPoint (.pptx)・PDF・Googleスライド出力に完全対応。',
-      defaultLang: '日本語',
-      ui: {
-        formLegend: '1. プレゼンテーション条件を入力',
-        noApiBadge: '完全無料 · APIキー不要 · 登録不要',
-        topicLabel: 'プレゼンのテーマ (演示主题)',
-        topicRequired: '必須',
-        topicPlaceholder: '例：法人向けAI業務自動化プラットフォームの導入提案...',
-        trySample: 'サンプルを試す:',
-        audienceLabel: '対象オーディエンス (対象読者)',
-        goalLabel: 'プレゼンの目的',
-        slidesLabel: 'スライド枚数',
-        styleLabel: 'トーン＆スタイル',
-        langLabel: '出力言語',
-        sourceLabel: 'データソース・参照元',
-        optionsLabel: '追加オプション（図表・出典・ノート）',
-        optExec: 'エグゼクティブサマリーを含める',
-        optCharts: '適切なグラフ・図表を提案',
-        optCitations: '要検証の主張・出典を明示',
-        optNotes: 'スピーカーノートを追加',
-        outputTitle: '2. 生成された ChatGPT Slides プロンプト',
-        copyBtn: 'プロンプトをコピー',
-        openBtn: 'ChatGPTを開く ↗',
-        switchStyleBtn: 'スタイル切替',
-        downloadBtn: 'TXT保存',
-        saveLocalBtn: 'ブラウザに保存',
-        storyboardTitle: 'スライド構成プレビュー'
-      }
-    },
-    {
-      lang: 'zh-TW',
-      route: '/zh-TW/chatgpt-slides-prompt-generator',
-      metaTitle: 'ChatGPT Slides 提示詞產生器 - 免費簡報指令模板工具 (支援 PPTX)',
-      metaDesc:
-        '專為 2026 年 10 月推出的 ChatGPT Slides 打造的免費簡報提示詞產生器。一鍵設定簡報主題、受眾、頁數、圖表建議與講者備忘稿，輕鬆匯出 PowerPoint 與 Google 簡報！',
-      h1: 'ChatGPT Slides 簡報提示詞產生器',
-      subtitle:
-        '專為 OpenAI 最新發布的 ChatGPT Slides 協作簡報功能設計。無需 API Key、免註冊，輸入主題與受眾即可生成結構化簡報指令，完美匯出 PowerPoint (.pptx)、PDF 與 Google Slides。',
-      defaultLang: '繁體中文',
-      ui: {
-        formLegend: '1. 設定您的 ChatGPT Slides 簡報參數',
-        noApiBadge: '100% 免費 · 免 API Key · 即時生成',
-        topicLabel: '演示主題 (Presentation Topic)',
-        topicRequired: '必填',
-        topicPlaceholder: '例如：2027 企業 AI 自動化工作流導入與 ROI 評估報告...',
-        trySample: '試試熱門範例:',
-        audienceLabel: '目標受眾 (Target Audience)',
-        goalLabel: '演示目的 (Goal)',
-        slidesLabel: '簡報頁數 (Slide Count)',
-        styleLabel: '簡報風格 (Tone & Style)',
-        langLabel: '輸出語言 (Language)',
-        sourceLabel: '資料來源 (Data Source)',
-        optionsLabel: '進階要求（圖表 / 引用來源 / 演講者備註）',
-        optExec: '包含執行摘要頁 (Executive Summary)',
-        optCharts: '建議合適的圖表 (Suggest Charts)',
-        optCitations: '標註需查核的數據與來源 (Citations)',
-        optNotes: '加入演講者備註 (Speaker Notes)',
-        outputTitle: '2. 可直接複製到 ChatGPT Slides 的完整提示詞',
-        copyBtn: '複製提示詞 (Copy)',
-        openBtn: '打開 ChatGPT ↗',
-        switchStyleBtn: '換一種風格',
-        downloadBtn: '下載 .TXT',
-        saveLocalBtn: '保存到本地',
-        storyboardTitle: '即時簡報大綱結構預覽'
-      }
-    }
-  ];
+  const i18nLangs = ['es', 'ja', 'zh-TW'];
 
-  for (const loc of i18nPages) {
-    const locBody =
+  for (const lang of i18nLangs) {
+    const t = UI_STRINGS[lang];
+    const hub = LOCALIZED_HUB_PAGES[lang];
+
+    // 6a. Localized Main Generator: /${lang}/chatgpt-slides-prompt-generator
+    const locGenRoute = `/${lang}/chatgpt-slides-prompt-generator`;
+    const locGenBody =
       renderCoreToolWidget(
         {
           ...mainGeneratorConfig,
-          canonicalPath: loc.route,
-          defaultLang: loc.defaultLang
+          canonicalPath: locGenRoute,
+          defaultTopic: t.defaultTopic,
+          defaultLang: t.defaultOutputLang,
+          proTip: t.defaultProTip
         },
-        loc.ui
+        lang
       ) +
-      renderInternalLinksSection('', false) +
-      renderStandardSeoSections(loc.h1);
+      renderInternalLinksSection('', true, lang) +
+      renderStandardSeoSections(hub.generator.h1, CORE_FAQS, lang);
 
     writeRouteHtml(
-      loc.route,
+      locGenRoute,
       renderDocument({
-        lang: loc.lang,
-        canonicalPath: loc.route,
-        metaTitle: loc.metaTitle,
-        metaDesc: loc.metaDesc,
-        h1: loc.h1,
-        subtitle: loc.subtitle,
+        lang,
+        canonicalPath: locGenRoute,
+        metaTitle: hub.generator.metaTitle,
+        metaDesc: hub.generator.metaDesc,
+        h1: hub.generator.h1,
+        subtitle: hub.generator.subtitle,
         activeNav: 'generator',
-        bodyHtml: locBody,
+        bodyHtml: locGenBody,
         includeHreflang: true
       })
     );
-    allUrls.push(`${SITE_URL}${loc.route}`);
+    allUrls.push(`${SITE_URL}${locGenRoute}`);
+
+    // 6b. Localized Templates Hub: /${lang}/chatgpt-slides-templates
+    const locTplRoute = `/${lang}/chatgpt-slides-templates`;
+    const locTplBody =
+      renderInternalLinksSection('', true, lang) +
+      renderCoreToolWidget(
+        {
+          ...mainGeneratorConfig,
+          slug: 'chatgpt-slides-templates',
+          canonicalPath: locTplRoute,
+          defaultTopic: t.defaultTopic,
+          defaultLang: t.defaultOutputLang,
+          proTip: t.defaultProTip
+        },
+        lang
+      ) +
+      renderStandardSeoSections(hub.templates.h1, CORE_FAQS, lang);
+
+    writeRouteHtml(
+      locTplRoute,
+      renderDocument({
+        lang,
+        canonicalPath: locTplRoute,
+        metaTitle: hub.templates.metaTitle,
+        metaDesc: hub.templates.metaDesc,
+        h1: hub.templates.h1,
+        subtitle: hub.templates.subtitle,
+        activeNav: 'templates',
+        bodyHtml: locTplBody,
+        includeHreflang: true
+      })
+    );
+    allUrls.push(`${SITE_URL}${locTplRoute}`);
+
+    // 6c. Localized PowerPoint Export Guide: /${lang}/chatgpt-slides-to-powerpoint
+    const locPptxRoute = `/${lang}/chatgpt-slides-to-powerpoint`;
+    const locPptxBody =
+      renderCoreToolWidget(
+        {
+          ...mainGeneratorConfig,
+          slug: 'chatgpt-slides-to-powerpoint',
+          canonicalPath: locPptxRoute,
+          defaultTopic: hub.powerpoint.defaultTopic || t.defaultTopic,
+          defaultLang: t.defaultOutputLang,
+          proTip: t.defaultProTip
+        },
+        lang
+      ) +
+      renderStandardSeoSections(hub.powerpoint.h1, pptxFaqs, lang) +
+      renderInternalLinksSection('', false, lang);
+
+    writeRouteHtml(
+      locPptxRoute,
+      renderDocument({
+        lang,
+        canonicalPath: locPptxRoute,
+        metaTitle: hub.powerpoint.metaTitle,
+        metaDesc: hub.powerpoint.metaDesc,
+        h1: hub.powerpoint.h1,
+        subtitle: hub.powerpoint.subtitle,
+        activeNav: 'powerpoint',
+        bodyHtml: locPptxBody,
+        faqs: pptxFaqs,
+        includeHreflang: true
+      })
+    );
+    allUrls.push(`${SITE_URL}${locPptxRoute}`);
+
+    // 6d. Localized Troubleshooting Guide: /${lang}/chatgpt-slides-not-showing
+    const locFixRoute = `/${lang}/chatgpt-slides-not-showing`;
+    const locFixBody =
+      renderCoreToolWidget(
+        {
+          ...mainGeneratorConfig,
+          slug: 'chatgpt-slides-not-showing',
+          canonicalPath: locFixRoute,
+          defaultTopic: hub.troubleshooting.defaultTopic || t.defaultTopic,
+          defaultLang: t.defaultOutputLang,
+          proTip: t.defaultProTip
+        },
+        lang
+      ) +
+      renderStandardSeoSections(hub.troubleshooting.h1, troubleshootingFaqs, lang) +
+      renderInternalLinksSection('', false, lang);
+
+    writeRouteHtml(
+      locFixRoute,
+      renderDocument({
+        lang,
+        canonicalPath: locFixRoute,
+        metaTitle: hub.troubleshooting.metaTitle,
+        metaDesc: hub.troubleshooting.metaDesc,
+        h1: hub.troubleshooting.h1,
+        subtitle: hub.troubleshooting.subtitle,
+        activeNav: 'troubleshooting',
+        bodyHtml: locFixBody,
+        faqs: troubleshootingFaqs,
+        includeHreflang: true
+      })
+    );
+    allUrls.push(`${SITE_URL}${locFixRoute}`);
+
+    // 6e. Localized Prompt Template Pages: /${lang}/prompts/[slug]
+    for (const tpl of PROMPT_TEMPLATES) {
+      const locPromptRoute = `/${lang}/prompts/${tpl.slug}`;
+      const isPitch = tpl.slug === 'pitch-deck';
+      const isSales = tpl.slug === 'sales-presentation';
+      const hubOverride = isPitch ? hub.pitchDeck : isSales ? hub.salesDeck : null;
+
+      const locMetaTitle = hubOverride ? hubOverride.metaTitle : `${tpl.shortName} - ${hub.generator.h1}`;
+      const locMetaDesc = hubOverride ? hubOverride.metaDesc : `${tpl.subtitle} (${hub.generator.metaDesc})`;
+      const locH1 = hubOverride ? hubOverride.h1 : `${tpl.h1} (${t.defaultOutputLang})`;
+      const locSubtitle = hubOverride ? hubOverride.subtitle : tpl.subtitle;
+      const locDefaultTopic = hubOverride?.defaultTopic || tpl.defaultTopic;
+
+      const locPromptBody =
+        renderCoreToolWidget(
+          {
+            ...tpl,
+            canonicalPath: locPromptRoute,
+            defaultTopic: locDefaultTopic,
+            defaultLang: t.defaultOutputLang,
+            proTip: t.defaultProTip
+          },
+          lang
+        ) +
+        renderStandardSeoSections(locH1, CORE_FAQS, lang) +
+        renderInternalLinksSection(tpl.slug, false, lang);
+
+      writeRouteHtml(
+        locPromptRoute,
+        renderDocument({
+          lang,
+          canonicalPath: locPromptRoute,
+          metaTitle: locMetaTitle,
+          metaDesc: locMetaDesc,
+          h1: locH1,
+          subtitle: locSubtitle,
+          activeNav: isPitch || isSales ? tpl.slug : 'templates',
+          bodyHtml: locPromptBody,
+          faqs: CORE_FAQS,
+          includeHreflang: true
+        })
+      );
+
+      if (isPitch || isSales) {
+        allUrls.push(`${SITE_URL}${locPromptRoute}`);
+      }
+    }
   }
 
   // 7. Generate sitemap.xml

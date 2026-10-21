@@ -309,10 +309,13 @@
         };
 
       if (slidesBadge) {
-        slidesBadge.textContent = `${slideCount} Slides`;
+        const suffix = pageConfig.slidesSuffix || 'Slides';
+        slidesBadge.textContent = pageConfig.uiLang === 'ja' ? `${slideCount}${suffix}` : `${slideCount} ${suffix}`;
       }
       if (styleIndicator) {
-        styleIndicator.textContent = `Style: ${styleObj.shortLabel}`;
+        const prefix = pageConfig.stylePrefix || 'Style';
+        const sep = pageConfig.uiLang === 'zh-TW' || pageConfig.uiLang === 'ja' ? '：' : ': ';
+        styleIndicator.textContent = `${prefix}${sep}${styleObj.shortLabel}`;
       }
       updateRangeProgressFallback();
 
@@ -598,10 +601,17 @@ ${requirements.join('\n')}`;
 
   function renderSavedDrawerList() {
     const container = document.getElementById('saved-prompts-list');
+    const drawer = document.getElementById('saved-prompts-drawer');
     if (!container) return;
+    const emptyMsg =
+      drawer?.getAttribute('data-empty-msg') ||
+      'No saved prompts yet. Click "Save Locally" on any generator to store your favorite prompt configurations right in your browser (no login required).';
+    const loadLabel = drawer?.getAttribute('data-load-label') || 'Load into Editor';
+    const deleteLabel = drawer?.getAttribute('data-delete-label') || 'Delete';
+
     const list = getSavedPrompts();
     if (list.length === 0) {
-      container.innerHTML = `<p class="caption-text" style="padding: 1rem 0;">No saved prompts yet. Click "Save Locally" on any generator to store your favorite prompt configurations right in your browser (no login required).</p>`;
+      container.innerHTML = `<p class="caption-text" style="padding: 1rem 0;">${emptyMsg}</p>`;
       return;
     }
 
@@ -615,8 +625,8 @@ ${requirements.join('\n')}`;
         </div>
         <div class="caption-text" style="margin-block: 0.25rem 0.6rem;">${item.createdAt} · ${item.style}</div>
         <div style="display:flex; gap:0.4rem;">
-          <button type="button" class="chip" data-load-id="${item.id}">Load into Editor</button>
-          <button type="button" class="chip" data-delete-id="${item.id}">Delete</button>
+          <button type="button" class="chip" data-load-id="${item.id}">${loadLabel}</button>
+          <button type="button" class="chip" data-delete-id="${item.id}">${deleteLabel}</button>
         </div>
       </div>
     `
