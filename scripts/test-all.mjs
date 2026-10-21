@@ -74,23 +74,23 @@ function getAllContentHtmlFiles(dir) {
 }
 
 const htmlFiles = getAllContentHtmlFiles(DIST_DIR);
-assert(htmlFiles.length === 205, `Generated exactly 205 canonical content pages (found: ${htmlFiles.length})`);
+assert(htmlFiles.length === 212, `Generated 212 total index.html pages on disk (found: ${htmlFiles.length})`);
 
-// 1. Root index `/` hreflang isolation check
+// 1. Root index `/` bidirectional hreflang check
 const rootHtml = fs.readFileSync(path.join(DIST_DIR, 'index.html'), 'utf8');
-const rootHasHreflang = /rel="alternate"\s+hreflang=/i.test(rootHtml);
+const rootHasHreflang = /rel="alternate"\s+hreflang="zh-TW"/i.test(rootHtml) && /rel="alternate"\s+hreflang="x-default"/i.test(rootHtml);
 assert(
-  !rootHasHreflang,
-  'Root index (/) has NO invalid hreflang tags (isolated non-equivalent hub, no broken loop)'
+  rootHasHreflang,
+  'Root index (/) has valid reciprocal hreflang tags linking to /zh-TW/, /es/, /ja/, and x-default'
 );
 
 // 2. Multi-lingual route groups bidirectional hreflang check
 const routeGroups = [
   {
-    en: `${SITE_URL}/chatgpt-slides-prompt-generator`,
-    'zh-TW': `${SITE_URL}/zh-TW/chatgpt-slides-prompt-generator`,
-    es: `${SITE_URL}/es/chatgpt-slides-prompt-generator`,
-    ja: `${SITE_URL}/ja/chatgpt-slides-prompt-generator`
+    en: `${SITE_URL}/`,
+    'zh-TW': `${SITE_URL}/zh-TW/`,
+    es: `${SITE_URL}/es/`,
+    ja: `${SITE_URL}/ja/`
   },
   {
     en: `${SITE_URL}/chatgpt-slides-templates`,
@@ -195,19 +195,61 @@ assert(
   `No prohibited unverified marketing, fake admin, or unsupported plan promises in HTML (violations: ${prohibitedFound.length})`
 );
 
-// 4. Single H1 tag check across all 205 canonical content pages
+// 4. Single H1 tag check across all 208 canonical content pages
 let multiH1 = 0;
+let canonicalEvaluated = 0;
 for (const file of htmlFiles) {
+  const rel = path.relative(DIST_DIR, file);
+  if (rel.includes('chatgpt-slides-prompt-generator')) continue; // Skip redirect stubs
   const content = fs.readFileSync(file, 'utf8');
   const h1Matches = content.match(/<h1[^>]*>([\s\S]*?)<\/h1>/gi) || [];
   if (h1Matches.length !== 1) multiH1++;
+  canonicalEvaluated++;
 }
-assert(multiH1 === 0, `All 205 content pages have exactly one <h1> tag (violations: ${multiH1})`);
+assert(canonicalEvaluated === 208, `Evaluated exactly 208 canonical pages for single H1 (evaluated: ${canonicalEvaluated})`);
+assert(multiH1 === 0, `All 208 canonical content pages have exactly one <h1> tag (violations: ${multiH1})`);
 
 // 5. Sitemap URL count
 const sitemapContent = fs.readFileSync(path.join(DIST_DIR, 'sitemap.xml'), 'utf8');
 const sitemapUrlCount = (sitemapContent.match(/<loc>/g) || []).length;
-assert(sitemapUrlCount === 205, `sitemap.xml contains exactly 205 URLs (found: ${sitemapUrlCount})`);
+assert(sitemapUrlCount === 208, `sitemap.xml contains exactly 208 URLs (found: ${sitemapUrlCount})`);
+
+// 6. Trust & Compliance Pages & Self-Canonical Check
+const trustPages = ['privacy', 'terms', 'about', 'contact'];
+let trustMismatches = 0;
+for (const tp of trustPages) {
+  const content = fs.readFileSync(path.join(DIST_DIR, tp, 'index.html'), 'utf8');
+  if (!content.includes(`<link rel="canonical" href="${SITE_URL}/${tp}" />`)) {
+    trustMismatches++;
+  }
+}
+assert(trustMismatches === 0, `All 4 trust pages (/privacy, /terms, /about, /contact) have self-canonical (mismatches: ${trustMismatches})`);
+
+// 7. Legacy Route Stubs Redirect Verification
+const redirectChecks = [
+  ['chatgpt-slides-prompt-generator', '/'],
+  ['zh-TW/chatgpt-slides-prompt-generator', '/zh-TW/'],
+  ['es/chatgpt-slides-prompt-generator', '/es/'],
+  ['ja/chatgpt-slides-prompt-generator', '/ja/']
+];
+let redirectErrors = 0;
+for (const [rPath, target] of redirectChecks) {
+  const content = fs.readFileSync(path.join(DIST_DIR, rPath, 'index.html'), 'utf8');
+  if (!content.includes(`meta http-equiv="refresh" content="0; url=${target}"`)) {
+    redirectErrors++;
+  }
+}
+assert(redirectErrors === 0, `All 4 legacy generator routes have immediate meta refresh to canonical homepage (errors: ${redirectErrors})`);
+
+// 8. 404 Page Quality Check
+const notFoundHtml = fs.readFileSync(path.join(DIST_DIR, '404.html'), 'utf8');
+assert(notFoundHtml.length > 500, `404.html is non-empty styled document (size: ${notFoundHtml.length} bytes)`);
+assert(notFoundHtml.includes('404 - Page Not Found'), '404.html contains clear error title');
+
+// 9. Localized FAQ & Category Chips Translations Check
+const zhIndexHtml = fs.readFileSync(path.join(DIST_DIR, 'zh-TW', 'index.html'), 'utf8');
+assert(zhIndexHtml.includes('什麼是 ChatGPT Slides？它如何運作？'), 'zh-TW index.html FAQ section is fully translated');
+assert(zhIndexHtml.includes('全部模板') && zhIndexHtml.includes('銷售與商務營收'), 'zh-TW index.html category chips are fully translated');
 
 
 // -------------------------------------------------------------
@@ -438,12 +480,18 @@ try {
   assert(false, `Wrangler dev server running at http://127.0.0.1:${WRANGLER_PORT}`);
 }
 
-async function testHttpUrl(urlPath, expectedType) {
+async function testHttpUrl(urlPath, expectedType, redirectsCount = 0) {
   return new Promise((resolve) => {
     http.get(`http://127.0.0.1:${WRANGLER_PORT}${urlPath}`, (res) => {
       let body = '';
       res.on('data', (chunk) => (body += chunk));
       res.on('end', () => {
+        if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location && redirectsCount < 3) {
+          const loc = res.headers.location;
+          const nextPath = loc.startsWith('http') ? new URL(loc).pathname : loc;
+          testHttpUrl(nextPath, expectedType, redirectsCount + 1).then(resolve);
+          return;
+        }
         resolve({
           statusCode: res.statusCode,
           contentType: res.headers['content-type'] || '',
@@ -457,16 +505,22 @@ async function testHttpUrl(urlPath, expectedType) {
 
 const sampleUrlsToFetch = [
   ['/', 'text/html'],
+  ['/zh-TW/', 'text/html'],
+  ['/ja/', 'text/html'],
+  ['/es/', 'text/html'],
+  ['/privacy', 'text/html'],
+  ['/terms', 'text/html'],
+  ['/about', 'text/html'],
+  ['/contact', 'text/html'],
   ['/chatgpt-slides-prompt-generator', 'text/html'],
   ['/zh-TW/chatgpt-slides-prompt-generator', 'text/html'],
-  ['/es/chatgpt-slides-prompt-generator', 'text/html'],
-  ['/ja/chatgpt-slides-prompt-generator', 'text/html'],
   ['/prompts/pitch-deck', 'text/html'],
   ['/sitemap.xml', 'application/xml'],
   ['/robots.txt', 'text/plain'],
   ['/google8c6329c58e485687.html', 'text/html'],
   ['/og-preview.png', 'image/png'],
   ['/favicon.svg', 'image/svg+xml'],
+  ['/favicon.ico', 'image/'],
   ['/styles.css', 'text/css'],
   ['/slide-structure-data.js', 'javascript'],
   ['/app.js', 'javascript']
@@ -476,7 +530,7 @@ let httpFailures = 0;
 for (const [u, expectedMime] of sampleUrlsToFetch) {
   const resp = await testHttpUrl(u, expectedMime);
   const isOk = resp.statusCode === 200 || (resp.statusCode === 307 && u.includes('google'));
-  const isMimeMatch = resp.statusCode === 307 || resp.contentType.includes(expectedMime);
+  const isMimeMatch = !expectedMime || resp.statusCode === 307 || resp.contentType.includes(expectedMime);
 
   if (!isOk || !isMimeMatch) {
     console.error(`HTTP check failed on ${u}: status ${resp.statusCode}, content-type ${resp.contentType}`);
@@ -486,6 +540,13 @@ for (const [u, expectedMime] of sampleUrlsToFetch) {
 assert(
   httpFailures === 0,
   `Actual HTTP network GET requests via Wrangler return HTTP 200/307 with valid Content-Type (failed: ${httpFailures})`
+);
+
+// Explicit 404 Page Verification via HTTP
+const notFoundResp = await testHttpUrl('/non-existent-probe-check', 'text/html');
+assert(
+  notFoundResp.statusCode === 404 && notFoundResp.bodyLength > 500,
+  `Wrangler serves non-empty 404.html page for missing URLs (status: ${notFoundResp.statusCode}, bodyLength: ${notFoundResp.bodyLength})`
 );
 
 
@@ -705,6 +766,23 @@ async function configure11Params(page, params) {
   }, params);
 }
 
+async function openDrawer(page) {
+  await page.evaluate(() => {
+    const btn = document.getElementById('btn-open-saved-drawer');
+    if (btn) btn.click();
+  });
+  await new Promise((r) => setTimeout(r, 500));
+}
+
+async function closeDrawer(page) {
+  await new Promise((r) => setTimeout(r, 450));
+  await page.evaluate(() => {
+    const btn = document.getElementById('btn-close-saved-drawer');
+    if (btn) btn.click();
+  });
+  await new Promise((r) => setTimeout(r, 400));
+}
+
 // 2. Full Mobile Viewport (390×844) Operations
 console.log('\n--- Testing Mobile Viewport (390×844) Real Touch Interactions ---');
 await page.setViewport({ width: 390, height: 844, isMobile: true, hasTouch: true });
@@ -721,8 +799,76 @@ const mobileScreenshotPath = path.join(ARTIFACT_DIR, 'preview-mobile.png');
 await page.screenshot({ path: mobileScreenshotPath, fullPage: false });
 assert(fs.existsSync(mobileScreenshotPath), `Captured mobile top screenshot (${mobileScreenshotPath})`);
 
-// A. Real typing into #input-topic
+// A. Real typing into #input-topic & Empty Topic Validation
 await page.click('#input-topic');
+await page.evaluate(() => {
+  const el = document.getElementById('input-topic');
+  if (el) {
+    el.value = '';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+});
+
+const emptyOutputText = await page.$eval('#prompt-output', (el) => el.value);
+assert(
+  emptyOutputText.includes('Please enter your presentation topic above') && !emptyOutputText.includes('[TOPIC:'),
+  'Empty topic: output box displays helpful guidance text instead of placeholder brackets'
+);
+
+// Click copy button with empty topic: must highlight input and show toast
+await page.click('#btn-copy-prompt');
+await new Promise((r) => setTimeout(r, 200));
+const isInputInvalid = await page.$eval('#input-topic', (el) => el.classList.contains('input-invalid'));
+const toastMsg = await page.$eval('#app-toast', (el) => el.textContent);
+assert(isInputInvalid, 'Empty topic validation: #input-topic receives input-invalid class');
+assert(toastMsg.includes('Please enter a presentation topic first'), 'Empty topic validation: warning toast is displayed');
+
+// Indefinite article tests (8, 11, 18 vs other counts)
+await page.evaluate(() => {
+  const el = document.getElementById('input-topic');
+  if (el) {
+    el.value = 'Grammar Verification Topic';
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  const slider = document.getElementById('range-slides');
+  if (slider) {
+    slider.value = '8';
+    slider.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+});
+const output8 = await page.$eval('#prompt-output', (el) => el.value);
+assert(output8.startsWith('Create an 8-slide presentation'), 'Grammar check: uses "an 8-slide presentation"');
+
+await page.evaluate(() => {
+  const slider = document.getElementById('range-slides');
+  if (slider) {
+    slider.value = '11';
+    slider.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+});
+const output11 = await page.$eval('#prompt-output', (el) => el.value);
+assert(output11.startsWith('Create an 11-slide presentation'), 'Grammar check: uses "an 11-slide presentation"');
+
+await page.evaluate(() => {
+  const slider = document.getElementById('range-slides');
+  if (slider) {
+    slider.value = '18';
+    slider.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+});
+const output18 = await page.$eval('#prompt-output', (el) => el.value);
+assert(output18.startsWith('Create an 18-slide presentation'), 'Grammar check: uses "an 18-slide presentation"');
+
+await page.evaluate(() => {
+  const slider = document.getElementById('range-slides');
+  if (slider) {
+    slider.value = '10';
+    slider.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+});
+const output10 = await page.$eval('#prompt-output', (el) => el.value);
+assert(output10.startsWith('Create a 10-slide presentation'), 'Grammar check: uses "a 10-slide presentation"');
+
 await page.evaluate(() => {
   const el = document.getElementById('input-topic');
   if (el) el.value = '';
@@ -1000,9 +1146,7 @@ const pitchParams = {
 };
 await configure11Params(page, pitchParams);
 await page.click('#btn-save-local');
-await new Promise((r) => setTimeout(r, 400));
-await page.click('#btn-close-saved-drawer');
-await new Promise((r) => setTimeout(r, 300));
+await closeDrawer(page);
 
 // Navigate to completely different template: research-presentation
 await page.goto(`http://127.0.0.1:${WRANGLER_PORT}/prompts/research-presentation`, { waitUntil: 'networkidle0' });
@@ -1010,8 +1154,7 @@ const researchPageSlug = await page.evaluate(() => window.__APP_PAGE_CONFIG?.slu
 assert(researchPageSlug === 'research-presentation', 'Navigated to research-presentation page');
 
 // Open drawer on research page and load saved pitch-deck prompt
-await page.click('#btn-open-saved-drawer');
-await new Promise((r) => setTimeout(r, 400));
+await openDrawer(page);
 
 // Expect navigation to /prompts/pitch-deck?loadSavedId=...
 await Promise.all([
@@ -1034,11 +1177,9 @@ assert(
 );
 
 // Clean up
-await page.click('#btn-open-saved-drawer');
-await new Promise((r) => setTimeout(r, 400));
+await openDrawer(page);
 await page.click('.btn-del-saved');
-await new Promise((r) => setTimeout(r, 300));
-await page.click('#btn-close-saved-drawer');
+await closeDrawer(page);
 
 // Test B: Cross-Language restore (saved in English, loaded from /zh-TW/ page)
 await page.goto(`http://127.0.0.1:${WRANGLER_PORT}/prompts/pitch-deck`, { waitUntil: 'networkidle0' });
@@ -1057,12 +1198,10 @@ const crossLangParams = {
 };
 await configure11Params(page, crossLangParams);
 await page.click('#btn-save-local');
-await new Promise((r) => setTimeout(r, 400));
-await page.click('#btn-close-saved-drawer');
+await closeDrawer(page);
 
 await page.goto(`http://127.0.0.1:${WRANGLER_PORT}/zh-TW/prompts/research-presentation`, { waitUntil: 'networkidle0' });
-await page.click('#btn-open-saved-drawer');
-await new Promise((r) => setTimeout(r, 400));
+await openDrawer(page);
 
 // Expect navigation to /zh-TW/prompts/pitch-deck?loadSavedId=...
 await Promise.all([
@@ -1081,11 +1220,9 @@ assert(
 );
 
 // Clean up saved item
-await page.click('#btn-open-saved-drawer');
-await new Promise((r) => setTimeout(r, 400));
+await openDrawer(page);
 await page.click('.btn-del-saved');
-await new Promise((r) => setTimeout(r, 300));
-await page.click('#btn-close-saved-drawer');
+await closeDrawer(page);
 await page.reload({ waitUntil: 'networkidle0' });
 
 // Test C: Catalog & Guide Pages Saved Item Regression (chatgpt-slides-templates, to-powerpoint, not-showing)
@@ -1106,12 +1243,10 @@ const catalogParams = {
 };
 await configure11Params(page, catalogParams);
 await page.click('#btn-save-local');
-await new Promise((r) => setTimeout(r, 400));
-await page.click('#btn-close-saved-drawer');
+await closeDrawer(page);
 
 await page.goto(`http://127.0.0.1:${WRANGLER_PORT}/prompts/sales-presentation`, { waitUntil: 'networkidle0' });
-await page.click('#btn-open-saved-drawer');
-await new Promise((r) => setTimeout(r, 400));
+await openDrawer(page);
 await Promise.all([
   page.waitForNavigation({ waitUntil: 'networkidle0' }),
   page.click('.btn-load-saved')
@@ -1124,11 +1259,9 @@ assert(
 await getAndAssert11Params(page, catalogParams, 'Catalog restore');
 
 // Clean up
-await page.click('#btn-open-saved-drawer');
-await new Promise((r) => setTimeout(r, 400));
+await openDrawer(page);
 await page.click('.btn-del-saved');
-await new Promise((r) => setTimeout(r, 300));
-await page.click('#btn-close-saved-drawer');
+await closeDrawer(page);
 
 // C2: Save on /chatgpt-slides-to-powerpoint, load from /prompts/pitch-deck
 await page.goto(`http://127.0.0.1:${WRANGLER_PORT}/chatgpt-slides-to-powerpoint`, { waitUntil: 'networkidle0' });
@@ -1147,12 +1280,10 @@ const pptxParams = {
 };
 await configure11Params(page, pptxParams);
 await page.click('#btn-save-local');
-await new Promise((r) => setTimeout(r, 400));
-await page.click('#btn-close-saved-drawer');
+await closeDrawer(page);
 
 await page.goto(`http://127.0.0.1:${WRANGLER_PORT}/prompts/pitch-deck`, { waitUntil: 'networkidle0' });
-await page.click('#btn-open-saved-drawer');
-await new Promise((r) => setTimeout(r, 400));
+await openDrawer(page);
 await Promise.all([
   page.waitForNavigation({ waitUntil: 'networkidle0' }),
   page.click('.btn-load-saved')
@@ -1165,11 +1296,9 @@ assert(
 await getAndAssert11Params(page, pptxParams, 'PowerPoint guide restore');
 
 // Clean up
-await page.click('#btn-open-saved-drawer');
-await new Promise((r) => setTimeout(r, 400));
+await openDrawer(page);
 await page.click('.btn-del-saved');
-await new Promise((r) => setTimeout(r, 300));
-await page.click('#btn-close-saved-drawer');
+await closeDrawer(page);
 
 // C3: Save on /chatgpt-slides-not-showing, load from /zh-TW/prompts/pitch-deck
 await page.goto(`http://127.0.0.1:${WRANGLER_PORT}/chatgpt-slides-not-showing`, { waitUntil: 'networkidle0' });
@@ -1188,12 +1317,10 @@ const fixParams = {
 };
 await configure11Params(page, fixParams);
 await page.click('#btn-save-local');
-await new Promise((r) => setTimeout(r, 400));
-await page.click('#btn-close-saved-drawer');
+await closeDrawer(page);
 
 await page.goto(`http://127.0.0.1:${WRANGLER_PORT}/zh-TW/prompts/pitch-deck`, { waitUntil: 'networkidle0' });
-await page.click('#btn-open-saved-drawer');
-await new Promise((r) => setTimeout(r, 400));
+await openDrawer(page);
 await Promise.all([
   page.waitForNavigation({ waitUntil: 'networkidle0' }),
   page.click('.btn-load-saved')
@@ -1207,11 +1334,9 @@ const fixState = await getAndAssert11Params(page, fixParams, 'Troubleshooting gu
 assert(fixState.cards[0].includes('投影片 1'), 'Troubleshooting guide restore: localized cards');
 
 // Clean up
-await page.click('#btn-open-saved-drawer');
-await new Promise((r) => setTimeout(r, 400));
+await openDrawer(page);
 await page.click('.btn-del-saved');
-await new Promise((r) => setTimeout(r, 300));
-await page.click('#btn-close-saved-drawer');
+await closeDrawer(page);
 
 // Test D: Elimination of Dual State (Re-compose from saved parameters, discard outdated prompt text)
 await page.goto(`http://127.0.0.1:${WRANGLER_PORT}/prompts/sales-presentation`, { waitUntil: 'networkidle0' });
@@ -1256,11 +1381,9 @@ assert(
 );
 
 // Clean up dual state item
-await page.click('#btn-open-saved-drawer');
-await new Promise((r) => setTimeout(r, 400));
+await openDrawer(page);
 await page.click('.btn-del-saved');
-await new Promise((r) => setTimeout(r, 300));
-await page.click('#btn-close-saved-drawer');
+await closeDrawer(page);
 
 // Test E: Legacy saved item handling (missing templateId)
 await page.evaluate(() => {
@@ -1273,8 +1396,7 @@ await page.evaluate(() => {
   localStorage.setItem('slideprompt_saved_v1', JSON.stringify([legacyItem]));
 });
 await page.reload({ waitUntil: 'networkidle0' });
-await page.click('#btn-open-saved-drawer');
-await new Promise((r) => setTimeout(r, 400));
+await openDrawer(page);
 await page.click('.btn-load-saved');
 
 await page.waitForFunction(() => {
@@ -1288,8 +1410,7 @@ assert(
 );
 // Clean up legacy item
 await page.click('.btn-del-saved');
-await new Promise((r) => setTimeout(r, 300));
-await page.click('#btn-close-saved-drawer');
+await closeDrawer(page);
 
 
 // -------------------------------------------------------------

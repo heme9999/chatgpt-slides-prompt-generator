@@ -243,7 +243,7 @@ import {
 
     function composePrompt() {
       const rawTopic = (topicInput?.value || '').trim();
-      const topic = rawTopic || '[TOPIC: e.g., Q4 Enterprise AI Rollout & ROI Strategy]';
+      const topic = rawTopic || (pageConfig.defaultTopic || 'Enterprise Strategy & Action Plan');
       const audience = audienceSelect?.value || 'C-Suite & Executive Board';
       const goal = goalSelect?.value || 'Persuade & Win Approval';
       const slideCount = Number(slidesRange?.value || 10);
@@ -327,7 +327,8 @@ import {
       );
       requirements.push(`- Follow this ${slideCount}-slide structure:\n  ${promptOutline.join('\n  ')}`);
 
-      const promptText = `Create a ${slideCount}-slide presentation about ${topic}.
+      const article = (slideCount === 8 || slideCount === 11 || slideCount === 18) ? 'an' : 'a';
+      const promptText = `Create ${article} ${slideCount}-slide presentation about ${topic}.
 
 Audience: ${audience}
 Goal: ${goal}
@@ -339,7 +340,11 @@ Requirements:
 ${requirements.join('\n')}`;
 
       if (outputArea) {
-        outputArea.value = promptText;
+        if (!rawTopic) {
+          outputArea.value = pageConfig.emptyTopicInstruction || 'Please enter your presentation topic above to generate your customized ChatGPT Slides prompt.';
+        } else {
+          outputArea.value = promptText;
+        }
       }
 
       if (storyboardContainer) {
@@ -364,10 +369,27 @@ ${requirements.join('\n')}`;
         .replace(/"/g, '&quot;');
     }
 
+    function validateTopicInput() {
+      const raw = (topicInput?.value || '').trim();
+      if (!raw) {
+        if (topicInput) {
+          topicInput.focus();
+          topicInput.classList.add('input-invalid');
+          topicInput.setCustomValidity(
+            pageConfig.messages?.topicValidation || 'Please enter a presentation topic or pick a sample chip above.'
+          );
+        }
+        showToast(pageConfig.messages?.topicRequiredToast || '⚠️ Please enter a presentation topic first.');
+        return false;
+      }
+      return true;
+    }
+
     // Validation Timing: Validate on blur, clear on input
     if (topicInput) {
       topicInput.addEventListener('blur', () => {
         if (!topicInput.value.trim()) {
+          topicInput.classList.add('input-invalid');
           topicInput.setCustomValidity(
             pageConfig.messages?.topicValidation || 'Please enter a presentation topic or pick a sample chip above.'
           );
@@ -376,12 +398,14 @@ ${requirements.join('\n')}`;
               pageConfig.messages?.topicErrorTip || 'Tip: Enter a presentation topic (or click a sample chip) for a tailored prompt.';
           }
         } else {
+          topicInput.classList.remove('input-invalid');
           topicInput.setCustomValidity('');
           if (topicError) topicError.textContent = '';
         }
       });
 
       topicInput.addEventListener('input', () => {
+        topicInput.classList.remove('input-invalid');
         topicInput.setCustomValidity('');
         if (topicError) topicError.textContent = '';
         composePrompt();
@@ -408,6 +432,7 @@ ${requirements.join('\n')}`;
         const sample = chip.getAttribute('data-sample-topic');
         if (topicInput && sample) {
           topicInput.value = sample;
+          topicInput.classList.remove('input-invalid');
           topicInput.setCustomValidity('');
           if (topicError) topicError.textContent = '';
           composePrompt();
@@ -429,6 +454,7 @@ ${requirements.join('\n')}`;
 
     // Action 1: Copy Prompt (with real verification & fallback)
     async function handleCopyPrompt() {
+      if (!validateTopicInput()) return false;
       const text = outputArea ? outputArea.value : composePrompt();
       let copied = false;
 
@@ -482,6 +508,7 @@ ${requirements.join('\n')}`;
     const btnDownload = document.getElementById('btn-download-txt');
     if (btnDownload) {
       btnDownload.addEventListener('click', () => {
+        if (!validateTopicInput()) return;
         const text = outputArea ? outputArea.value : composePrompt();
         const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -529,6 +556,7 @@ ${requirements.join('\n')}`;
     const btnSaveLocal = document.getElementById('btn-save-local');
     if (btnSaveLocal) {
       btnSaveLocal.addEventListener('click', () => {
+        if (!validateTopicInput()) return;
         const text = outputArea ? outputArea.value : composePrompt();
         const item = {
           id: 'sp_' + Date.now(),

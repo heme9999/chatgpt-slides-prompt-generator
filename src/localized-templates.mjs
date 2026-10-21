@@ -26,10 +26,10 @@ export const LOCALIZED_TEMPLATES = {
       ]
     },
     "pitch-deck": {
-      "shortName": "新創募資簡報簡報提示詞",
-      "h1": "ChatGPT Slides 新創募資簡報簡報提示詞產生器",
+      "shortName": "新創募資簡報提示詞",
+      "h1": "ChatGPT Slides 新創募資簡報提示詞產生器",
       "subtitle": "為 新創募資簡報 規劃專業投影片結構、圖表推薦與逐頁演講者備忘稿。",
-      "metaTitle": "新創募資簡報簡報提示詞產生器 - ChatGPT Slides 模板",
+      "metaTitle": "新創募資簡報提示詞產生器 - ChatGPT Slides 模板",
       "metaDesc": "免費產生專業的 新創募資簡報 簡報指令。包含完整大綱藍圖、圖表建議與防跑版 PPTX 結構規範。",
       "defaultTopic": "Autonomous AI QA Testing Agent for Mobile & Web Engineering Teams (Seed Round)",
       "category": "創業與融資",
@@ -479,10 +479,10 @@ export const LOCALIZED_TEMPLATES = {
       ]
     },
     "investor-update": {
-      "shortName": "投資人月度進展簡報簡報提示詞",
-      "h1": "ChatGPT Slides 投資人月度進展簡報簡報提示詞產生器",
+      "shortName": "投資人月度進展簡報提示詞",
+      "h1": "ChatGPT Slides 投資人月度進展簡報提示詞產生器",
       "subtitle": "為 投資人月度進展簡報 規劃專業投影片結構、圖表推薦與逐頁演講者備忘稿。",
-      "metaTitle": "投資人月度進展簡報簡報提示詞產生器 - ChatGPT Slides 模板",
+      "metaTitle": "投資人月度進展簡報提示詞產生器 - ChatGPT Slides 模板",
       "metaDesc": "免費產生專業的 投資人月度進展簡報 簡報指令。包含完整大綱藍圖、圖表建議與防跑版 PPTX 結構規範。",
       "defaultTopic": "Q3 Investor Update: 3.2x YoY ARR Growth, Enterprise Land-and-Expand & Key Hiring Asks",
       "category": "創業與融資",

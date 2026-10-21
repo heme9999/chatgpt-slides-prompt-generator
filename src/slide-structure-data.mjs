@@ -581,6 +581,10 @@ export function resolveCanonicalPath(slug, uiLang = 'en') {
   if (!slug || typeof slug !== 'string') return null;
   const langPrefix = (uiLang && uiLang !== 'en') ? `/${uiLang}` : '';
 
+  if (slug === 'chatgpt-slides-prompt-generator' || slug === 'home') {
+    return langPrefix ? `${langPrefix}/` : '/';
+  }
+
   if (KNOWN_HUB_SLUGS[slug]) {
     return `${langPrefix}${KNOWN_HUB_SLUGS[slug]}`;
   }

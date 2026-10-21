@@ -87,7 +87,9 @@ export const UI_STRINGS = {
     promptLanguageNotice:
       'Prompts use structured English directives to maximize ChatGPT instruction following, specifying your chosen language for all slide content.',
     deliveryNotice:
-      '1. Click "Copy Prompt" → 2. Click "Open ChatGPT" → 3. In ChatGPT Work or Space (Create > Slide), paste your prompt.',
+      '1. Click "Copy Prompt" → 2. Click "Open ChatGPT" → 3. In ChatGPT, navigate to Space > Create > Slide (or start a Work chat) and paste your prompt.',
+    emptyTopicInstruction:
+      'Please enter your presentation topic above to generate your customized ChatGPT Slides prompt.',
     fallbackLinkPrefix: 'Direct link: ',
     ariaWorkspace: 'ChatGPT Slides Prompt Generator Workspace',
     ariaNav: 'Primary Navigation',
@@ -104,6 +106,7 @@ export const UI_STRINGS = {
       loadedSuccess: 'Loaded saved prompt into editor',
       topicValidation: 'Please enter a presentation topic or pick a sample chip above.',
       topicErrorTip: 'Tip: Enter a presentation topic (or click a sample chip) for a tailored prompt.',
+      topicRequiredToast: '⚠️ Please enter a presentation topic first.',
       copySuccessToast: '✓ Prompt copied to clipboard! Paste into ChatGPT.',
       copyManualFallbackToast: 'Clipboard access was blocked. Please select and copy the prompt text manually below.',
       legacySavedWarning: 'Legacy saved prompt: missing template metadata.',
@@ -288,7 +291,9 @@ export const UI_STRINGS = {
     promptLanguageNotice:
       '為確保 ChatGPT 精確遵從指令，提示詞架構採用結構化英文指令，並明確指定以您選定的語言輸出所有簡報內文與講者備忘。',
     deliveryNotice:
-      '1. 點擊「複製提示詞」 → 2. 點擊「打開 ChatGPT」 → 3. 在 ChatGPT 的 Work 對話或 Space（點擊 Create > Slide）貼上提示詞。',
+      '1. 點擊「複製提示詞」 → 2. 點擊「打開 ChatGPT」 → 3. 在 ChatGPT 中進入 Space > Create > Slide（或開啟 Work 簡報對話）貼上提示詞。',
+    emptyTopicInstruction:
+      '請在上方輸入您的簡報主題，即可自動生成專屬的 ChatGPT Slides 提示詞指令。',
     fallbackLinkPrefix: '直接訪問連結：',
     ariaWorkspace: 'ChatGPT Slides 簡報提示詞產生器工作區',
     ariaNav: '主導航欄',
@@ -305,6 +310,7 @@ export const UI_STRINGS = {
       loadedSuccess: '已將收藏提示詞載入編輯器',
       topicValidation: '請輸入簡報主題或點選上方熱門範例。',
       topicErrorTip: '提示：輸入主題或點選範例標籤以產生專屬提示詞。',
+      topicRequiredToast: '⚠️ 請先在上方輸入簡報主題。',
       copySuccessToast: '✓ 提示詞已複製到剪貼簿！請前往 ChatGPT 貼上。',
       copyManualFallbackToast: '剪貼簿存取受限，請直接手動選取並複製下方已醒目提示的提示詞文字。',
       legacySavedWarning: '舊版收藏缺少模板資訊，無法跨模板載入。',
@@ -484,7 +490,9 @@ export const UI_STRINGS = {
     promptLanguageNotice:
       'Las directivas del prompt están estructuradas en inglés para maximizar la precisión de ChatGPT, indicando el idioma seleccionado para el contenido.',
     deliveryNotice:
-      '1. Haz clic en "Copiar Prompt" → 2. Haz clic en "Abrir ChatGPT" → 3. En Work o Space de ChatGPT (Create > Slide), pega el prompt.',
+      '1. Haz clic en "Copiar Prompt" → 2. Haz clic en "Abrir ChatGPT" → 3. En ChatGPT, ve a Space > Create > Slide (o en una conversación de Work) y pega tu prompt.',
+    emptyTopicInstruction:
+      'Por favor, introduce el tema de tu presentación arriba para generar tu prompt personalizado para ChatGPT Slides.',
     fallbackLinkPrefix: 'Enlace directo: ',
     ariaWorkspace: 'Espacio de trabajo del generador de prompts para ChatGPT Slides',
     ariaNav: 'Navegación principal',
@@ -501,6 +509,7 @@ export const UI_STRINGS = {
       loadedSuccess: 'Prompt cargado en el editor',
       topicValidation: 'Por favor ingresa un tema de presentación o selecciona un ejemplo.',
       topicErrorTip: 'Consejo: Ingresa un tema (o haz clic en un ejemplo) para un prompt a medida.',
+      topicRequiredToast: '⚠️ Por favor, introduce primero el tema de la presentación.',
       copySuccessToast: '✓ ¡Prompt copiado al portapapeles! Pégalo en ChatGPT.',
       copyManualFallbackToast: 'Acceso al portapapeles bloqueado. Selecciona y copia manualmente el texto a continuación.',
       legacySavedWarning: 'Prompt antiguo guardado: faltan metadatos de plantilla.',
@@ -685,7 +694,9 @@ export const UI_STRINGS = {
     promptLanguageNotice:
       'ChatGPTの指示遵守精度を最大化するためプロンプト構成は英語で記述され、スライド本文と発表者ノートは指定した言語で出力されます。',
     deliveryNotice:
-      '1. 「プロンプトをコピー」をクリック → 2. 「ChatGPTを開く」をクリック → 3. ChatGPTのWorkまたはSpace（Create > Slide）に貼り付け。',
+      '1. 「プロンプトをコピー」をクリック → 2. 「ChatGPTを開く」をクリック → 3. ChatGPTで「Space > Create > Slide」を開く（またはWork対話で）プロンプトを貼り付け。',
+    emptyTopicInstruction:
+      '上部の入力欄にプレゼンテーションのテーマを入力してください。最適なChatGPT Slides用プロンプトが自動生成されます。',
     fallbackLinkPrefix: '直接リンク：',
     ariaWorkspace: 'ChatGPT Slides プロンプト作成ワークスペース',
     ariaNav: 'メインナビゲーション',
@@ -702,6 +713,7 @@ export const UI_STRINGS = {
       loadedSuccess: '保存したプロンプトを読み込みました',
       topicValidation: 'プレゼンのテーマを入力するか、上のサンプルを選択してください。',
       topicErrorTip: 'ヒント：テーマを入力（またはサンプルを選択）すると最適なプロンプトが作成されます。',
+      topicRequiredToast: '⚠️ 先にプレゼンテーションのテーマを入力してください。',
       copySuccessToast: '✓ プロンプトをコピーしました！ChatGPTに貼り付けてください。',
       copyManualFallbackToast: 'クリップボードへのアクセスが制限されました。下の選択されたテキストを手動でコピーしてください。',
       legacySavedWarning: '旧バージョンの保存データです（テンプレート情報が不足しています）。',
@@ -967,3 +979,296 @@ export const LOCALIZED_HUB_PAGES = {
     }
   }
 };
+
+// Localized 6 Core FAQs across EN, zh-TW, ES, and JA
+export const LOCALIZED_FAQS = {
+  en: [
+    {
+      q: 'What is ChatGPT Slides and how does it work?',
+      a: 'ChatGPT Slides is OpenAI’s presentation creation and collaboration capability introduced in October 2026 (OpenAI Help Article 20001605). It allows eligible users to create structured presentations directly inside ChatGPT—either conversationally in Work or through the dedicated "Create > Slide" workflow in a collaborative Space. Slides can be edited directly on canvas, co-authored with team members, and exported to Microsoft PowerPoint (.pptx), PDF, or Google Slides.'
+    },
+    {
+      q: 'Which OpenAI accounts have access to ChatGPT Slides?',
+      a: 'According to OpenAI official documentation (Help Article 20001605), presentation creation is supported for accounts with Space access—currently listed for Pro, Business, and Enterprise plans, subject to OpenAI’s progressive rollout. SlidePrompt.ai is an independent free prompt builder; access to the native ChatGPT Slides feature itself depends entirely on OpenAI account plan eligibility and rollout status.'
+    },
+    {
+      q: 'Does SlidePrompt.ai require an OpenAI API key, login, or payment?',
+      a: 'No. SlidePrompt.ai is an independent, 100% free prompt structuring utility that operates entirely in your web browser. You do not need to register an account, pay any subscription, or provide an OpenAI API key on this website. You simply configure your prompt blueprint, copy it to your clipboard, and paste it into your own ChatGPT session.'
+    },
+    {
+      q: 'How do I export slides from ChatGPT to PowerPoint (.pptx) or Google Slides?',
+      a: 'After ChatGPT generates your deck in the slide viewer, open the Export menu in the upper-right corner of the slide interface and select "Download as PowerPoint (.pptx)" or choose PDF / Google Slides. SlidePrompt.ai formats prompts to encourage clean layouts and Presenter View speaker notes, but the actual file rendering and export are performed by OpenAI inside ChatGPT.'
+    },
+    {
+      q: 'Why do I not see ChatGPT Slides in my ChatGPT interface?',
+      a: 'If you do not see the Slides feature: (1) Verify whether your OpenAI subscription includes Space access (currently listed for Pro, Business, and Enterprise plans with gradual rollout), (2) Ensure you are accessing chatgpt.com via a desktop web browser (Chrome, Safari, Edge, Firefox), (3) Look for the "Create > Slide" option in Space or request slides in Work, and (4) Consult official guidance in OpenAI Help Article 20001605. SlidePrompt.ai cannot activate features in OpenAI accounts.'
+    },
+    {
+      q: 'How does SlidePrompt.ai handle my privacy and data?',
+      a: 'SlidePrompt.ai performs all prompt assembly client-side using JavaScript in your browser. No presentation topics, outlines, or form entries are transmitted to our servers. Any saved blueprints are stored strictly in your browser’s local storage (localStorage) and can be removed at any time by clicking "Delete" in the Saved Prompts drawer. Your prompt is only submitted to OpenAI when you choose to paste and run it inside ChatGPT.'
+    }
+  ],
+  'zh-TW': [
+    {
+      q: '什麼是 ChatGPT Slides？它如何運作？',
+      a: 'ChatGPT Slides 是 OpenAI 於 2026 年 10 月推出的簡報創作與協作功能（官方說明編號 20001605）。具備權限的用戶可以直接在 ChatGPT 內建立結構化簡報——可在 Work 對話中生成，或在協作 Space 中點選「Create > Slide」開啟。簡報支援在畫布上直接編輯、與團隊成員協同修改，並可直接匯出為微軟 PowerPoint (.pptx)、PDF 或 Google 簡報。'
+    },
+    {
+      q: '哪些 OpenAI 帳號可以使用 ChatGPT Slides？',
+      a: '根據 OpenAI 官方說明文件（Help Article 20001605），簡報功能支援具備 Space 權限的帳號——目前官方列出 Pro、Business 及 Enterprise 方案，並依 OpenAI 部署進度逐步推出。SlidePrompt.ai 為第三方獨立提示詞工具；ChatGPT Slides 原生功能的使用權限完全取決於您的 OpenAI 帳號方案與開放進度。'
+    },
+    {
+      q: '使用 SlidePrompt.ai 需要 OpenAI API Key、註冊登入或付費嗎？',
+      a: '完全不需要。SlidePrompt.ai 是一套獨立且 100% 免費的簡報提示詞結構工具，完全在您的本機瀏覽器端運行。您不需要在本站註冊帳號、不需支付任何訂閱費用，也不需提供任何 OpenAI API 金鑰。只需在表單中自訂簡報藍圖，一鍵複製提示詞後貼入您自己的 ChatGPT 對話即可使用。'
+    },
+    {
+      q: '如何將 ChatGPT Slides 簡報匯出為 PowerPoint (.pptx) 或 Google 簡報？',
+      a: '當 ChatGPT 在簡報畫布中生成投影片後，點擊簡報介面右上角的匯出選單，選擇「下載為 PowerPoint (.pptx)」或「PDF / Google Slides」即可。SlidePrompt.ai 在提示詞中預先規範了版面密度與演講者檢視備忘稿，但實際檔案的渲染與匯出是由 ChatGPT 內部的 OpenAI 引擎執行。'
+    },
+    {
+      q: '為什麼我的 ChatGPT 介面中找不到 ChatGPT Slides 功能？',
+      a: '若您的介面中尚未顯示 Slides 功能：(1) 請核對您的 OpenAI 訂閱是否包含 Space 權限（目前開放 Pro、Business 及 Enterprise 方案逐步推送）；(2) 確認您是在電腦桌面端瀏覽器（Chrome、Safari、Edge、Firefox）開啟 chatgpt.com；(3) 在 Space 專區尋找「Create > Slide」或在 Work 對話中提出簡報指令；(4) 參閱官方說明文件（Help Article 20001605）。SlidePrompt.ai 無法為您的帳號啟用此功能。'
+    },
+    {
+      q: 'SlidePrompt.ai 如何處理用戶隱私與數據安全？',
+      a: 'SlidePrompt.ai 的提示詞組合邏輯 100% 在您的瀏覽器前端（Client-Side）以 JavaScript 執行。您輸入的簡報主題、筆記或表單設定絕不會上傳至我們的伺服器。收藏的提示詞僅儲存在您個人瀏覽器的本機快取（localStorage）中，您可隨時在「已儲存」側邊欄中點擊刪除。只有當您主動將提示詞複製並貼到 ChatGPT 時，數據才會發送給 OpenAI。'
+    }
+  ],
+  es: [
+    {
+      q: '¿Qué es ChatGPT Slides y cómo funciona?',
+      a: 'ChatGPT Slides es la funcionalidad oficial de OpenAI para crear y colaborar en presentaciones, lanzada en octubre de 2026 (Artículo de Ayuda 20001605). Permite a los usuarios elegibles generar presentaciones estructuradas directamente en ChatGPT, ya sea conversando en Work o mediante el flujo "Create > Slide" en un Space colaborativo. Las diapositivas se pueden editar directamente en el lienzo, editar en equipo y exportar a PowerPoint (.pptx), PDF o Google Slides.'
+    },
+    {
+      q: '¿Qué cuentas de OpenAI tienen acceso a ChatGPT Slides?',
+      a: 'Según la documentación oficial de OpenAI (Help Article 20001605), la creación de presentaciones está disponible para cuentas con acceso a Space—actualmente listadas para planes Pro, Business y Enterprise, sujeto al despliegue gradual de OpenAI. SlidePrompt.ai es una herramienta independiente y gratuita; el acceso a ChatGPT Slides depende exclusivamente del plan y estado de tu cuenta en OpenAI.'
+    },
+    {
+      q: '¿SlidePrompt.ai requiere clave API de OpenAI, registro o pago?',
+      a: 'No. SlidePrompt.ai es una herramienta gratuita e independiente que funciona completamente en tu navegador web. No necesitas registrarte, pagar suscripciones ni proporcionar tu clave API de OpenAI. Simplemente configuras los parámetros de tu presentación, copias el prompt resultante con un clic y lo pegas en tu propia sesión de ChatGPT.'
+    },
+    {
+      q: '¿Cómo exporto diapositivas desde ChatGPT a PowerPoint (.pptx) o Google Slides?',
+      a: 'Una vez que ChatGPT genera tu presentación en el visor de diapositivas, abre el menú de exportación en la esquina superior derecha y selecciona "Descargar como PowerPoint (.pptx)" o elige PDF / Google Slides. SlidePrompt.ai optimiza el prompt para asegurar diseños limpios y notas del orador, mientras que la exportación real la realiza ChatGPT.'
+    },
+    {
+      q: '¿Por qué no veo ChatGPT Slides en mi cuenta de ChatGPT?',
+      a: 'Si aún no ves la función de diapositivas: (1) Comprueba si tu suscripción a OpenAI cuenta con acceso Space (planes Pro, Business y Enterprise con despliegue progresivo); (2) Accede a chatgpt.com desde un navegador web de escritorio (Chrome, Safari, Edge, Firefox); (3) Busca la opción "Create > Slide" en Space o solicítala en Work; y (4) Consulta el Artículo de Ayuda 20001605 de OpenAI. SlidePrompt.ai no puede activar funciones en cuentas de OpenAI.'
+    },
+    {
+      q: '¿Cómo maneja SlidePrompt.ai mi privacidad y mis datos?',
+      a: 'SlidePrompt.ai genera todos los prompts en el lado del cliente (en tu navegador) mediante JavaScript. Ningún tema, esquema o dato ingresado en el formulario se envía a servidores externos. Las plantillas guardadas se almacenan estrictamente en el almacenamiento local de tu navegador (localStorage) y se pueden borrar en cualquier momento. Tus datos solo llegan a OpenAI cuando decides pegar el texto en ChatGPT.'
+    }
+  ],
+  ja: [
+    {
+      q: 'ChatGPT Slidesとは何ですか？どのように動作しますか？',
+      a: 'ChatGPT Slidesは、2026年10月にOpenAIが導入したプレゼンテーション作成・共同編集機能です（公式ヘルプ記事 20001605）。対象ユーザーはChatGPT内で直接スライドを作成できます。Work対話での指示や、共同Space内の「Create > Slide」から起動可能です。キャンバス上で直感的に編集でき、チームメンバーとの共同編集や、Microsoft PowerPoint (.pptx)、PDF、Googleスライドへの書き出しに対応しています。'
+    },
+    {
+      q: 'ChatGPT Slidesを利用できるOpenAIアカウントの条件は？',
+      a: 'OpenAI公式ドキュメント（Help Article 20001605）によると、プレゼン作成機能はSpaceアクセス権を持つアカウント（現在はPro、Business、Enterpriseプラン対象、段階的ロールアウト中）で利用可能です。SlidePrompt.aiは独立した無料プロンプト作成支援ツールであり、ChatGPT Slides機能自体の利用可否はOpenAIのアカウントプランと提供状況に依存します。'
+    },
+    {
+      q: 'SlidePrompt.aiの利用にOpenAI APIキー、登録、料金は必要ですか？',
+      a: '一切不要です。SlidePrompt.aiは100%無料の独立したプロンプト構成ツールで、すべての処理がお手元のブラウザ内で完結します。会員登録、料金の支払いは不要で、OpenAI APIキーを入力する必要もありません。フォームで条件を設定し、生成されたプロンプトをワンクリックでコピーしてご自身のChatGPTに貼り付けるだけで使えます。'
+    },
+    {
+      q: 'ChatGPT SlidesからPowerPoint (.pptx) やGoogleスライドへ書き出す方法は？',
+      a: 'ChatGPTがスライドビューア上にプレゼンを生成した後、スライド画面右上のエクスポートメニューを開き、「PowerPoint (.pptx) としてダウンロード」または「PDF / Googleスライド」を選択します。SlidePrompt.aiは文字溢れを防ぎ発表者ノートを含めたプロンプトを構築しますが、実際のファイル生成とエクスポートはChatGPT内のOpenAIエンジンが実行します。'
+    },
+    {
+      q: 'ChatGPTの画面にSlides機能が表示されない理由は？',
+      a: 'Slides機能が表示されない場合は以下をご確認ください：(1) ご契約中のOpenAIプランにSpace機能が含まれているか（現在Pro、Business、Enterprise向けに順次提供中）；(2) PCデスクトップ版ブラウザ（Chrome、Safari、Edge、Firefox）でchatgpt.comにアクセスしているか；(3) Space内の「Create > Slide」またはWorkチャットから指示しているか；(4) OpenAI公式ヘルプ（記事20001605）を確認してください。当ツールからOpenAI機能を強制有効化することはできません。'
+    },
+    {
+      q: 'SlidePrompt.aiにおけるプライバシーとデータの扱いは？',
+      a: 'SlidePrompt.aiのプロンプト組み立て処理は、すべてブラウザ上のJavaScriptで完結します。入力されたテーマ、概要、設定内容が当サイトのサーバーに送信されることはありません。保存したプロンプトはお手元のブラウザのローカルストレージ（localStorage）にのみ保存され、いつでも削除できます。データがOpenAIに送信されるのは、お客様がChatGPTに貼り付けて送信したときのみです。'
+    }
+  ]
+};
+
+// Localized FAQs for PowerPoint (.PPTX) Export Guide
+export const LOCALIZED_PPTX_FAQS = {
+  en: [
+    {
+      q: 'How do I export a ChatGPT Slides presentation to Microsoft PowerPoint (.pptx)?',
+      a: 'In the ChatGPT Slides canvas window, open the export menu in the top right corner and select "Download as PowerPoint (.pptx)". You can also export to PDF or open directly in Google Slides.'
+    },
+    {
+      q: 'Why does exported text in PowerPoint sometimes overflow text boxes?',
+      a: 'When ChatGPT outputs paragraphs with more than 4 lines on a slide, default PowerPoint templates truncate or overflow boxes. Our generator enforces "One clear message per slide" with concise proof points and moves narrative explanations into speaker notes.'
+    },
+    {
+      q: 'Do speaker notes carry over to PowerPoint (.pptx)?',
+      a: 'Yes. When ChatGPT generates slides with explicit Presenter View speaker notes, OpenAI’s native export maps those notes into the PowerPoint presenter notes field.'
+    }
+  ],
+  'zh-TW': [
+    {
+      q: '如何將 ChatGPT Slides 簡報匯出為 Microsoft PowerPoint (.pptx)？',
+      a: '在 ChatGPT Slides 畫布視窗中，點擊右上角匯出選單並選擇「下載為 PowerPoint (.pptx)」。您也可以選擇匯出為 PDF 或直接在 Google 簡報中開啟。'
+    },
+    {
+      q: '為什麼匯出到 PowerPoint 時文字框偶爾會超出邊界或排版跑版？',
+      a: '當 ChatGPT 在單一頁面上輸出超過 4 行長段落時，PowerPoint 預設版型容易產生文字溢出。我們的產生器預設「每頁單一明確核心觀點」，嚴格限制內文密度並將詳細解說移至演講者備忘稿。'
+    },
+    {
+      q: '演講者備忘稿會一併保留在 PowerPoint (.pptx) 檔案中嗎？',
+      a: '會的。當 ChatGPT 根據提示詞生成明確的演講者備忘稿時，OpenAI 的原生匯出功能會將其直接對應至 PowerPoint 的備忘稿欄位中。'
+    }
+  ],
+  es: [
+    {
+      q: '¿Cómo exporto una presentación de ChatGPT Slides a Microsoft PowerPoint (.pptx)?',
+      a: 'En la ventana del lienzo de ChatGPT Slides, abre el menú de exportación en la esquina superior derecha y selecciona "Descargar como PowerPoint (.pptx)". También puedes exportar a PDF o abrir en Google Slides.'
+    },
+    {
+      q: '¿Por qué el texto exportado a PowerPoint a veces se desborda?',
+      a: 'Cuando ChatGPT genera párrafos de más de 4 líneas por diapositiva, las plantillas estándar de PowerPoint desbordan las cajas de texto. Nuestro generador impone "Un mensaje claro por diapositiva" y traslada las explicaciones extensas a las notas del orador.'
+    },
+    {
+      q: '¿Se conservan las notas del orador en el archivo PowerPoint (.pptx)?',
+      a: 'Sí. Cuando ChatGPT incluye notas explícitas para el orador en el prompt, la exportación oficial de OpenAI las asigna directamente al panel de notas de PowerPoint.'
+    }
+  ],
+  ja: [
+    {
+      q: 'ChatGPT SlidesのプレゼンをMicrosoft PowerPoint (.pptx) にエクスポートするには？',
+      a: 'ChatGPT Slidesのキャンバス画面右上のエクスポートメニューを開き、「PowerPoint (.pptx) としてダウンロード」を選択します。PDFへの書き出しやGoogleスライドでの直接表示も可能です。'
+    },
+    {
+      q: 'PowerPointに書き出した際、文字がテキストボックスからはみ出る原因は？',
+      a: 'ChatGPTが1枚のスライドに長文を出力すると、PowerPointの標準枠を文字が超えてしまいます。当ツールのプロンプトは「1スライド1メッセージ」を徹底し、補足説明を発表者ノートに逃がすことでレイアウト崩れを防ぎます。'
+    },
+    {
+      q: 'スピーカーノート（発表原稿）はPowerPoint (.pptx) にも引き継がれますか？',
+      a: 'はい。プロンプトの指示に従って生成された発表者ノートは、OpenAIの標準書き出し機能によってPowerPointのノート欄に自動的にマッピングされます。'
+    }
+  ]
+};
+
+// Localized FAQs for Troubleshooting Guide
+export const LOCALIZED_TROUBLESHOOTING_FAQS = {
+  en: [
+    {
+      q: 'Why is ChatGPT Slides not showing in my account?',
+      a: 'ChatGPT Slides creation is available on eligible accounts with Space access—currently listed for Pro, Business, and Enterprise plans, subject to OpenAI’s progressive rollout. Furthermore, interactive slide canvas editing (via "Create > Slide" in Space or in Work chat) and PowerPoint export work on desktop web browsers (Chrome, Safari, Edge, Firefox) at chatgpt.com.'
+    },
+    {
+      q: 'What prompt syntax should I use to request slides in ChatGPT?',
+      a: 'Begin your instruction with an explicit directive such as "Create an 8-slide presentation about [TOPIC]" and include slide structure and export requirements. Avoid asking simply for an "outline" or "bullet points", which yields plain chat text.'
+    },
+    {
+      q: 'Does ChatGPT Slides work on mobile apps or only desktop web?',
+      a: 'Full collaborative slide canvas editing and direct PowerPoint (.pptx) or Google Slides export are supported on desktop web browsers at chatgpt.com.'
+    }
+  ],
+  'zh-TW': [
+    {
+      q: '為什麼我的帳號中沒有顯示 ChatGPT Slides？',
+      a: 'ChatGPT Slides 創作功能目前僅向具備 Space 權限的帳號提供（官方列出 Pro、Business 及 Enterprise 方案），並由 OpenAI 採逐步推送方式部署。此外，畫布互動編輯（透過 Space 中的「Create > Slide」或 Work 簡報對話）與 PowerPoint 匯出功能主要支援電腦桌面瀏覽器（Chrome、Safari、Edge、Firefox）。'
+    },
+    {
+      q: '在 ChatGPT 中需要使用什麼提示詞語法才能成功觸發 Slides 畫布？',
+      a: '請以明確的行動指令開頭，例如「Create a 10-slide presentation about [TOPIC]」，並附帶頁數、大綱結構與匯出要求。避免僅要求「簡報大綱」或「重點清單」，否則 ChatGPT 只會輸出純文字回覆。'
+    },
+    {
+      q: 'ChatGPT Slides 支援手機 App 嗎？還是僅支援電腦網頁版？',
+      a: '完整的畫布協同編輯與 PowerPoint (.pptx) / Google 簡報匯出功能，目前官方主要支援電腦桌面端網頁版（chatgpt.com）。'
+    }
+  ],
+  es: [
+    {
+      q: '¿Por qué ChatGPT Slides no aparece en mi cuenta?',
+      a: 'La creación de presentaciones en ChatGPT Slides está disponible para cuentas con acceso a Space (planes Pro, Business y Enterprise según el despliegue progresivo de OpenAI). La edición en el lienzo interactivo y la exportación a PowerPoint están optimizadas para navegadores de escritorio en chatgpt.com.'
+    },
+    {
+      q: '¿Qué sintaxis de prompt debo usar para solicitar diapositivas en ChatGPT?',
+      a: 'Inicia tu instrucción con un comando imperativo claro como "Create a 10-slide presentation about [TOPIC]" e incluye la estructura de diapositivas. Evita pedir únicamente un "esquema" o "puntos clave", ya que eso solo devuelve texto en el chat.'
+    },
+    {
+      q: '¿ChatGPT Slides funciona en aplicaciones móviles o solo en web de escritorio?',
+      a: 'La edición completa del lienzo de diapositivas y la exportación directa a PowerPoint (.pptx) o Google Slides están soportadas en navegadores web de escritorio en chatgpt.com.'
+    }
+  ],
+  ja: [
+    {
+      q: '自分のアカウントでChatGPT Slidesが表示されない理由は？',
+      a: 'ChatGPT Slidesの作成機能は、Spaceアクセス権を持つ対象プラン（Pro、Business、Enterprise）向けに段階的にロールアウトされています。また、キャンバス上での共同編集やPowerPointエクスポートは、PCデスクトップブラウザ（Chrome、Safari、Edge、Firefox）での利用が前提となります。'
+    },
+    {
+      q: 'ChatGPTでスライドを生成させるための推奨プロンプト構文は？',
+      a: '「Create a 10-slide presentation about [TOPIC]」のように明確な枚数と構成指示を含めてください。単に「スライドの概要を教えて」と入力すると、通常のチャットテキストとして箇条書きが返ってくるだけになります。'
+    },
+    {
+      q: 'ChatGPT Slidesはモバイルアプリでも使えますか？それともPCデスクトップのみですか？',
+      a: 'スライドキャンバス上での本格的な編集やPowerPoint (.pptx)・Googleスライドへの書き出しは、PCデスクトップ版のブラウザ環境（chatgpt.com）で動作します。'
+    }
+  ]
+};
+
+// Localized Template Category Chip Labels
+export const CATEGORY_LABELS = {
+  en: {
+    'All': 'All Templates',
+    'Sales & Revenue': 'Sales & Revenue',
+    'Startup & Fundraising': 'Startup & Fundraising',
+    'Operations & PM': 'Operations & PM',
+    'Product & Marketing': 'Product & Marketing',
+    'Academic & R&D': 'Academic & R&D',
+    'Education & Training': 'Education & Training',
+    'Real Estate & Finance': 'Real Estate & Finance',
+    'Strategy & Consulting': 'Strategy & Consulting',
+    'Leadership & Events': 'Leadership & Events',
+    'Engineering & Tech': 'Engineering & Tech',
+    'HR & Enablement': 'HR & Enablement',
+    'Design & Creative': 'Design & Creative'
+  },
+  'zh-TW': {
+    'All': '全部模板',
+    'Sales & Revenue': '銷售與商務營收',
+    'Startup & Fundraising': '新創募資與融資',
+    'Operations & PM': '營運管理與專案',
+    'Product & Marketing': '產品規劃與行銷',
+    'Academic & R&D': '學術研究與研發',
+    'Education & Training': '教學課程與培訓',
+    'Real Estate & Finance': '房產地產與金融',
+    'Strategy & Consulting': '策略與管理顧問',
+    'Leadership & Events': '高管領導與大會',
+    'Engineering & Tech': '工程技術與架構',
+    'HR & Enablement': '人力資源與賦能',
+    'Design & Creative': '設計創意與品牌'
+  },
+  es: {
+    'All': 'Todas las plantillas',
+    'Sales & Revenue': 'Ventas e Ingresos',
+    'Startup & Fundraising': 'Startups y Financiación',
+    'Operations & PM': 'Operaciones y Gestión',
+    'Product & Marketing': 'Producto y Marketing',
+    'Academic & R&D': 'Academia e I+D',
+    'Education & Training': 'Educación y Formación',
+    'Real Estate & Finance': 'Inmobiliaria y Finanzas',
+    'Strategy & Consulting': 'Estrategia y Consultoría',
+    'Leadership & Events': 'Liderazgo y Eventos',
+    'Engineering & Tech': 'Ingeniería y Tecnología',
+    'HR & Enablement': 'RRHH y Capacitación',
+    'Design & Creative': 'Diseño y Creatividad'
+  },
+  ja: {
+    'All': 'すべてのテンプレート',
+    'Sales & Revenue': '営業・セールス',
+    'Startup & Fundraising': '資金調達・ピッチ',
+    'Operations & PM': '業務運営・PM',
+    'Product & Marketing': 'プロダクト・マーケ',
+    'Academic & R&D': '学術研究・R&D',
+    'Education & Training': '教育・研修',
+    'Real Estate & Finance': '不動産・金融',
+    'Strategy & Consulting': '経営戦略・コンサル',
+    'Leadership & Events': 'リーダーシップ・登壇',
+    'Engineering & Tech': 'エンジニア・技術',
+    'HR & Enablement': '人事・組織開発',
+    'Design & Creative': 'デザイン・クリエイティブ'
+  }
+};
+

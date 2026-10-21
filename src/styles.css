@@ -357,8 +357,9 @@ legend {
   outline-offset: 2px;
 }
 
-.form-input:invalid:user-invalid {
+.form-input:invalid:user-invalid, .form-input.input-invalid {
   border-color: #d93025;
+  box-shadow: 0 0 0 3px rgba(217, 48, 37, 0.25);
 }
 
 .field-error {

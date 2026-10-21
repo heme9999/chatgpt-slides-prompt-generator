@@ -16,7 +16,14 @@ import {
   CATEGORIES,
   CORE_FAQS
 } from '../src/templates-data.mjs';
-import { UI_STRINGS, LOCALIZED_HUB_PAGES } from '../src/i18n-data.mjs';
+import {
+  UI_STRINGS,
+  LOCALIZED_HUB_PAGES,
+  LOCALIZED_FAQS,
+  LOCALIZED_PPTX_FAQS,
+  LOCALIZED_TROUBLESHOOTING_FAQS,
+  CATEGORY_LABELS
+} from '../src/i18n-data.mjs';
 import { LOCALIZED_TEMPLATES } from '../src/localized-templates.mjs';
 import { annotateSlides, getCategoryKey } from '../src/slide-structure-data.js';
 
@@ -93,15 +100,96 @@ function writeRouteHtml(routePath, htmlContent) {
 
 // Helper to normalize base route and build localized route paths
 function getBaseRoute(routePath) {
-  if (!routePath || routePath === '/') return '/chatgpt-slides-prompt-generator';
+  if (!routePath || routePath === '/' || routePath === '/chatgpt-slides-prompt-generator') return '/';
   const stripped = routePath.replace(/^\/(es|ja|zh-TW)(?=\/|$)/, '');
-  return stripped || '/chatgpt-slides-prompt-generator';
+  if (!stripped || stripped === '/chatgpt-slides-prompt-generator') return '/';
+  return stripped;
 }
 
 function getLocalizedRoute(routePath, targetLang = 'en') {
   const base = getBaseRoute(routePath);
+  if (base === '/') {
+    return targetLang === 'en' ? '/' : `/${targetLang}/`;
+  }
   if (!targetLang || targetLang === 'en') return base;
   return `/${targetLang}${base}`;
+}
+
+function renderRedirectPage({ targetUrl, canonicalUrl, title = 'Redirecting...' }) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content="0; url=${escapeHtml(targetUrl)}" />
+  <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />
+  <title>${escapeHtml(title)}</title>
+  <script>window.location.replace(${JSON.stringify(targetUrl)});</script>
+</head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,sans-serif; padding:2rem; text-align:center;">
+  <p>Redirecting to <a href="${escapeHtml(targetUrl)}">${escapeHtml(BRAND_NAME)}</a>...</p>
+</body>
+</html>`;
+}
+
+function render404Html() {
+  const homeHref = '/';
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 - Page Not Found | SlidePrompt.ai</title>
+  <meta name="description" content="The page you requested could not be found on SlidePrompt.ai." />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="${escapeHtml(homeHref)}" class="brand-link" aria-label="${escapeHtml(BRAND_NAME)} Home">
+        <span class="brand-mark">S</span>
+        <span>${escapeHtml(BRAND_NAME)}</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary Navigation">
+        <a href="/" class="nav-link">Prompt Generator</a>
+        <a href="/chatgpt-slides-templates" class="nav-link">47+ Templates</a>
+        <a href="/chatgpt-slides-to-powerpoint" class="nav-link">Export to PPTX</a>
+        <a href="/chatgpt-slides-not-showing" class="nav-link">Troubleshooting Guide</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding-block:3rem 4rem; max-width:760px; margin-inline:auto;">
+    <section class="surface-card" style="text-align:center; padding:3rem 2rem;">
+      <span style="font-size:3.5rem; display:block; margin-block-end:1rem;">🔍</span>
+      <h1 style="font-size:2rem; margin-block-end:0.75rem;">404 - Page Not Found</h1>
+      <p style="color:var(--text-secondary); margin-block-end:1.5rem; line-height:1.6;">
+        The page you are looking for may have been moved, renamed, or does not exist.<br/>
+        <span style="font-size:0.9rem; color:var(--text-muted); display:block; margin-block-start:0.5rem;">
+          您造訪的頁面可能已被移動或不存在 · お探しのページは見つかりませんでした · La página solicitada no existe.
+        </span>
+      </p>
+
+      <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:0.75rem; margin-block-start:1.5rem;">
+        <a href="/" class="btn btn-primary" style="text-decoration:none;">🏠 Back to Homepage</a>
+        <a href="/chatgpt-slides-templates" class="btn btn-secondary" style="text-decoration:none;">📂 Browse 47+ Templates</a>
+        <a href="/chatgpt-slides-to-powerpoint" class="btn btn-secondary" style="text-decoration:none;">📊 PowerPoint (.PPTX) Guide</a>
+        <a href="/chatgpt-slides-not-showing" class="btn btn-secondary" style="text-decoration:none;">🛠️ Troubleshooting Guide</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; padding-block:1rem; border-top:1px solid var(--border-hairline);">
+        <span>© 2026 ${escapeHtml(BRAND_NAME)}. All rights reserved.</span>
+        <span>Support: <a href="mailto:support@slideprompt.ai" style="color:var(--brand-color);">support@slideprompt.ai</a></span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>`;
 }
 
 
@@ -138,6 +226,8 @@ function renderCoreToolWidget(config, lang = 'en') {
     localizedSlideStructure: config.localizedSlideStructure || config.slideStructure || PROMPT_TEMPLATES[0].slideStructure,
     slides: config.slides || annotateSlides(config.slideStructure || PROMPT_TEMPLATES[0].slideStructure),
     localizedSlides: config.localizedSlides || annotateSlides(config.localizedSlideStructure || config.slideStructure || PROMPT_TEMPLATES[0].slideStructure),
+    emptyTopicInstruction: t.emptyTopicInstruction || 'Please enter your presentation topic above to generate your customized ChatGPT Slides prompt.',
+    defaultTopic: defaultTopic,
     messages: t.messages || {}
   });
 
@@ -145,7 +235,7 @@ function renderCoreToolWidget(config, lang = 'en') {
   <section aria-label="${escapeHtml(t.ariaWorkspace || 'ChatGPT Slides Prompt Generator Workspace')}" class="workspace-grid">
     <!-- Left Column: Interactive Form -->
     <div class="surface-card">
-      <form id="slides-prompt-form" action="${escapeHtml(config.canonicalPath || '/chatgpt-slides-prompt-generator')}" method="GET" novalidate>
+      <form id="slides-prompt-form" action="${escapeHtml(config.canonicalPath || '/')}" method="GET" novalidate>
         <fieldset>
           <legend>
             <span>${escapeHtml(t.formLegend)}</span>
@@ -401,8 +491,10 @@ function renderInternalLinksSection(activeSlug = '', includeCategoryFilter = fal
       includeCategoryFilter
         ? `<div class="filter-pills-bar" role="toolbar" aria-label="${escapeHtml(t.ariaCategoryFilter || 'Filter templates by category')}">
             ${CATEGORIES.map(
-              (cat, i) =>
-                `<button type="button" class="chip ${i === 0 ? 'is-active' : ''}" data-category-filter="${escapeHtml(cat)}">${escapeHtml(cat)}</button>`
+              (cat, i) => {
+                const catLabel = CATEGORY_LABELS[lang]?.[cat] || cat;
+                return `<button type="button" class="chip ${i === 0 ? 'is-active' : ''}" data-category-filter="${escapeHtml(cat)}">${escapeHtml(catLabel)}</button>`;
+              }
             ).join('')}
           </div>`
         : ''
@@ -442,7 +534,7 @@ function renderInternalLinksSection(activeSlug = '', includeCategoryFilter = fal
 // Render Standard SEO Content Sections (How It Works, Features, Use Cases, Comparison Table, FAQ)
 function renderStandardSeoSections(keywordLabel = 'ChatGPT Slides Prompt Generator', customFaqs = null, lang = 'en') {
   const t = UI_STRINGS[lang] || UI_STRINGS.en;
-  const faqs = customFaqs || CORE_FAQS;
+  const faqs = customFaqs || LOCALIZED_FAQS[lang] || LOCALIZED_FAQS.en;
   const howHeading =
     lang === 'ja' ? `${t.howTitlePrefix}${keywordLabel}` : `${t.howTitlePrefix} ${keywordLabel}`;
 
@@ -536,10 +628,11 @@ function renderDocument({
   subtitle,
   activeNav = 'generator',
   bodyHtml,
-  faqs = CORE_FAQS,
+  faqs = null,
   includeHreflang = true
 }) {
   const t = UI_STRINGS[lang] || UI_STRINGS.en;
+  const resolvedFaqs = faqs || LOCALIZED_FAQS[lang] || LOCALIZED_FAQS.en;
   const fullCanonical = canonicalPath === '/' ? `${SITE_URL}/` : `${SITE_URL}${canonicalPath}`;
   const baseRoute = getBaseRoute(canonicalPath);
 
@@ -568,7 +661,7 @@ function renderDocument({
     {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
-      mainEntity: faqs.map((f) => ({
+      mainEntity: resolvedFaqs.map((f) => ({
         '@type': 'Question',
         name: f.q,
         acceptedAnswer: {
@@ -580,8 +673,7 @@ function renderDocument({
   ];
 
   // Self-canonical and hreflang alignment:
-  // Root `/` has NO equivalent language homepages, so includeHreflang is set to false.
-  // All other pages have matched 4-language equivalent pages with bidirectional reciprocity.
+  // Root `/` and all localized hub/template pages have matched 4-language equivalent pages with bidirectional reciprocity.
   const hreflangTags = includeHreflang
     ? `
   <link rel="alternate" hreflang="en" href="${SITE_URL}${escapeHtml(getLocalizedRoute(baseRoute, 'en'))}" />
@@ -595,7 +687,7 @@ function renderDocument({
     ? `\n  <meta name="google-site-verification" content="${escapeHtml(GSC_VERIFICATION_CODE)}" />`
     : '';
 
-  const homeHref = lang === 'en' ? '/' : getLocalizedRoute('/chatgpt-slides-prompt-generator', lang);
+  const homeHref = getLocalizedRoute('/', lang);
 
   return `<!DOCTYPE html>
 <html lang="${escapeHtml(lang)}">
@@ -608,6 +700,7 @@ function renderDocument({
 
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" href="/favicon.ico" />
 
   <!-- Open Graph / Social Preview -->
   <meta property="og:type" content="website" />
@@ -635,7 +728,7 @@ function renderDocument({
       </a>
 
       <nav class="nav-links" aria-label="${escapeHtml(t.ariaNav || 'Primary Navigation')}">
-        <a href="${escapeHtml(getLocalizedRoute('/chatgpt-slides-prompt-generator', lang))}" class="nav-link ${activeNav === 'generator' ? 'is-active' : ''}">${escapeHtml(t.navGenerator)}</a>
+        <a href="${escapeHtml(getLocalizedRoute('/', lang))}" class="nav-link ${activeNav === 'generator' ? 'is-active' : ''}">${escapeHtml(t.navGenerator)}</a>
         <a href="${escapeHtml(getLocalizedRoute('/chatgpt-slides-templates', lang))}" class="nav-link ${activeNav === 'templates' ? 'is-active' : ''}">${escapeHtml(t.navTemplates)}</a>
         <a href="${escapeHtml(getLocalizedRoute('/prompts/pitch-deck', lang))}" class="nav-link ${activeNav === 'pitch-deck' ? 'is-active' : ''}">${escapeHtml(t.navPitch)}</a>
         <a href="${escapeHtml(getLocalizedRoute('/prompts/sales-presentation', lang))}" class="nav-link ${activeNav === 'sales-presentation' ? 'is-active' : ''}">${escapeHtml(t.navSales)}</a>
@@ -692,14 +785,18 @@ function renderDocument({
         <div>
           <strong style="color:var(--text-primary); display:block; margin-block-end:0.5rem;">${escapeHtml(BRAND_NAME)}</strong>
           <p class="caption-text">${escapeHtml(t.footerDesc)}</p>
+          <p class="caption-text" style="margin-block-start:0.5rem; color:var(--text-muted); font-size:0.75rem;">🔒 Client-side processing only · No tracking cookies</p>
+          <p class="caption-text" style="margin-block-start:0.25rem; font-size:0.75rem;">Support: <a href="mailto:support@slideprompt.ai" style="color:var(--brand-color); text-decoration:underline;">support@slideprompt.ai</a></p>
         </div>
         <div>
           <strong style="color:var(--text-primary); display:block; margin-block-end:0.5rem;">${escapeHtml(t.footerCol1)}</strong>
           <ul style="list-style:none; padding:0; margin:0; display:grid; gap:0.35rem;">
-            <li><a href="${escapeHtml(getLocalizedRoute('/chatgpt-slides-prompt-generator', lang))}" style="color:var(--text-secondary); text-decoration:none;">${escapeHtml(t.navGenerator)}</a></li>
+            <li><a href="${escapeHtml(getLocalizedRoute('/', lang))}" style="color:var(--text-secondary); text-decoration:none;">${escapeHtml(t.navGenerator)}</a></li>
             <li><a href="${escapeHtml(getLocalizedRoute('/chatgpt-slides-templates', lang))}" style="color:var(--text-secondary); text-decoration:none;">${escapeHtml(t.navTemplates)}</a></li>
             <li><a href="${escapeHtml(getLocalizedRoute('/chatgpt-slides-to-powerpoint', lang))}" style="color:var(--text-secondary); text-decoration:none;">${escapeHtml(t.navPowerpoint)}</a></li>
             <li><a href="${escapeHtml(getLocalizedRoute('/chatgpt-slides-not-showing', lang))}" style="color:var(--text-secondary); text-decoration:none;">${escapeHtml(t.navTroubleshooting)}</a></li>
+            <li><a href="/privacy" style="color:var(--text-secondary); text-decoration:none;">Privacy Policy</a> · <a href="/terms" style="color:var(--text-secondary); text-decoration:none;">Terms</a></li>
+            <li><a href="/about" style="color:var(--text-secondary); text-decoration:none;">About</a> · <a href="/contact" style="color:var(--text-secondary); text-decoration:none;">Contact</a></li>
           </ul>
         </div>
         <div>
@@ -742,7 +839,7 @@ function buildSite() {
   fs.rmSync(DIST_DIR, { recursive: true, force: true });
   ensureDir(DIST_DIR);
 
-  // Copy static CSS, JS, OG image and Favicon
+  // Copy static CSS, JS, OG image and Favicons
   fs.copyFileSync(path.join(ROOT_DIR, 'src/styles.css'), path.join(DIST_DIR, 'styles.css'));
   fs.copyFileSync(path.join(ROOT_DIR, 'src/slide-structure-data.js'), path.join(DIST_DIR, 'slide-structure-data.js'));
   if (fs.existsSync(path.join(ROOT_DIR, 'src/slide-structure-data.mjs'))) {
@@ -755,13 +852,19 @@ function buildSite() {
   if (fs.existsSync(path.join(ROOT_DIR, 'src/favicon.svg'))) {
     fs.copyFileSync(path.join(ROOT_DIR, 'src/favicon.svg'), path.join(DIST_DIR, 'favicon.svg'));
   }
+  if (fs.existsSync(path.join(ROOT_DIR, 'src/favicon.ico'))) {
+    fs.copyFileSync(path.join(ROOT_DIR, 'src/favicon.ico'), path.join(DIST_DIR, 'favicon.ico'));
+  }
+
+  // Generate styled, responsive 404.html
+  fs.writeFileSync(path.join(DIST_DIR, '404.html'), render404Html(), 'utf8');
 
   const allUrls = [];
 
-  // 1. Root Index (/) & /chatgpt-slides-prompt-generator
+  // 1. Root Index (/)
   const mainGeneratorConfig = {
     slug: 'chatgpt-slides-prompt-generator',
-    canonicalPath: '/chatgpt-slides-prompt-generator',
+    canonicalPath: '/',
     category: 'Strategy & Consulting',
     defaultTopic: 'Q4 Enterprise AI Workflow Automation Strategy & Quantified ROI',
     defaultAudience: AUDIENCE_OPTIONS[0],
@@ -780,7 +883,7 @@ function buildSite() {
     renderInternalLinksSection('', true) +
     renderStandardSeoSections('ChatGPT Slides Prompt Generator');
 
-  // Write `/` — Has NO true equivalent language homepages; omit hreflang to avoid broken loop
+  // Write `/` — Authoritative canonical homepage with reciprocal hreflang across EN, ES, JA, zh-TW
   writeRouteHtml(
     '/',
     renderDocument({
@@ -794,29 +897,20 @@ function buildSite() {
         'Build presentation prompts for OpenAI’s ChatGPT Slides canvas in seconds. Customize audience, slide structure, chart recommendations, and speaker notes—ready for PowerPoint (.pptx), PDF, and Google Slides export.',
       activeNav: 'generator',
       bodyHtml: mainBodyHtml,
-      includeHreflang: false
+      includeHreflang: true
     })
   );
   allUrls.push(`${SITE_URL}/`);
 
-  // Write `/chatgpt-slides-prompt-generator` — Forms bidirectional hreflang group with es, ja, zh-TW
+  // Write `/chatgpt-slides-prompt-generator` — Redirect to `/` (canonical to `/`, omitted from sitemap)
   writeRouteHtml(
     '/chatgpt-slides-prompt-generator',
-    renderDocument({
-      lang: 'en',
-      canonicalPath: '/chatgpt-slides-prompt-generator',
-      metaTitle: 'ChatGPT Slides Prompt Generator - 47+ Deck Templates | Free',
-      metaDesc:
-        'Create ready-to-copy prompts for ChatGPT Slides. Set topic, audience, slide count, tone, charts & speaker notes for PowerPoint & Google Slides decks!',
-      h1: 'ChatGPT Slides Prompt Generator (Free Online Builder)',
-      subtitle:
-        'Turn any topic, document, or outline into a structured presentation prompt for ChatGPT Slides. Free client-side tool, no sign-up required—just configure, copy, and paste.',
-      activeNav: 'generator',
-      bodyHtml: mainBodyHtml,
-      includeHreflang: true
+    renderRedirectPage({
+      targetUrl: '/',
+      canonicalUrl: `${SITE_URL}/`,
+      title: 'Redirecting to SlidePrompt.ai...'
     })
   );
-  allUrls.push(`${SITE_URL}/chatgpt-slides-prompt-generator`);
 
   // 2. Write `/chatgpt-slides-templates`
   const templatesHubBody =
@@ -848,19 +942,8 @@ function buildSite() {
 
   // 3. Write `/chatgpt-slides-to-powerpoint`
   const pptxFaqs = [
-    {
-      q: 'How do I export a ChatGPT Slides presentation to Microsoft PowerPoint (.pptx)?',
-      a: 'In the ChatGPT Slides canvas window, open the export menu in the top right corner and select "Download as PowerPoint (.pptx)". You can also export to PDF or open directly in Google Slides.'
-    },
-    {
-      q: 'Why does exported text in PowerPoint sometimes overflow text boxes?',
-      a: 'When ChatGPT outputs paragraphs with more than 4 lines on a slide, default PowerPoint templates truncate or overflow boxes. Our generator enforces "One clear message per slide" with concise proof points and moves narrative explanations into speaker notes.'
-    },
-    {
-      q: 'Do speaker notes carry over to PowerPoint (.pptx)?',
-      a: 'Yes. When ChatGPT generates slides with explicit Presenter View speaker notes, OpenAI’s native export maps those notes into the PowerPoint presenter notes field.'
-    },
-    ...CORE_FAQS.slice(0, 3)
+    ...LOCALIZED_PPTX_FAQS.en,
+    ...LOCALIZED_FAQS.en.slice(0, 3)
   ];
 
   const pptxBody =
@@ -896,19 +979,8 @@ function buildSite() {
 
   // 4. Write `/chatgpt-slides-not-showing` (Troubleshooting guide reflecting verified OpenAI Help Article 20001605 facts)
   const troubleshootingFaqs = [
-    {
-      q: 'Why is ChatGPT Slides not showing in my account?',
-      a: 'ChatGPT Slides creation is available on eligible accounts with Space access—currently listed for Pro, Business, and Enterprise plans, subject to OpenAI’s progressive rollout. Furthermore, interactive slide canvas editing (via "Create > Slide" in Space or in Work chat) and PowerPoint export work on desktop web browsers (Chrome, Safari, Edge, Firefox) at chatgpt.com.'
-    },
-    {
-      q: 'What prompt syntax should I use to request slides in ChatGPT?',
-      a: 'Begin your instruction with an explicit directive such as "Create a [N]-slide presentation about [TOPIC]" and include slide structure and export requirements. Avoid asking simply for an "outline" or "bullet points", which yields plain chat text.'
-    },
-    {
-      q: 'Does ChatGPT Slides work on mobile apps or only desktop web?',
-      a: 'Full collaborative slide canvas editing and direct PowerPoint (.pptx) or Google Slides export are supported on desktop web browsers at chatgpt.com.'
-    },
-    ...CORE_FAQS.slice(0, 3)
+    ...LOCALIZED_TROUBLESHOOTING_FAQS.en,
+    ...LOCALIZED_FAQS.en.slice(0, 3)
   ];
 
   const troubleshootingBody =
@@ -919,7 +991,7 @@ function buildSite() {
       <div class="grid-3">
         <div class="info-card">
           <h3>✅ Check 1: Explicit Command Syntax</h3>
-          <p class="caption-text">Asking for "slide ideas" or "an outline" returns standard text. Use an imperative command such as <code>Create a 10-slide presentation about...</code> using the generator below.</p>
+          <p class="caption-text">Asking for "slide ideas" or "an outline" returns standard text. Use an imperative command such as <code>Create an 8-slide presentation about...</code> using the generator below.</p>
         </div>
         <div class="info-card">
           <h3>✅ Check 2: Account Plan & Space Access</h3>
@@ -973,7 +1045,7 @@ function buildSite() {
         q: `What is the recommended slide structure for a ${tpl.shortName.replace(/ Prompt$/i, '')}?`,
         a: `The recommended ${tpl.defaultSlides}-slide structure covers: ${tpl.slideStructure.slice(0, 5).join('; ')} — through ${tpl.slideStructure[tpl.slideStructure.length - 1]}. You can adjust the slider from 5 to 20 slides to expand or condense this blueprint.`
       },
-      ...CORE_FAQS.slice(0, 4)
+      ...LOCALIZED_FAQS.en.slice(0, 4)
     ];
 
     const pageBody =
@@ -1028,13 +1100,13 @@ function buildSite() {
     const hub = LOCALIZED_HUB_PAGES[lang];
     const locDict = LOCALIZED_TEMPLATES[lang] || {};
 
-    // 6a. Localized Main Generator: /${lang}/chatgpt-slides-prompt-generator
-    const locGenRoute = `/${lang}/chatgpt-slides-prompt-generator`;
+    // 6a. Localized Homepage: /${lang}/
+    const locHomeRoute = `/${lang}/`;
     const locGenBody =
       renderCoreToolWidget(
         {
           ...mainGeneratorConfig,
-          canonicalPath: locGenRoute,
+          canonicalPath: locHomeRoute,
           defaultTopic: t.defaultTopic,
           defaultLang: t.defaultOutputLang,
           proTip: t.defaultProTip,
@@ -1046,23 +1118,34 @@ function buildSite() {
         lang
       ) +
       renderInternalLinksSection('', true, lang) +
-      renderStandardSeoSections(hub.generator.h1, CORE_FAQS, lang);
+      renderStandardSeoSections(hub.generator.h1, LOCALIZED_FAQS[lang], lang);
 
     writeRouteHtml(
-      locGenRoute,
+      locHomeRoute,
       renderDocument({
         lang,
-        canonicalPath: locGenRoute,
+        canonicalPath: locHomeRoute,
         metaTitle: hub.generator.metaTitle,
         metaDesc: hub.generator.metaDesc,
         h1: hub.generator.h1,
         subtitle: hub.generator.subtitle,
         activeNav: 'generator',
         bodyHtml: locGenBody,
+        faqs: LOCALIZED_FAQS[lang],
         includeHreflang: true
       })
     );
-    allUrls.push(`${SITE_URL}${locGenRoute}`);
+    allUrls.push(`${SITE_URL}${locHomeRoute}`);
+
+    // Localized Generator Alias /${lang}/chatgpt-slides-prompt-generator -> Redirect to /${lang}/
+    writeRouteHtml(
+      `/${lang}/chatgpt-slides-prompt-generator`,
+      renderRedirectPage({
+        targetUrl: locHomeRoute,
+        canonicalUrl: `${SITE_URL}${locHomeRoute}`,
+        title: 'Redirecting...'
+      })
+    );
 
     // 6b. Localized Templates Directory: /${lang}/chatgpt-slides-templates
     const locTplRoute = `/${lang}/chatgpt-slides-templates`;
@@ -1083,7 +1166,7 @@ function buildSite() {
         },
         lang
       ) +
-      renderStandardSeoSections(hub.templates.h1, CORE_FAQS, lang);
+      renderStandardSeoSections(hub.templates.h1, LOCALIZED_FAQS[lang], lang);
 
     writeRouteHtml(
       locTplRoute,
@@ -1096,6 +1179,7 @@ function buildSite() {
         subtitle: hub.templates.subtitle,
         activeNav: 'templates',
         bodyHtml: locTplBody,
+        faqs: LOCALIZED_FAQS[lang],
         includeHreflang: true
       })
     );
@@ -1103,6 +1187,10 @@ function buildSite() {
 
     // 6c. Localized PowerPoint Export Guide: /${lang}/chatgpt-slides-to-powerpoint
     const locPptxRoute = `/${lang}/chatgpt-slides-to-powerpoint`;
+    const locPptxFaqs = [
+      ...LOCALIZED_PPTX_FAQS[lang],
+      ...LOCALIZED_FAQS[lang].slice(0, 3)
+    ];
     const locPptxBody =
       renderCoreToolWidget(
         {
@@ -1119,7 +1207,7 @@ function buildSite() {
         },
         lang
       ) +
-      renderStandardSeoSections(hub.powerpoint.h1, pptxFaqs, lang) +
+      renderStandardSeoSections(hub.powerpoint.h1, locPptxFaqs, lang) +
       renderInternalLinksSection('', false, lang);
 
     writeRouteHtml(
@@ -1133,7 +1221,7 @@ function buildSite() {
         subtitle: hub.powerpoint.subtitle,
         activeNav: 'powerpoint',
         bodyHtml: locPptxBody,
-        faqs: pptxFaqs,
+        faqs: locPptxFaqs,
         includeHreflang: true
       })
     );
@@ -1141,6 +1229,10 @@ function buildSite() {
 
     // 6d. Localized Troubleshooting Guide: /${lang}/chatgpt-slides-not-showing
     const locFixRoute = `/${lang}/chatgpt-slides-not-showing`;
+    const locTroubleshootingFaqs = [
+      ...LOCALIZED_TROUBLESHOOTING_FAQS[lang],
+      ...LOCALIZED_FAQS[lang].slice(0, 3)
+    ];
     const locFixBody =
       renderCoreToolWidget(
         {
@@ -1157,7 +1249,7 @@ function buildSite() {
         },
         lang
       ) +
-      renderStandardSeoSections(hub.troubleshooting.h1, troubleshootingFaqs, lang) +
+      renderStandardSeoSections(hub.troubleshooting.h1, locTroubleshootingFaqs, lang) +
       renderInternalLinksSection('', false, lang);
 
     writeRouteHtml(
@@ -1171,7 +1263,7 @@ function buildSite() {
         subtitle: hub.troubleshooting.subtitle,
         activeNav: 'troubleshooting',
         bodyHtml: locFixBody,
-        faqs: troubleshootingFaqs,
+        faqs: locTroubleshootingFaqs,
         includeHreflang: true
       })
     );
@@ -1207,6 +1299,26 @@ function buildSite() {
           ? `このページで作成されるプロンプトは、以下の構成に沿ってChatGPTに指示を出します（5〜20枚に調整可能）：`
           : `Los prompts generados en esta página siguen este flujo de presentación (ajustable de 5 a 20 diapositivas):`;
 
+      const locTemplateFaqs = [
+        {
+          q: lang === 'zh-TW' ? `這份 ${locShortName} 提示詞適合哪些演示場合？` :
+             lang === 'ja' ? `この ${locShortName} プロンプトはどのような場面に適していますか？` :
+             `¿Para qué situaciones es adecuada esta plantilla de ${locShortName}?`,
+          a: lang === 'zh-TW' ? `此模板專為「${locShortName}」設計，預設結構涵蓋核心痛點、數據證明與行動呼籲，可直接匯出至 PowerPoint、PDF 或 Google 簡報。` :
+             lang === 'ja' ? `このテンプレートは「${locShortName}」向けに設計されており、重要なポイントやデータを整理してPowerPointやGoogleスライドへ書き出すのに最適です。` :
+             `Esta plantilla está optimizada para "${locShortName}", estructurando los puntos clave para exportar limpiamente a PowerPoint, PDF o Google Slides.`
+        },
+        {
+          q: lang === 'zh-TW' ? `建議的簡報頁數與結構是什麼？` :
+             lang === 'ja' ? `推奨されるスライド構成と枚数は？` :
+             `¿Cuál es la estructura recomendada para esta presentación?`,
+          a: lang === 'zh-TW' ? `預設推薦 ${tpl.defaultSlides} 頁架構。您可使用頁數滑桿在 5 到 20 頁之間自由調整，系統會自動擴展或精簡結構。` :
+             lang === 'ja' ? `標準構成は ${tpl.defaultSlides} 枚です。スライダーを使って5〜20枚の間で自由に増減でき、構成が自動調整されます。` :
+             `La estructura recomendada es de ${tpl.defaultSlides} diapositivas. Puedes ajustar el selector entre 5 y 20 diapositivas según tu necesidad.`
+        },
+        ...LOCALIZED_FAQS[lang].slice(0, 4)
+      ];
+
       const locPromptBody =
         renderCoreToolWidget(
           {
@@ -1240,7 +1352,7 @@ function buildSite() {
               .join('')}
           </div>
         </section>` +
-        renderStandardSeoSections(locH1, CORE_FAQS, lang) +
+        renderStandardSeoSections(locH1, locTemplateFaqs, lang) +
         renderInternalLinksSection(tpl.slug, false, lang);
 
       writeRouteHtml(
@@ -1254,7 +1366,7 @@ function buildSite() {
           subtitle: locSubtitle,
           activeNav: isPitch || isSales ? tpl.slug : 'templates',
           bodyHtml: locPromptBody,
-          faqs: CORE_FAQS,
+          faqs: locTemplateFaqs,
           includeHreflang: true
         })
       );
@@ -1262,6 +1374,141 @@ function buildSite() {
       // ALL 47 template pages are canonical content pages and included in sitemap
       allUrls.push(`${SITE_URL}${locPromptRoute}`);
     }
+  }
+
+  // 7. Write Trust & Compliance Static Pages (/privacy, /terms, /about, /contact)
+  const trustPages = [
+    {
+      route: '/privacy',
+      metaTitle: 'Privacy Policy - SlidePrompt.ai',
+      metaDesc: 'SlidePrompt.ai privacy policy: 100% client-side prompt processing, no tracking cookies, and local browser storage transparency.',
+      h1: 'Privacy Policy',
+      subtitle: 'Transparent disclosures regarding client-side data processing and local browser storage.',
+      bodyHtml: `
+      <article class="surface-card" style="line-height:1.75; font-size:0.95rem; display:grid; gap:1.25rem;">
+        <section>
+          <h2 style="font-size:1.2rem; margin-block-end:0.5rem;">1. 100% Client-Side Architecture</h2>
+          <p>SlidePrompt.ai operates exclusively as a client-side web utility. All prompt generation, slide blueprint adjustments, and parameter selections are processed directly in your web browser via JavaScript. No presentation titles, bullet points, custom notes, or form entries are ever transmitted to or stored on our web servers.</p>
+        </section>
+        <section>
+          <h2 style="font-size:1.2rem; margin-block-end:0.5rem;">2. Browser Local Storage (localStorage)</h2>
+          <p>If you choose to use the "Save Locally" feature, your configured prompt settings (topic, slide count, tone, audience, and goal) are saved strictly inside your browser’s local storage (<code>localStorage</code>). This data remains on your device and is never synchronized to the cloud. You can delete individual blueprints at any time from the "Saved" drawer or clear your entire browser storage.</p>
+        </section>
+        <section>
+          <h2 style="font-size:1.2rem; margin-block-end:0.5rem;">3. No Tracking Cookies</h2>
+          <p>We do not use advertising cookies, marketing tracking pixels, or cross-site tracking scripts. Our service requires no user registration, no account creation, and no credit card information.</p>
+        </section>
+        <section>
+          <h2 style="font-size:1.2rem; margin-block-end:0.5rem;">4. Third-Party Services (OpenAI)</h2>
+          <p>SlidePrompt.ai is an independent tool and is not affiliated with OpenAI. Prompts generated by this tool are only submitted to OpenAI when you voluntarily copy and paste them into chatgpt.com. Your interactions with ChatGPT are governed solely by OpenAI’s Privacy Policy and Terms of Use.</p>
+        </section>
+        <section>
+          <h2 style="font-size:1.2rem; margin-block-end:0.5rem;">5. Contact Information</h2>
+          <p>If you have any questions or concerns regarding this Privacy Policy, please contact our support team at <a href="mailto:support@slideprompt.ai" style="color:var(--brand-color); text-decoration:underline;">support@slideprompt.ai</a>.</p>
+        </section>
+      </article>`
+    },
+    {
+      route: '/terms',
+      metaTitle: 'Terms of Service - SlidePrompt.ai',
+      metaDesc: 'SlidePrompt.ai terms of service: free prompt generator utility terms, intellectual property, and OpenAI feature disclaimers.',
+      h1: 'Terms of Service',
+      subtitle: 'Guidelines and terms governing the use of the SlidePrompt.ai website and prompt templates.',
+      bodyHtml: `
+      <article class="surface-card" style="line-height:1.75; font-size:0.95rem; display:grid; gap:1.25rem;">
+        <section>
+          <h2 style="font-size:1.2rem; margin-block-end:0.5rem;">1. Acceptance of Terms</h2>
+          <p>By accessing and using SlidePrompt.ai, you agree to these Terms of Service. If you do not agree with any part of these terms, please discontinue use of the site.</p>
+        </section>
+        <section>
+          <h2 style="font-size:1.2rem; margin-block-end:0.5rem;">2. Independent Service & OpenAI Disclaimer</h2>
+          <p>SlidePrompt.ai is an independent prompt-building utility and is not affiliated with, sponsored by, or endorsed by OpenAI. "ChatGPT" and "PowerPoint" are trademarks of their respective owners. SlidePrompt.ai cannot activate features or grant Space access within OpenAI accounts; access to ChatGPT Slides is governed entirely by OpenAI account eligibility and subscription status.</p>
+        </section>
+        <section>
+          <h2 style="font-size:1.2rem; margin-block-end:0.5rem;">3. Ownership of Generated Output</h2>
+          <p>You retain full rights and ownership over any presentation prompts, slide structures, and presentations you generate and export using SlidePrompt.ai. Prompts are provided free of charge for personal, educational, and commercial purposes.</p>
+        </section>
+        <section>
+          <h2 style="font-size:1.2rem; margin-block-end:0.5rem;">4. Disclaimer of Warranties</h2>
+          <p>SlidePrompt.ai is provided on an "as is" and "as available" basis without warranties of any kind. We do not guarantee that generated prompts will meet specific OpenAI response formats or that OpenAI will maintain uninterrupted availability of the ChatGPT Slides feature.</p>
+        </section>
+        <section>
+          <h2 style="font-size:1.2rem; margin-block-end:0.5rem;">5. Contact</h2>
+          <p>For inquiries regarding these terms, reach out to <a href="mailto:support@slideprompt.ai" style="color:var(--brand-color); text-decoration:underline;">support@slideprompt.ai</a>.</p>
+        </section>
+      </article>`
+    },
+    {
+      route: '/about',
+      metaTitle: 'About SlidePrompt.ai - Presentation Prompt Engineering',
+      metaDesc: 'Learn about SlidePrompt.ai, our mission to improve AI presentations, and our consulting-backed slide structures.',
+      h1: 'About SlidePrompt.ai',
+      subtitle: 'Bridging prompt engineering and presentation consulting for executive-grade decks.',
+      bodyHtml: `
+      <article class="surface-card" style="line-height:1.75; font-size:0.95rem; display:grid; gap:1.25rem;">
+        <section>
+          <h2 style="font-size:1.2rem; margin-block-end:0.5rem;">Our Mission</h2>
+          <p>SlidePrompt.ai was created to solve a widespread problem in AI-assisted presentation generation: default chat models tend to produce cluttered walls of text, ambiguous slide structures, and missing speaker notes. When exported to PowerPoint (.pptx) or Google Slides, this often results in overflowing text boxes and poor visual communication.</p>
+        </section>
+        <section>
+          <h2 style="font-size:1.2rem; margin-block-end:0.5rem;">Consulting-Grade Architecture</h2>
+          <p>Our prompt generators and 47+ specialized blueprints are built upon established management consulting best practices (McKinsey, BCG, Bain) and Apple presentation principles: one clear message per slide, action-oriented takeaway titles, designated chart recommendations for data-heavy slides, and full speaker notes in Presenter View.</p>
+        </section>
+        <section>
+          <h2 style="font-size:1.2rem; margin-block-end:0.5rem;">Free & Privacy-First</h2>
+          <p>We believe that prompt tooling should be transparent, lightning-fast, and completely respectful of user privacy. SlidePrompt.ai does not track your behavior, does not require logins, and performs all computations right in your browser.</p>
+        </section>
+        <section>
+          <h2 style="font-size:1.2rem; margin-block-end:0.5rem;">Get in Touch</h2>
+          <p>We welcome community feedback, template suggestions, and bug reports at <a href="mailto:support@slideprompt.ai" style="color:var(--brand-color); text-decoration:underline;">support@slideprompt.ai</a>.</p>
+        </section>
+      </article>`
+    },
+    {
+      route: '/contact',
+      metaTitle: 'Contact Us - SlidePrompt.ai',
+      metaDesc: 'Contact SlidePrompt.ai for feedback, bug reports, partnership inquiries, and template suggestions.',
+      h1: 'Contact & Support',
+      subtitle: 'Get in touch with the SlidePrompt.ai team for assistance, feedback, or inquiries.',
+      bodyHtml: `
+      <article class="surface-card" style="line-height:1.75; font-size:0.95rem; display:grid; gap:1.25rem;">
+        <section>
+          <h2 style="font-size:1.2rem; margin-block-end:0.5rem;">Official Support Channel</h2>
+          <p>For any questions, template requests, technical feedback, or business inquiries, please reach out directly via email:</p>
+          <p style="font-size:1.1rem; font-weight:600; margin-block:0.75rem;">
+            ✉️ <a href="mailto:support@slideprompt.ai" style="color:var(--brand-color); text-decoration:underline;">support@slideprompt.ai</a>
+          </p>
+          <p class="caption-text">We review and respond to inquiries typically within 1–2 business days.</p>
+        </section>
+        <section>
+          <h2 style="font-size:1.2rem; margin-block-end:0.5rem;">Reporting Issues</h2>
+          <p>If you encounter an issue with prompt generation or formatting compatibility in ChatGPT Slides, please let us know:</p>
+          <ul style="padding-left:1.5rem; margin-block-start:0.5rem; display:grid; gap:0.35rem;">
+            <li>The presentation template or URL you were using</li>
+            <li>Your browser version (Chrome, Safari, Edge, Firefox)</li>
+            <li>A brief description of what didn’t format properly in ChatGPT or PowerPoint (.pptx)</li>
+          </ul>
+        </section>
+      </article>`
+    }
+  ];
+
+  for (const page of trustPages) {
+    writeRouteHtml(
+      page.route,
+      renderDocument({
+        lang: 'en',
+        canonicalPath: page.route,
+        metaTitle: page.metaTitle,
+        metaDesc: page.metaDesc,
+        h1: page.h1,
+        subtitle: page.subtitle,
+        activeNav: '',
+        bodyHtml: page.bodyHtml,
+        includeHreflang: false
+      })
+    );
+    allUrls.push(`${SITE_URL}${page.route}`);
   }
 
   // 7. Generate sitemap.xml
@@ -1274,7 +1521,7 @@ ${allUrls
     <loc>${escapeHtml(u)}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>${u.endsWith('/chatgpt-slides-prompt-generator') || u === `${SITE_URL}/` ? '1.0' : '0.8'}</priority>
+    <priority>${u === `${SITE_URL}/` || u.endsWith('/es/') || u.endsWith('/ja/') || u.endsWith('/zh-TW/') ? '1.0' : '0.8'}</priority>
   </url>`
   )
   .join('\n')}
