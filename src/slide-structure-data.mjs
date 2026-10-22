@@ -582,7 +582,7 @@ export function resolveCanonicalPath(slug, uiLang = 'en') {
   const langPrefix = (uiLang && uiLang !== 'en') ? `/${uiLang}` : '';
 
   if (slug === 'chatgpt-slides-prompt-generator' || slug === 'home') {
-    return langPrefix ? `${langPrefix}/` : '/';
+    return langPrefix || '/';
   }
 
   if (KNOWN_HUB_SLUGS[slug]) {

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import worker from '../src/worker.js';
 import fs from 'node:fs';
+import { resolveCanonicalPath } from '../src/slide-structure-data.js';
 import { SCENARIO_SLUGS } from '../src/round1-data.mjs';
 const writes = [];
 const env = { ASSETS: { fetch: () => new Response('asset') }, USAGE: { prepare: sql => ({ bind: (...args) => ({ run: async () => { writes.push({ sql, args }); } }) }) } };
@@ -31,3 +32,5 @@ for (const lang of ['en','es','ja','zh-TW']) for (const slug of SCENARIO_SLUGS) 
 }
 const sitemap=fs.readFileSync('dist/sitemap.xml','utf8');assert.equal((sitemap.match(/<loc>/g)||[]).length,208);
 console.log('Round 1: API content/privacy validation, opt-out signals, 12 localized examples and unchanged 208 canonical routes passed.');
+
+for(const lang of ['es','ja','zh-TW']) assert.equal(resolveCanonicalPath('home',lang),'/'+lang);

@@ -31,3 +31,5 @@ Use Workers Static Assets, not Pages. The USAGE binding points to a dedicated D1
 - Post-deploy visual review identified mobile navigation crowding and a buried usage choice. Follow-up simplifies header navigation while keeping all routes linked, puts the choice beside tool actions, shortens home introductions, stabilizes worked-example layout, uses real line breaks, and updates lastmod for edited pages.
 - Full regression after follow-up: 146 checks passed plus the round-one API/static tests. Final browser and production checks are recorded by the deploying assistant in the delivery message.
 - Real hardware and actual ChatGPT deck generation/export remain outside the test scope. No traffic or revenue claims are inferred from these tests.
+
+Final full-site production audit found three existing locale homepages redirected from trailing-slash URLs to Cloudflare's slashless URLs. The follow-up aligns sitemap, canonical, hreflang, internal home links, saved-home routing and alias targets with /es, /ja and /zh-TW; old slash URLs still resolve through Cloudflare's existing normalization redirects. No content pages are removed.

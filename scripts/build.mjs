@@ -110,7 +110,7 @@ function getBaseRoute(routePath) {
 function getLocalizedRoute(routePath, targetLang = 'en') {
   const base = getBaseRoute(routePath);
   if (base === '/') {
-    return targetLang === 'en' ? '/' : `/${targetLang}/`;
+    return targetLang === 'en' ? '/' : `/${targetLang}`;
   }
   if (!targetLang || targetLang === 'en') return base;
   return `/${targetLang}${base}`;
@@ -785,7 +785,7 @@ function renderDocument({
       <p class="hero-subtitle">${escapeHtml(subtitle)}</p>
     </section>
 
-    ${canonicalPath === '/' || /^\/(es|ja|zh-TW)\/$/.test(canonicalPath) ? renderScenarioLinks(lang, true) : ''}
+    ${canonicalPath === '/' || /^\/(es|ja|zh-TW)\/?$/.test(canonicalPath) ? renderScenarioLinks(lang, true) : ''}
     ${bodyHtml}
   </main>
 
@@ -1129,7 +1129,7 @@ function buildSite() {
     const locDict = LOCALIZED_TEMPLATES[lang] || {};
 
     // 6a. Localized Homepage: /${lang}/
-    const locHomeRoute = `/${lang}/`;
+    const locHomeRoute = `/${lang}`;
     const locGenBody =
       renderCoreToolWidget(
         {

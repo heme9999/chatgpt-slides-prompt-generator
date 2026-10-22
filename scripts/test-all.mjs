@@ -88,9 +88,9 @@ assert(
 const routeGroups = [
   {
     en: `${SITE_URL}/`,
-    'zh-TW': `${SITE_URL}/zh-TW/`,
-    es: `${SITE_URL}/es/`,
-    ja: `${SITE_URL}/ja/`
+    'zh-TW': `${SITE_URL}/zh-TW`,
+    es: `${SITE_URL}/es`,
+    ja: `${SITE_URL}/ja`
   },
   {
     en: `${SITE_URL}/chatgpt-slides-templates`,
@@ -228,9 +228,9 @@ assert(trustMismatches === 0, `All 4 trust pages (/privacy, /terms, /about, /con
 // 7. Legacy Route Stubs Redirect Verification
 const redirectChecks = [
   ['chatgpt-slides-prompt-generator', '/'],
-  ['zh-TW/chatgpt-slides-prompt-generator', '/zh-TW/'],
-  ['es/chatgpt-slides-prompt-generator', '/es/'],
-  ['ja/chatgpt-slides-prompt-generator', '/ja/']
+  ['zh-TW/chatgpt-slides-prompt-generator', '/zh-TW'],
+  ['es/chatgpt-slides-prompt-generator', '/es'],
+  ['ja/chatgpt-slides-prompt-generator', '/ja']
 ];
 let redirectErrors = 0;
 for (const [rPath, target] of redirectChecks) {
@@ -505,9 +505,9 @@ async function testHttpUrl(urlPath, expectedType, redirectsCount = 0) {
 
 const sampleUrlsToFetch = [
   ['/', 'text/html'],
-  ['/zh-TW/', 'text/html'],
-  ['/ja/', 'text/html'],
-  ['/es/', 'text/html'],
+  ['/zh-TW', 'text/html'],
+  ['/ja', 'text/html'],
+  ['/es', 'text/html'],
   ['/privacy', 'text/html'],
   ['/terms', 'text/html'],
   ['/about', 'text/html'],
