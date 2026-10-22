@@ -24,6 +24,8 @@ try {
  await page.waitForFunction(()=>document.querySelector('#input-topic').value.includes('Weekly update'));
  await page.$eval('#input-notes',e=>{e.value='Private source example 771: customer facts must stay local';e.dispatchEvent(new Event('input',{bubbles:true}));});
  assert.ok((await page.$eval('#prompt-output',e=>e.value)).includes('Private source example 771'));
+ assert.ok(!(await page.$eval('#prompt-output',e=>e.value)).includes('\\n'), 'prompt uses real line breaks');
+ assert.ok(!(await page.$eval('#worked-example pre',e=>e.textContent)).includes('\\n'), 'example uses real line breaks');
  await new Promise(r=>setTimeout(r,1700));assert.equal(payloads.length,0,'off by default');
  await click('#btn-save-local');await click('#btn-close-saved-drawer');
  await page.$eval('#input-notes',e=>{e.value='Changed';e.dispatchEvent(new Event('input',{bubbles:true}));});
@@ -50,6 +52,7 @@ try {
   await page.setViewport({width,height:width===390?844:800});await page.goto(base+'/',{waitUntil:'networkidle0'});
   assert.ok(await page.$$eval('[data-scenario-select]',e=>e.length>=3));
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+  assert.ok(await page.$eval('#input-topic', e => e.getBoundingClientRect().bottom <= innerHeight), 'topic input stays above the fold');
   await page.screenshot({path:`${dir}/home-${width}.png`});
   await page.goto(base+'/prompts/project-update',{waitUntil:'networkidle0'});
   await page.$eval('#worked-example',e=>e.scrollIntoView());await page.screenshot({path:`${dir}/example-${width}.png`});

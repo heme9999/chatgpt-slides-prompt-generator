@@ -26,7 +26,7 @@ export const ROUND1_COPY = {
     "consent": "Share anonymous usage counts (optional)",
     "privacy": "Only action, template and interface language are counted. No topic, notes, prompt text, cookies or visitor ID.",
     "step": "1. Add your facts → 2. Copy the prompt → 3. Paste into ChatGPT and attach source files.",
-    "ready": "Structure your next presentation before opening ChatGPT. Choose a pitch deck, project update or lesson outline, add your facts, and copy a prompt. Free, no sign-up. The builder does not create PPT files."
+    "ready": "Choose a pitch deck, project update or lesson outline. Add your facts and copy a prompt into ChatGPT. Free; no sign-up. Creates prompts, not PPT files."
   },
   "zh-TW": {
     "notes": "關鍵要點或資料筆記（選填）",
@@ -55,7 +55,7 @@ export const ROUND1_COPY = {
     "consent": "分享匿名使用次數（選填）",
     "privacy": "僅統計操作、模板與介面語言。不包含主題、筆記、提示詞、Cookie 或訪客識別碼。",
     "step": "1. 加入資料 → 2. 複製提示詞 → 3. 貼入 ChatGPT 並附上來源檔案。",
-    "ready": "開啟 ChatGPT 前，先整理簡報架構。選擇募資、進度或教學模板，加入事實並複製提示詞。免費、免註冊，本站不直接產生 PPT 檔案。"
+    "ready": "選擇募資、專案進度或教學架構，加入資料並將提示詞貼入 ChatGPT。免費、免註冊，本站不直接產生 PPT 檔案。"
   },
   "es": {
     "notes": "Puntos clave o notas de referencia (opcional)",
@@ -84,7 +84,7 @@ export const ROUND1_COPY = {
     "consent": "Compartir recuentos de uso anónimos (opcional)",
     "privacy": "Solo se cuentan la acción, la plantilla y el idioma. Sin tema, notas, texto del prompt, cookies ni identificador de visitante.",
     "step": "1. Añade los datos → 2. Copia el prompt → 3. Pégalo en ChatGPT y adjunta las fuentes.",
-    "ready": "Estructura tu presentación antes de abrir ChatGPT. Elige una plantilla para inversores, un informe de proyecto o una lección, añade datos y copia el prompt. Gratis y sin registro; no genera archivos PPT."
+    "ready": "Elige una presentación para inversores, un informe o una lección. Añade datos y copia el prompt en ChatGPT. Gratis; no genera archivos PPT."
   },
   "ja": {
     "notes": "重要なポイント・参考メモ（任意）",
@@ -113,7 +113,7 @@ export const ROUND1_COPY = {
     "consent": "匿名の利用回数を共有する（任意）",
     "privacy": "操作、テンプレート、表示言語のみを集計します。テーマ、メモ、プロンプト、Cookie、訪問者IDは送信しません。",
     "step": "1. 事実を追加 → 2. プロンプトをコピー → 3. ChatGPTに貼り付け、出典ファイルを添付。",
-    "ready": "ChatGPTを開く前に構成を整理。ピッチ、進捗報告、授業の構成を選び、事実を追加してプロンプトをコピー。無料・登録不要。PPTファイルを直接作成するツールではありません。"
+    "ready": "ピッチ、進捗報告、授業の構成を選び、事実を追加してChatGPTに貼り付け。無料・登録不要。PPTの直接生成は非対応。"
   }
 };
 export const SCENARIO_SLUGS = ["pitch-deck", "project-update", "lesson-plan"];

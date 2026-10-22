@@ -474,6 +474,10 @@ function renderCoreToolWidget(config, lang = 'en') {
       <div class="caption-text save-params-notice" style="margin-block: 0.35rem 0.2rem; font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">
         ${escapeHtml(t.saveParamsNotice)}
       </div>
+      <div class="usage-choice">
+        <label><input type="checkbox" id="usage-consent"> ${escapeHtml(c.consent)}</label>
+        <p class="caption-text">${escapeHtml(c.privacy)} <a href="/privacy">${({en:'Privacy',es:'Privacidad',ja:'プライバシー','zh-TW':'隱私說明'})[lang]}</a></p>
+      </div>
 
       ${
         proTipText
@@ -754,11 +758,6 @@ function renderDocument({
       <nav class="nav-links" aria-label="${escapeHtml(t.ariaNav || 'Primary Navigation')}">
         <a href="${escapeHtml(getLocalizedRoute('/', lang))}" class="nav-link ${activeNav === 'generator' ? 'is-active' : ''}">${escapeHtml(t.navGenerator)}</a>
         <a href="${escapeHtml(getLocalizedRoute('/chatgpt-slides-templates', lang))}" class="nav-link ${activeNav === 'templates' ? 'is-active' : ''}">${escapeHtml(t.navTemplates)}</a>
-        <a href="${escapeHtml(getLocalizedRoute('/prompts/pitch-deck', lang))}" class="nav-link ${activeNav === 'pitch-deck' ? 'is-active' : ''}">${escapeHtml(t.navPitch)}</a>
-        <a href="${escapeHtml(getLocalizedRoute('/prompts/project-update', lang))}" class="nav-link">${escapeHtml(ROUND1_COPY[lang].names[1])}</a>
-        <a href="${escapeHtml(getLocalizedRoute('/prompts/lesson-plan', lang))}" class="nav-link">${escapeHtml(ROUND1_COPY[lang].names[2])}</a>
-        <a href="${escapeHtml(getLocalizedRoute('/chatgpt-slides-to-powerpoint', lang))}" class="nav-link ${activeNav === 'powerpoint' ? 'is-active' : ''}">${escapeHtml(t.navPowerpoint)}</a>
-        <a href="${escapeHtml(getLocalizedRoute('/chatgpt-slides-not-showing', lang))}" class="nav-link ${activeNav === 'troubleshooting' ? 'is-active' : ''}">${escapeHtml(t.navTroubleshooting)}</a>
       </nav>
 
       <div class="header-actions">
@@ -804,10 +803,6 @@ function renderDocument({
   <!-- Toast Feedback Pill -->
   <div id="app-toast" class="toast-pill" role="status" aria-live="polite"></div>
 
-  <section class="container usage-choice" aria-label="${escapeHtml(ROUND1_COPY[lang].consent)}">
-    <label><input type="checkbox" id="usage-consent"> ${escapeHtml(ROUND1_COPY[lang].consent)}</label>
-    <p class="caption-text">${escapeHtml(ROUND1_COPY[lang].privacy)} <a href="/privacy">${({en:'Privacy',es:'Privacidad',ja:'プライバシー','zh-TW':'隱私說明'})[lang]}</a></p>
-  </section>
   <!-- Footer with Internal Links & Official Reference -->
   <footer class="site-footer">
     <div class="container">
@@ -1547,7 +1542,7 @@ function buildSite() {
   }
 
   // 7. Generate sitemap.xml
-  const today = '2026-10-21';
+  const today = '2026-10-22';
   const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${allUrls
