@@ -32,7 +32,7 @@ export default {
       !events.has(data.event) || !templates.has(data.template) || !langs.has(data.lang)) return reply(400);
     if (!env.USAGE) return reply(503);
     try {
-      env.USAGE.writeDataPoint({ indexes: [data.template], blobs: [data.event, data.template, data.lang], doubles: [1] });
+      await env.USAGE.prepare('INSERT INTO usage_counts (day, event, template, lang, count) VALUES (?1, ?2, ?3, ?4, 1) ON CONFLICT(day, event, template, lang) DO UPDATE SET count = count + 1').bind(new Date().toISOString().slice(0, 10), data.event, data.template, data.lang).run();
     } catch { return reply(503); }
     return reply(204);
   }

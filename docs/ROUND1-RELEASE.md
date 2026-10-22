@@ -7,21 +7,16 @@ Source notes (max 6,000 characters) are inserted into the prompt and persisted o
 
 Analytics is off by default. The preference is stored locally; Do Not Track or GPC overrides it. The same-origin POST /api/events accepts exactly event/template/lang, rejects other fields and limits request bodies to 512 bytes. It writes no IP, user agent, referrer, URL, topic, notes or prompt, and uses no visitor ID. Existing Worker observability is preserved; the application never logs event payloads or request headers. Cloudflare still processes network metadata for delivery.
 
-Dataset: slideprompt_usage. blob1=event, blob2=template, blob3=UI language, double1=count. Events: template_select, example_load, generate (debounced input), copy (successful), download (browser action, not proof the user opened a file), save, open_chatgpt (click, not successful deck creation). Counts cover opted-in browsers only; they are not unique users or conversion rates. A short client cooldown reduces duplicate clicks but is not bot protection. Same-origin checks and strict validation are defense in depth; counts can still be inflated and must not drive billing.
+Database: slideprompt-usage. Table usage_counts stores UTC day/event/template/lang/count only, using an atomic UPSERT. Events: template_select, example_load, generate (debounced input), copy (successful), download (browser action), save and open_chatgpt (click, not deck creation). Counts cover opted-in browsers only and are not unique users or conversion rates. A short client cooldown reduces duplicates but is not bot protection. Counts can be inflated and must not drive billing.
 
-## Reading the counts
-Use the account's Cloudflare Analytics Engine SQL API with an authorized token; do not embed that token in client code. Example query:
+## Reading counts
+Run with an authorized Cloudflare account:
 
-```sql
-SELECT blob1 AS event, blob2 AS template, blob3 AS language,
-       SUM(_sample_interval * double1) AS event_count
-FROM slideprompt_usage
-WHERE timestamp > NOW() - INTERVAL '7' DAY
-GROUP BY event, template, language
-ORDER BY event_count DESC
+```sh
+CLOUDFLARE_ACCOUNT_ID=dcb7b7a33a34b85d7bdf6ba4c01af700 npx wrangler d1 execute slideprompt-usage --remote --command "SELECT event, template, lang, SUM(count) AS events FROM usage_counts WHERE day >= date('now','-7 days') GROUP BY event, template, lang ORDER BY events DESC"
 ```
 
-See https://developers.cloudflare.com/analytics/analytics-engine/get-started/ for the authorized SQL API. Sampling means these may be estimates. No metrics dashboard is publicly exposed.
+No public metrics dashboard or credentials are exposed. Daily anonymous aggregates have no automatic expiry. Schema is in db/schema.sql. API request bodies are capped, validated and never logged by application code.
 
 ## Deploy
-Use Workers Static Assets, not Pages. Configure the USAGE Analytics Engine binding via wrangler.jsonc; its dataset is created on first write. If the account cannot support the binding, stop and resolve it rather than claiming counts work. Static pages remain asset-first; only /api/events is routed through code. Prior version and traffic split must be recorded before release. Upload from a clean temporary asset directory to avoid sync conflicts. Confirm production pages and module hashes, API validation, notes persistence and desktop/mobile rendering after deployment. Do not upload keys, local downloads or test artifacts to GitHub.
+Use Workers Static Assets, not Pages. The USAGE binding points to a dedicated D1 database. Apply db/schema.sql before deploying. Analytics Engine was not enabled on this account; no Analytics Engine dataset is required. Static pages remain asset-first; only /api/events is routed through code. Prior version and traffic split must be recorded before release. Upload from a clean temporary asset directory to avoid sync conflicts. Confirm production pages and module hashes, API validation, notes persistence and desktop/mobile rendering after deployment. Do not upload keys, local downloads or test artifacts to GitHub.

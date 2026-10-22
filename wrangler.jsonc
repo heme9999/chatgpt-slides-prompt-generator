@@ -15,10 +15,11 @@
     ]
   },
   "main": "src/worker.js",
-  "analytics_engine_datasets": [
+  "d1_databases": [
     {
       "binding": "USAGE",
-      "dataset": "slideprompt_usage"
+      "database_name": "slideprompt-usage",
+      "database_id": "c7190553-6f8c-42b2-974d-ecf99191bce1"
     }
   ]
 }
