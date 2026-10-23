@@ -74,7 +74,8 @@ function getAllContentHtmlFiles(dir) {
 }
 
 const htmlFiles = getAllContentHtmlFiles(DIST_DIR);
-assert(htmlFiles.length === 212, `Generated 212 total index.html pages on disk (found: ${htmlFiles.length})`);
+assert(!fs.existsSync(path.join(DIST_DIR, 'chatgpt-slides-prompt-generator')), 'Alias directory /chatgpt-slides-prompt-generator does NOT exist on disk (server 301 redirect instead)');
+assert(htmlFiles.length === 211, `Generated 211 total index.html pages on disk (found: ${htmlFiles.length})`);
 
 // 1. Root index `/` bidirectional hreflang check
 const rootHtml = fs.readFileSync(path.join(DIST_DIR, 'index.html'), 'utf8');
@@ -227,7 +228,6 @@ assert(trustMismatches === 0, `All 4 trust pages (/privacy, /terms, /about, /con
 
 // 7. Legacy Route Stubs Redirect Verification
 const redirectChecks = [
-  ['chatgpt-slides-prompt-generator', '/'],
   ['zh-TW/chatgpt-slides-prompt-generator', '/zh-TW'],
   ['es/chatgpt-slides-prompt-generator', '/es'],
   ['ja/chatgpt-slides-prompt-generator', '/ja']
@@ -239,7 +239,12 @@ for (const [rPath, target] of redirectChecks) {
     redirectErrors++;
   }
 }
-assert(redirectErrors === 0, `All 4 legacy generator routes have immediate meta refresh to canonical homepage (errors: ${redirectErrors})`);
+assert(redirectErrors === 0, `All 3 localized legacy generator routes have immediate meta refresh to canonical homepage (errors: ${redirectErrors})`);
+
+assert(fs.existsSync(path.join(DIST_DIR, '_redirects')), '_redirects file exists in dist');
+const redirectsContent = fs.readFileSync(path.join(DIST_DIR, '_redirects'), 'utf8');
+assert(redirectsContent.includes('/chatgpt-slides-prompt-generator / 301'), '_redirects contains 301 rule for alias');
+assert(redirectsContent.includes('/chatgpt-slides-prompt-generator/ / 301'), '_redirects contains 301 rule for alias with trailing slash');
 
 // 8. 404 Page Quality Check
 const notFoundHtml = fs.readFileSync(path.join(DIST_DIR, '404.html'), 'utf8');
@@ -547,6 +552,58 @@ const notFoundResp = await testHttpUrl('/non-existent-probe-check', 'text/html')
 assert(
   notFoundResp.statusCode === 404 && notFoundResp.bodyLength > 500,
   `Wrangler serves non-empty 404.html page for missing URLs (status: ${notFoundResp.statusCode}, bodyLength: ${notFoundResp.bodyLength})`
+);
+
+// Explicit Server-Side HTTP 301 Redirect Verifications for /chatgpt-slides-prompt-generator
+async function fetchRawHttp(urlPath) {
+  return new Promise((resolve) => {
+    http.get(`http://127.0.0.1:${WRANGLER_PORT}${urlPath}`, (res) => {
+      let body = '';
+      res.on('data', (chunk) => (body += chunk));
+      res.on('end', () => {
+        resolve({
+          statusCode: res.statusCode,
+          headers: res.headers,
+          location: res.headers['location'] || '',
+          body
+        });
+      });
+    }).on('error', (err) => resolve({ statusCode: 500, error: err.message, headers: {}, location: '', body: '' }));
+  });
+}
+
+const rawAliasResp = await fetchRawHttp('/chatgpt-slides-prompt-generator');
+assert(
+  rawAliasResp.statusCode === 301 && rawAliasResp.location === '/',
+  `GET /chatgpt-slides-prompt-generator returns raw HTTP 301 with Location: / (status: ${rawAliasResp.statusCode}, location: ${rawAliasResp.location})`
+);
+
+const rawAliasSlashResp = await fetchRawHttp('/chatgpt-slides-prompt-generator/');
+assert(
+  rawAliasSlashResp.statusCode === 301 && rawAliasSlashResp.location === '/',
+  `GET /chatgpt-slides-prompt-generator/ returns raw HTTP 301 directly with Location: / without redirect chain (status: ${rawAliasSlashResp.statusCode}, location: ${rawAliasSlashResp.location})`
+);
+
+const rawAliasQueryResp = await fetchRawHttp('/chatgpt-slides-prompt-generator?utm_source=twitter&campaign=launch');
+assert(
+  rawAliasQueryResp.statusCode === 301 && rawAliasQueryResp.location === '/?utm_source=twitter&campaign=launch',
+  `GET /chatgpt-slides-prompt-generator?utm_source=... preserves query parameters (location: ${rawAliasQueryResp.location})`
+);
+
+const rawAliasSlashQueryResp = await fetchRawHttp('/chatgpt-slides-prompt-generator/?utm_source=twitter&campaign=launch');
+assert(
+  rawAliasSlashQueryResp.statusCode === 301 && rawAliasSlashQueryResp.location === '/?utm_source=twitter&campaign=launch',
+  `GET /chatgpt-slides-prompt-generator/?utm_source=... preserves query parameters (location: ${rawAliasSlashQueryResp.location})`
+);
+
+const rawHomeResp = await fetchRawHttp('/');
+assert(
+  rawHomeResp.statusCode === 200,
+  `GET / returns HTTP 200 OK (status: ${rawHomeResp.statusCode})`
+);
+assert(
+  rawHomeResp.body.includes(`<link rel="canonical" href="${SITE_URL}/" />`),
+  `Homepage / HTML contains self-referencing canonical to ${SITE_URL}/`
 );
 
 

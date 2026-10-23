@@ -929,16 +929,6 @@ function buildSite() {
   );
   allUrls.push(`${SITE_URL}/`);
 
-  // Write `/chatgpt-slides-prompt-generator` — Redirect to `/` (canonical to `/`, omitted from sitemap)
-  writeRouteHtml(
-    '/chatgpt-slides-prompt-generator',
-    renderRedirectPage({
-      targetUrl: '/',
-      canonicalUrl: `${SITE_URL}/`,
-      title: 'Redirecting to SlidePrompt.ai...'
-    })
-  );
-
   // 2. Write `/chatgpt-slides-templates`
   const templatesHubBody =
     renderInternalLinksSection('', true) +
@@ -1573,6 +1563,13 @@ Sitemap: ${SITE_URL}/sitemap.xml
   Referrer-Policy: strict-origin-when-cross-origin
 `;
   fs.writeFileSync(path.join(DIST_DIR, '_headers'), cfHeaders, 'utf8');
+
+  // 9b. Static _redirects for Cloudflare Workers Static Assets
+  const cfRedirects = [
+    '/chatgpt-slides-prompt-generator / 301',
+    '/chatgpt-slides-prompt-generator/ / 301'
+  ].join('\n') + '\n';
+  fs.writeFileSync(path.join(DIST_DIR, '_redirects'), cfRedirects, 'utf8');
 
   // 10. Google Search Console HTML file verification (both account token files preserved)
   const gscHtmlFiles = [

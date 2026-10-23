@@ -11,7 +11,9 @@
     "not_found_handling": "404-page",
     "binding": "ASSETS",
     "run_worker_first": [
-      "/api/events"
+      "/api/events",
+      "/chatgpt-slides-prompt-generator",
+      "/chatgpt-slides-prompt-generator/"
     ]
   },
   "main": "src/worker.js",

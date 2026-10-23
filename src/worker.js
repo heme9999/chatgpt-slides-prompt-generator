@@ -7,6 +7,17 @@ const reply = status => new Response(null, { status, headers });
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname === '/chatgpt-slides-prompt-generator' || url.pathname === '/chatgpt-slides-prompt-generator/') {
+      const location = `/${url.search}`;
+      return new Response(null, {
+        status: 301,
+        headers: {
+          'Location': location,
+          'Cache-Control': 'public, max-age=86400',
+          'X-Content-Type-Options': 'nosniff'
+        }
+      });
+    }
     if (url.pathname !== '/api/events') return env.ASSETS.fetch(request);
     if (request.method !== 'POST') return new Response(null, { status: 405, headers: { ...headers, Allow: 'POST' } });
     if (request.headers.get('Origin') !== url.origin) return reply(403);

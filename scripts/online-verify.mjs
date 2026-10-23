@@ -41,12 +41,12 @@ assert(
 
 // Probe localized homepages
 for (const lang of ['zh-TW', 'ja', 'es']) {
-  const resLang = await fetch(`${BASE_URL}/${lang}/`);
-  assert(resLang.status === 200, `Localized homepage /${lang}/ returned HTTP 200`);
+  const resLang = await fetch(`${BASE_URL}/${lang}`);
+  assert(resLang.status === 200, `Localized homepage /${lang} returned HTTP 200`);
   const htmlLang = await resLang.text();
   assert(
     htmlLang.includes(`hreflang="${lang}"`) && htmlLang.includes(`hreflang="x-default"`),
-    `Localized homepage /${lang}/ contains bidirectional hreflang loop`
+    `Localized homepage /${lang} contains bidirectional hreflang loop`
   );
 }
 
@@ -58,14 +58,38 @@ for (const p of ['/privacy', '/terms', '/about', '/contact']) {
   assert(htmlP.includes('support@slideprompt.ai'), `Trust page ${p} contains support email`);
 }
 
-// Probe legacy generator URL redirect / canonical
-const resLegacy = await fetch(`${BASE_URL}/chatgpt-slides-prompt-generator`, { redirect: 'manual' });
-const legacyHtml = await resLegacy.text();
-assert(
-  legacyHtml.includes('rel="canonical" href="https://slideprompt.ai/"') ||
-  legacyHtml.includes('http-equiv="refresh" content="0; url=/"'),
-  `Legacy route /chatgpt-slides-prompt-generator canonicalizes or redirects to root /`
-);
+// Probe server-side HTTP 301 redirect for /chatgpt-slides-prompt-generator & trailing slash
+const resAlias = await fetch(`${BASE_URL}/chatgpt-slides-prompt-generator`, { redirect: 'manual' });
+const locAlias = resAlias.headers.get('location') || '';
+assert(resAlias.status === 301, `GET /chatgpt-slides-prompt-generator returned HTTP 301 (got: ${resAlias.status})`);
+assert(locAlias === '/' || locAlias === `${BASE_URL}/`, `GET /chatgpt-slides-prompt-generator Location points to / (got: ${locAlias})`);
+
+const resAliasSlash = await fetch(`${BASE_URL}/chatgpt-slides-prompt-generator/`, { redirect: 'manual' });
+const locAliasSlash = resAliasSlash.headers.get('location') || '';
+assert(resAliasSlash.status === 301, `GET /chatgpt-slides-prompt-generator/ returned HTTP 301 (got: ${resAliasSlash.status})`);
+assert(locAliasSlash === '/' || locAliasSlash === `${BASE_URL}/`, `GET /chatgpt-slides-prompt-generator/ Location points to / without redirect chain (got: ${locAliasSlash})`);
+
+const testQuery = 'utm_source=twitter&campaign=launch&ref=producthunt';
+const resAliasQuery = await fetch(`${BASE_URL}/chatgpt-slides-prompt-generator?${testQuery}`, { redirect: 'manual' });
+const locAliasQuery = resAliasQuery.headers.get('location') || '';
+assert(resAliasQuery.status === 301, `GET /chatgpt-slides-prompt-generator?${testQuery} returned HTTP 301`);
+assert(locAliasQuery === `/?${testQuery}` || locAliasQuery === `${BASE_URL}/?${testQuery}`, `Query parameters preserved on /chatgpt-slides-prompt-generator redirect (got: ${locAliasQuery})`);
+
+const resAliasSlashQuery = await fetch(`${BASE_URL}/chatgpt-slides-prompt-generator/?${testQuery}`, { redirect: 'manual' });
+const locAliasSlashQuery = resAliasSlashQuery.headers.get('location') || '';
+assert(resAliasSlashQuery.status === 301, `GET /chatgpt-slides-prompt-generator/?${testQuery} returned HTTP 301`);
+assert(locAliasSlashQuery === `/?${testQuery}` || locAliasSlashQuery === `${BASE_URL}/?${testQuery}`, `Query parameters preserved on /chatgpt-slides-prompt-generator/ redirect (got: ${locAliasSlashQuery})`);
+
+// Probe /api/events with valid ping
+const resEvents = await fetch(`${BASE_URL}/api/events`, {
+  method: 'POST',
+  headers: {
+    'Origin': BASE_URL,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ event: 'generate', template: 'pitch-deck', lang: 'en' })
+});
+assert(resEvents.status === 204, `POST /api/events returns HTTP 204 (got: ${resEvents.status})`);
 
 // Launch Puppeteer for browser checks
 const browser = await puppeteer.launch({

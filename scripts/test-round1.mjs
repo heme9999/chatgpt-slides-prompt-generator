@@ -23,6 +23,23 @@ assert.equal((await worker.fetch(request(data,{'DNT':'1'}),env)).status,204);
 assert.equal((await worker.fetch(request(data,{'Sec-GPC':'1'}),env)).status,204);
 assert.equal(writes.length,before);
 assert.equal(await (await worker.fetch(new Request(origin+'/missing'),env)).text(),'asset');
+
+// Verify server-side HTTP 301 redirect for /chatgpt-slides-prompt-generator
+const resRedir1 = await worker.fetch(new Request(origin + '/chatgpt-slides-prompt-generator'), env);
+assert.equal(resRedir1.status, 301);
+assert.equal(resRedir1.headers.get('Location'), '/');
+
+const resRedir2 = await worker.fetch(new Request(origin + '/chatgpt-slides-prompt-generator/'), env);
+assert.equal(resRedir2.status, 301);
+assert.equal(resRedir2.headers.get('Location'), '/');
+
+const resRedir3 = await worker.fetch(new Request(origin + '/chatgpt-slides-prompt-generator?utm_source=twitter&campaign=launch'), env);
+assert.equal(resRedir3.status, 301);
+assert.equal(resRedir3.headers.get('Location'), '/?utm_source=twitter&campaign=launch');
+
+const resRedir4 = await worker.fetch(new Request(origin + '/chatgpt-slides-prompt-generator/?utm_source=twitter&campaign=launch'), env);
+assert.equal(resRedir4.status, 301);
+assert.equal(resRedir4.headers.get('Location'), '/?utm_source=twitter&campaign=launch');
 for (const lang of ['en','es','ja','zh-TW']) for (const slug of SCENARIO_SLUGS) {
  const prefix=lang==='en'?'':lang+'/'; const html=fs.readFileSync(`dist/${prefix}prompts/${slug}/index.html`,'utf8');
  assert.ok(html.includes('data-load-worked-example'));
